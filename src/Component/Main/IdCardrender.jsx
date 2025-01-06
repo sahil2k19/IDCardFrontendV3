@@ -826,7 +826,7 @@ const IdCard = ({
               />
             )}
           </div>
-          <div className="relative h-full flex flex-col justify-between p-4">
+          <div className="relative h-full flex flex-col justify-between p-4 items-center">
             {globalVisibility.profilePicture && card.profilePicture && (
               <div
                 style={{
@@ -867,11 +867,9 @@ const IdCard = ({
                   fontSize: `${styles.institute.fontSize}px`,
                   color: styles.institute.color,
                 }}
-                className="absolute bottom-[130px] left-0 right-0 w-full whitespace-nowrap text-lg font-semibold text-center text-white mt-1"
-              >
-                {card.institute
-                  .toUpperCase()}
-              </p>
+                className="absolute bottom-[130px] left-0 right-0 w-full text-lg font-semibold text-center text-white mt-1 w-[430px] px-10"
+                dangerouslySetInnerHTML={{ __html: card.institute.toUpperCase() }}
+              ></p>
             )}
             {globalVisibility.designation && card.designation && (
               <p
