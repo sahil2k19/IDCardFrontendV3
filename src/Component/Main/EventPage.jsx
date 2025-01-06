@@ -109,7 +109,7 @@ function EventPage() {
 
   const handleFileChange = (e) => {
     const { id, files } = e.target;
-    console.log(`Files selected for ${id}:`, files);
+    console.log(`Files selected for ${id}:`, files[0]?.size, "bytes");
     if (files.length > 0) {
       if (id === "event-image") {
         setPhoto(files[0]);
@@ -194,7 +194,7 @@ function EventPage() {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .patch(process.env.REACT_APP_API_URL+`/api/events/archive/${id}`, {
+          .patch(process.env.REACT_APP_API_URL + `/api/events/archive/${id}`, {
             archive: true,
           })
           .then((res) => {
