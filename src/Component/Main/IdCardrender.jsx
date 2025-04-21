@@ -630,7 +630,7 @@ const IdCard = ({
 
   const toggleModal = () => {
     setModal(!modal);
-    fetchDesignations(eventId); 
+    fetchDesignations(eventId);
   };
   const defaultElementStyles = {
     profilePicture: { bottom: 160, size: 170 },
@@ -670,9 +670,13 @@ const IdCard = ({
     });
   };
 
+  // const participantUrl =
+  //   card && card._id
+  //     ? `https://idcard.insideoutprojects.in/approve/${card._id}` // For Approve 
+  //     : "#";
   const participantUrl =
     card && card._id
-      ? `https://idcardgenrator.vercel.app/approve/${card._id}`
+      ? `http://192.168.1.19:3000/checkin/${card._id}` // For Checkin
       : "#";
 
   const downloadImage = () => {
@@ -868,7 +872,9 @@ const IdCard = ({
                   color: styles.institute.color,
                 }}
                 className="absolute bottom-[130px] left-0 right-0 w-full text-lg font-semibold text-center text-white mt-1 w-[430px] px-10"
-                dangerouslySetInnerHTML={{ __html: card.institute.toUpperCase() }}
+                dangerouslySetInnerHTML={{
+                  __html: card.institute.toUpperCase(),
+                }}
               ></p>
             )}
             {globalVisibility.designation && card.designation && (

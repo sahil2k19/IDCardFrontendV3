@@ -11,23 +11,25 @@ import PrivateRoute from './PrivateRoute';
 import { ToastContainer } from 'react-toastify';
 import ArchiveIDCard from './Component/Main/Archive/ArchiveIDCard';
 import EmbedForm from './Component/Main/EmbedFOrm/EmbedForm';
+import Checkin from './Component/Main/Checkin';
 
 function App() {
   return (
     <div className=" ">
-       <ToastContainer />
+      <ToastContainer />
       <Router>
         <div className="flex-grow">
           <Routes>
             {/* Route for login page, without PrivateRoute */}
             <Route path="/" element={<Login />} />
-            
+
             {/* Protected Routes */}
             <Route path="/event" element={<PrivateRoute element={EventPage} />} />
             <Route path="/create-id" element={<PrivateRoute element={CreateId} />} />
             <Route path="/bulk-create-id" element={<PrivateRoute element={BulkUploadForm} />} />
             <Route path="/archive-event" element={<PrivateRoute element={ArchiveEvent} />} />
             <Route path="/approve/:participantId" element={<PrivateRoute element={Approved} />} />
+            <Route path="/checkin/:participantId" element={<Checkin />} />
             <Route path="/archive-id-card" element={<PrivateRoute element={ArchiveIDCard} />} />
             <Route path="/form-url" element={<EmbedForm />} />
           </Routes>
