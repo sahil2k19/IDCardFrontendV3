@@ -313,7 +313,7 @@ function IdCardrender({
     <div className="container mx-auto px-10">
       <div className="flex justify-center ">
         <h1 className="text-2xl border text-center px-5  p-1 rounded-md pb-2 bg-gray-200 mb-6 font-bold">
-          {eventName} All ID Cards
+          {eventName} All ID Cards update
         </h1>
       </div>
       <div className="flex  gap-4 my-10 justify-between">
@@ -676,7 +676,7 @@ const IdCard = ({
   //     : "#";
   const participantUrl =
     card && card._id
-      ? `http://192.168.1.19:3000/checkin/${card._id}` // For Checkin
+      ? `http://idcard.insideoutprojects.in/checkin/${card._id}` // For Checkin
       : "#";
 
   const downloadImage = () => {
