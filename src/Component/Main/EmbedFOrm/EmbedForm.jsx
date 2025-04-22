@@ -1,443 +1,396 @@
-import axios from "axios";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+// src/components/EmbedForm.jsx
+"use client";
+
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 import { toast } from "react-toastify";
 import Webcam from "react-webcam";
-function EmbedForm() {
+
+export default function EmbedForm() {
   const location = useLocation();
-  const [params, setparams] = useState(new URLSearchParams(location.search));
-  const [eventId, setEventId] = useState(params.get("eventid"));
-  const [Dataid, setDataid] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [amenities, setamenities] = useState(null);
-  const [backgroundImage, setBackgroundImage] = useState(null);
+  const params = new URLSearchParams(location.search);
+  const eventId = params.get("eventid");
+  const eventName = params.get("eventName");
+  const token = params.get("token");
+
+  // Detect if this is the public-create-id route
+  const isPublicForm = location.pathname.includes("public-create-id");
+
+  const [designations, setDesignations] = useState([]);
+  const [amenities, setAmenities] = useState({});
   const [profilePicture, setProfilePicture] = useState(null);
   const [firstName, setFirstName] = useState("");
-  const [isTokenValid, setIsTokenValid] = useState(false);
   const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const [designation, setDesignation] = useState("");
-  const [idCard, setIdCard] = useState([]);
-  const [designations, setDesignations] = useState([]);
-  const [isCreating, setIsCreating] = useState(false); // New state for loading spinner
-  const [eventName, setEventName] = useState("");
   const [institute, setInstitute] = useState("");
-  const [selectedIdCardType, setSelectedIdCardType] = useState("vertical");
-  const [isWebcamEnabled, setIsWebcamEnabled] = useState(false);
+  const [idCardType, setIdCardType] = useState("vertical");
+  const [isCreating, setIsCreating] = useState(false);
+  const [isTokenValid, setIsTokenValid] = useState(isPublicForm);
+  const [bgImage, setBgImage] = useState("");
+  // Load design settings for this event
   useEffect(() => {
-    // Assuming `designations` is an array and you are filtering for a specific event
-    const eventDesignations = designations.find((d) => d._id === eventId);
-    if (eventDesignations) {
-      setamenities(eventDesignations.amenities || {});
-    }
-  }, [designations, eventId]);
-  const handleFileChange = (e) => {
-    setProfilePicture(e.target.files[0]);
-    setIsWebcamEnabled(false);
-  };
-  const handleCapture = (imageSrc) => {
-    const byteString = atob(imageSrc.split(",")[1]);
-    const mimeString = imageSrc.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
-    setProfilePicture(blob);
-    setIsWebcamEnabled(false);
-  };
-  const handleRemovePicture = () => {
-    setProfilePicture(null);
-    setIsWebcamEnabled(false);
-  };
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/api/events`)
+      .then(({ data }) => {
+        const ev = data.find((d) => d._id === eventId);
+
+        if (ev) {
+          const img =  ev.idcardimage || "";
+          setBgImage(img);
+          setDesignations([ev]);
+          setAmenities(ev.amenities || {});
+        } else {
+          toast.error("Event not found");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching events:", error);
+        toast.error("Failed to fetch events");
+      });
+  }, [eventId]);
+
+  // Only verify token on secure form
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const id = params.get("eventid");
-    const name = params.get("eventName");
-    setparams(params);
-    setEventId(id);
-    setEventName(name);
-  }, [location]);
+    if (!isPublicForm && token) {
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/api/participants/verify-token`, {
+          headers: { Authorization: token },
+        })
+        .then((res) => {
+          if (res.status === 200) setIsTokenValid(true);
+          else {
+            toast.dismiss();
+            setIsTokenValid(false);
+            toast.error(
+              "Invalid or expired token. Please request a new form URL."
+            );
+          }
+        })
+        .catch(() => {
+          toast.dismiss();
+          setIsTokenValid(false);
+          toast.error(
+            "Invalid or expired token. Please request a new form URL."
+          );
+        });
+    }
+  }, [isPublicForm, token]);
+
+  // Webcam helper
   const WebcamCapture = ({ onCapture }) => {
     const webcamRef = useRef(null);
     const [capturing, setCapturing] = useState(false);
 
     const capture = useCallback(() => {
       const imageSrc = webcamRef.current.getScreenshot();
-      onCapture(imageSrc);
+      const byteString = atob(imageSrc.split(",")[1]);
+      const mimeString = imageSrc.split(",")[0].split(":")[1].split(";")[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++)
+        ia[i] = byteString.charCodeAt(i);
+      onCapture(new Blob([ab], { type: mimeString }));
       setCapturing(false);
     }, [webcamRef, onCapture]);
 
     return (
-      <div className="border p-2 bg-gray-600  rounded text-center">
+      <div className="border border-gray-200 p-4 bg-white rounded-lg shadow-sm text-center">
         {capturing ? (
-          <div>
+          <>
             <Webcam
               audio={false}
               ref={webcamRef}
               screenshotFormat="image/jpeg"
               width="100%"
+              className="rounded-lg mb-3"
             />
             <button
-              className="bg-gray-300 hover:bg-gray-500 px-2 mt-2 rounded  txt-white "
               onClick={capture}
+              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Capture
+              Capture Photo
             </button>
-          </div>
+          </>
         ) : (
-          <div
+          <button
             onClick={() => setCapturing(true)}
-            className=" flex justify-center text-center items-center gap-2 cursor-pointer  font-semibold  text-white text-lg  "
+            className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <button className="flex items-center gap-2 ">
-              {" "}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                fill="currentColor"
-                class="bi bi-camera "
-                viewBox="0 0 16 16"
-              >
-                <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z" />
-                <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
-              </svg>
-              Take Picture
-            </button>
-          </div>
+            Open Camera
+          </button>
         )}
       </div>
     );
   };
-  const fetchDesignations = async (eventId) => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/events`
-      );
-      const filteredDesignations = response.data.filter(
-        (categories) => categories._id === eventId
-      );
-      setDesignations(filteredDesignations);
-    } catch (error) {
-      console.error("Error fetching designations:", error);
-    }
-  };
-  useEffect(() => {
-    if (eventId) {
-      fetchDesignations(eventId);
-    }
-  }, [eventId]); // Only run this effect when eventId changes
-  const fetchData = async () => {
-    try {
-      const url = `${process.env.REACT_APP_API_URL}/api/participants/event/${eventId}`;
-      const response = await axios.get(url);
-      console.log("Participants by EventId:", response.data); // Log fetched participants
-      setDataid(response.data); // Update state with fetched data
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching participants by eventId:", error);
-      setDataid([]); // Clear state or handle error case
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setIsCreating(true); // Start loading spinner
+  // Handle file & webcam
+  const handleFileChange = (e, setter) => setter(e.target.files[0]);
+  const handleRemovePicture = () => setProfilePicture(null);
 
-    try {
-      const formData = new FormData();
-
-      // Append non-file data
-      formData.append("firstName", firstName);
-      formData.append("lastName", lastName);
-      formData.append("designation", designation);
-      formData.append("institute", institute);
-      formData.append("eventId", eventId);
-      formData.append("eventName", eventName);
-      formData.append("idCardType", selectedIdCardType);
-      // Ensure amenities is an object and convert it to JSON
-      const amenitiesObject = typeof amenities === "object" ? amenities : {};
-      formData.append("amenities", JSON.stringify(amenitiesObject));
-
-      // Append file data
-      if (backgroundImage) {
-        formData.append("backgroundImage", backgroundImage);
-      }
-
-      if (profilePicture) {
-        formData.append("profilePicture", profilePicture);
-      }
-
-      // Send POST request
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/participants`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      setIdCard([...idCard, response.data]);
-      toast.dismiss()
-      toast.success("ID card created successfully!", "Success");
-    } catch (error) {
-      console.error("Error creating participant:", error);
-    } finally {
-      setIsCreating(false); // Stop loading spinner
-    }
-  };
-  useEffect(() => {
-    setBackgroundImage(designations[0]?.idcardimage);
-  }, [designations]);
-
-  useEffect(() => {
-    const verifyToken = async () => {
-      const token = params.get("token");
-      if (!token) {
-        toast.dismiss()
-        toast.error("No token provided.");
-        return;
-      }
-
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/participants/verify-token`,
-          {
-            headers: { Authorization: token },
-          }
-        );
-
-        if (response.status === 200) {
-          setIsTokenValid(true);
-        } else {
-          setIsTokenValid(false);
-          toast.dismiss()
-          toast.error("Invalid token.");
-        }
-      } catch (error) {
-        console.error("Error verifying token:", error);
-        setIsTokenValid(false);
-        toast.dismiss()
-        toast.error("Error verifying token.");
-      }
-    };
-
-    verifyToken();
-  }, [params]);
-
-  if (!isTokenValid) {
+  // If secure form and invalid token, show message
+  if (!isPublicForm && !isTokenValid) {
     return (
-      <div className="flex justify-center items-center mt-[200px]  ">
-        {" "}
-        <div className="border p-4 shadow ">
-          <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 px-4">
+        <div className="p-8 bg-white shadow-lg rounded-xl max-w-md w-full text-center">
+          <div className="mb-6 text-red-500">
             <svg
-              data-id="4"
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
+              className="h-16 w-16 mx-auto"
               fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="size-12 text-red-500"
             >
-              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path>
-              <path d="M12 9v4"></path>
-              <path d="M12 17h.01"></path>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           </div>
-
-          <div className="text-center font-bold mb-3 mt-3 " >Form validation failed or expired.</div>
-          <p>
-            Your session has expired. Please ask again for Form url to continue.
+          <h2 className="mb-4 text-2xl font-bold text-gray-800">
+            Form Access Expired
+          </h2>
+          <p className="text-gray-600 mb-6">
+            This form has expired. You are allowed to generate your ID card only
+            once.
+          </p>
+          <p className="text-gray-600">
+            To request access again, please contact the event organizer.
           </p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div>
-      <div>
-        <div
-          id="default-modal"
-          tabIndex="-1"
-          aria-hidden="true"
-          className=" flex items-center justify-center w-full h-full bg-white "
-        >
-            
-          <div className=" p-4 w-full px-[150px] max-h-full">
-            <div className="relative  rounded-lg ">
-              
-              
-              <div className="w-full max-w-5xl mx-auto py-5 px-4 sm:px-6 lg:px-8  ">
-                <div className="space-y-6">
-                  <form className="space-y-6" onSubmit={handleSubmit}>
-                    <div className=" gap-6">
-                      <div>
-                        <label
-                          htmlFor="startname"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          First Name
-                        </label>
-                        <div className="mt-1 mb-4">
-                          <input
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            id="startname"
-                            placeholder="Enter your First Name"
-                            required
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="lastname"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Last name
-                        </label>
-                        <div className="mt-1">
-                          <input
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            id="lastname"
-                            placeholder="Enter your Last name"
-                            required
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="">
-                      <div className="mt-4">
-                        <label
-                          htmlFor="institute"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Institute
-                        </label>
-                        <div className="mt-1">
-                          <input
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            id="institute"
-                            placeholder="Enter your Institute"
-                            required
-                            value={institute}
-                            onChange={(e) => setInstitute(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <label
-                          htmlFor="designation"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Designation
-                        </label>
-                        <div className="mt-1">
-                          <select
-                            className="flex h-10 w-[100%] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            id="designation"
-                            placeholder="Enter your Designation"
-                            required
-                            value={designation}
-                            onChange={(e) => setDesignation(e.target.value)}
-                          >
-                            <option value="">Select Designation</option>
-                            {designations.map((designation) =>
-                              designation.categories.map((category, index) => (
-                                <option key={index} value={category}>
-                                  {category}
-                                </option>
-                              ))
-                            )}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
+  // Submit handler
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsCreating(true);
 
-                      <input
-                        className="border p-2 rounded"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          handleFileChange(e, setBackgroundImage)
-                        }
-                        disabled={isWebcamEnabled}
-                      />
-                      {/* <WebcamCapture onCapture={handleCapture} />
-                      {profilePicture && (
-                        <div className="text-center ">
-                          <img
-                            src={URL.createObjectURL(profilePicture)}
-                            alt="Profile"
-                          />
-                          <button
-                            type="button "
-                            className="border bg-red-700 font-bold text-white    px-2 mt-1 rounded "
-                            onClick={handleRemovePicture}
-                          >
-                            Remove Picture
-                          </button>
-                        </div>
-                      )} */}
-                    <div className="flex  gap-5">
-                      
-                      <button
-                        type="submit"
-                        className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                        disabled={isCreating} // Disable button when loading
-                      >
-                        {isCreating ? (
-                          <>
-                            <svg
-                              className="animate-spin h-5 w-5 mr-3 text-white"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
-                              ></path>
-                            </svg>
-                            Creating...
-                          </>
-                        ) : (
-                          "Submit"
-                        )}
-                      </button>
-                    </div>
-                  </form>
+    try {
+      const formData = new FormData();
+      formData.append("firstName", firstName);
+      formData.append("lastName", lastName);
+      formData.append("email", email);
+      formData.append("designation", designation);
+      formData.append("institute", institute);
+      formData.append("eventId", eventId);
+      formData.append("eventName", eventName);
+      formData.append("idCardType", idCardType);
+      formData.append("tag", "Invited");
+      formData.append("amenities", JSON.stringify(amenities));
+      if (bgImage) formData.append("backgroundImage", bgImage);
+      if (profilePicture) formData.append("profilePicture", profilePicture);
+
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/participants`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: token,
+          },
+        }
+      );
+
+      toast.success("ID card created successfully!");
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err.response?.data?.message ||
+          "Failed to create ID card. Please try again."
+      );
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md mx-auto">
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          {/* Header */}
+          <div className="bg-blue-600 py-5 px-6 text-center">
+            <h1 className="text-2xl font-bold text-white">
+              Create Your ID Card
+            </h1>
+            {eventName && (
+              <p className="mt-1 text-blue-100 text-sm">Event: {eventName}</p>
+            )}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    First Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    required
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Last Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    required
+                    placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Institute <span className="text-red-500">*</span>
+                </label>
+                <input
+                  required
+                  placeholder="Your University/Organization"
+                  value={institute}
+                  onChange={(e) => setInstitute(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Designation <span className="text-red-500">*</span>
+                </label>
+                <select
+                  required
+                  value={designation}
+                  onChange={(e) => setDesignation(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select your role</option>
+                  {designations[0]?.categories.map((cat, i) => (
+                    <option key={i} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
+
+            <div className="pt-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Profile Picture <span className="text-red-500">*</span>
+              </label>
+              <div className="flex flex-col space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                  <label className="w-full sm:w-auto cursor-pointer">
+                    <div className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-center">
+                      <span className="text-sm font-medium text-gray-700">
+                        Upload Photo
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, setProfilePicture)}
+                        className="hidden"
+                      />
+                    </div>
+                  </label>
+                  <div className="text-sm text-gray-500">or</div>
+                  <WebcamCapture onCapture={setProfilePicture} />
+                </div>
+                <p className="text-xs text-gray-500">
+                  Accepted formats: JPG, PNG (Max 2MB)
+                </p>
+              </div>
+
+              {profilePicture && (
+                <div className="mt-3 flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={URL.createObjectURL(profilePicture)}
+                      alt="preview"
+                      className="w-10 h-10 rounded-full object-cover border border-white shadow-sm"
+                    />
+                    <span className="text-sm text-gray-700 truncate max-w-xs">
+                      {profilePicture.name || "Camera Capture"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemovePicture}
+                    className="px-2 py-1 text-xs text-white bg-red-500 rounded hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={isCreating}
+                className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isCreating ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Creating ID...
+                  </span>
+                ) : (
+                  "Generate My ID Card"
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   );
 }
-
-export default EmbedForm;

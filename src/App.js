@@ -12,6 +12,7 @@ import { ToastContainer } from 'react-toastify';
 import ArchiveIDCard from './Component/Main/Archive/ArchiveIDCard';
 import EmbedForm from './Component/Main/EmbedFOrm/EmbedForm';
 import Checkin from './Component/Main/Checkin';
+import PublicCreateId from './Component/Main/PublicCreateId';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/checkin/:participantId" element={<Checkin />} />
             <Route path="/archive-id-card" element={<PrivateRoute element={ArchiveIDCard} />} />
             <Route path="/form-url" element={<EmbedForm />} />
+            <Route path="/public-create-id"  element={<PublicCreateId />} />
           </Routes>
         </div>
       </Router>

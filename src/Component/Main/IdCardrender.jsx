@@ -1,4 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
+"use client";
+
+import { useRef, useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
 import QRCode from "qrcode.react";
@@ -36,10 +38,31 @@ function IdCardrender({
     participantId: true,
   });
   const [previewCard, setPreviewCard] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [checkedInParticipants, setCheckedInParticipants] = useState({});
 
   useEffect(() => {
     fetchDesignSettings();
+    fetchCheckinStatus();
   }, [eventId]);
+
+  const fetchCheckinStatus = async () => {
+    try {
+      // This is a placeholder - you might need to implement an API endpoint to get all check-in statuses
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/participants/checkins/${eventId}`
+      );
+      if (response.data) {
+        const checkinMap = {};
+        response.data.forEach((item) => {
+          checkinMap[item.participantId] = true;
+        });
+        setCheckedInParticipants(checkinMap);
+      }
+    } catch (error) {
+      console.error("Error fetching check-in statuses:", error);
+    }
+  };
 
   const toggleModalOpenedit = () => {
     if (!isModalOpenedit && Dataid.length > 0) {
@@ -80,6 +103,36 @@ function IdCardrender({
     }
   };
 
+  const handleCheckin = async (participantId) => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/participants/participant/${participantId}/checkin`
+      );
+
+      setCheckedInParticipants((prev) => ({
+        ...prev,
+        [participantId]: true,
+      }));
+
+      Swal.fire({
+        title: "Success!",
+        text: "Participant checked in successfully",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      return data;
+    } catch (err) {
+      console.error("Check-in error:", err);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to check in participant",
+        icon: "error",
+      });
+    }
+  };
+
   if (!Array.isArray(Dataid) || Dataid.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -89,8 +142,6 @@ function IdCardrender({
       </div>
     );
   }
-
-  const reversedData = [...Dataid].reverse();
 
   const downloadAllImagesAsZip = () => {
     setLoading(true);
@@ -185,6 +236,7 @@ function IdCardrender({
       Amenities: JSON.stringify(card.amenities),
       CreatedAt: new Date(card.createdAt).toLocaleString(),
       UpdatedAt: new Date(card.updatedAt).toLocaleString(),
+      CheckedIn: checkedInParticipants[card._id] ? "Yes" : "No",
     }));
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(formattedData);
@@ -240,7 +292,7 @@ function IdCardrender({
           updateElementStyle(
             element,
             element === "name" ? "top" : "bottom",
-            parseInt(e.target.value)
+            Number.parseInt(e.target.value)
           )
         }
         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
@@ -256,7 +308,11 @@ function IdCardrender({
             max={250}
             value={elementStyles[element].size}
             onChange={(e) =>
-              updateElementStyle(element, "size", parseInt(e.target.value))
+              updateElementStyle(
+                element,
+                "size",
+                Number.parseInt(e.target.value)
+              )
             }
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
           />
@@ -273,7 +329,11 @@ function IdCardrender({
             max={40}
             value={elementStyles[element].fontSize}
             onChange={(e) =>
-              updateElementStyle(element, "fontSize", parseInt(e.target.value))
+              updateElementStyle(
+                element,
+                "fontSize",
+                Number.parseInt(e.target.value)
+              )
             }
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
           />
@@ -308,6 +368,19 @@ function IdCardrender({
       )}
     </div>
   );
+
+  const filteredData = Array.isArray(Dataid)
+    ? [...Dataid].reverse().filter((card) => {
+        const term = searchTerm.toLowerCase();
+        return (
+          `${card.firstName} ${card.lastName}`.toLowerCase().includes(term) ||
+          card.email?.toLowerCase().includes(term) ||
+          card.participantId?.toLowerCase().includes(term) ||
+          card.designation?.toLowerCase().includes(term)
+        );
+      })
+    : [];
+  const reversedData = filteredData;
 
   return (
     <div className="container mx-auto px-10">
@@ -362,6 +435,16 @@ function IdCardrender({
             "Download All as ZIP"
           )}
         </button>
+        <div className="w-full max-w-lg mx-auto mb-6">
+          <input
+            type="text"
+            placeholder="Search by name, email, ID or designation…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
         <button
           className="bg-blue-500 hover:bg-blue-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded flex items-center"
           onClick={downloadAllImagesWithoutBackgroundAsZip}
@@ -474,8 +557,11 @@ function IdCardrender({
                       fetchDesignations={fetchDesignations}
                       elementStyles={elementStyles}
                       eventId={eventId}
+                      reversedData={reversedData}
                       globalVisibility={globalVisibility}
                       isPreview={true}
+                      checkedInParticipants={checkedInParticipants}
+                      handleCheckin={handleCheckin}
                     />
                   )}
                 </div>
@@ -558,8 +644,11 @@ function IdCardrender({
             isLoading={isLoading}
             fetchDesignations={fetchDesignations}
             eventId={eventId}
+            reversedData={reversedData}
             globalVisibility={globalVisibility}
             elementStyles={elementStyles}
+            checkedInParticipants={checkedInParticipants}
+            handleCheckin={handleCheckin}
           />
         ))}
       </div>
@@ -620,11 +709,15 @@ const IdCard = ({
   fetchDesignations,
   elementStyles,
   eventId,
+  reversedData,
   globalVisibility,
   isPreview = false,
+  checkedInParticipants = {},
+  handleCheckin,
 }) => {
   const [modal, setModal] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
   const idCardRef = useRef(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -670,9 +763,20 @@ const IdCard = ({
     });
   };
 
+  const onCheckin = async () => {
+    if (isCheckingIn || checkedInParticipants[card._id]) return;
+
+    setIsCheckingIn(true);
+    try {
+      await handleCheckin(card._id);
+    } finally {
+      setIsCheckingIn(false);
+    }
+  };
+
   // const participantUrl =
   //   card && card._id
-  //     ? `https://idcard.insideoutprojects.in/approve/${card._id}` // For Approve 
+  //     ? `https://idcard.insideoutprojects.in/approve/${card._id}` // For Approve
   //     : "#";
   const participantUrl =
     card && card._id
@@ -813,6 +917,8 @@ const IdCard = ({
       });
   };
 
+  // Handle case when Dataid is not an array or is empty
+
   return (
     <div className={`relative ${isPreview ? "" : "mb-20"} h-[610px] w-[430px]`}>
       <div
@@ -824,7 +930,7 @@ const IdCard = ({
           <div className="absolute inset-0">
             {card.backgroundImage && (
               <img
-                src={card.backgroundImage}
+                src={card.backgroundImage || "/placeholder.svg"}
                 alt=""
                 className="w-full h-full object-cover"
               />
@@ -844,12 +950,13 @@ const IdCard = ({
                     width: `${styles.profilePicture.size}px`,
                     height: `${styles.profilePicture.size}px`,
                   }}
-                  src={card.profilePicture}
+                  src={card.profilePicture || "/placeholder.svg"}
                   alt="Profile"
                   className="w-[170px] h-[170px] rounded-[2px]"
                 />
               </div>
             )}
+
             {globalVisibility.name && card.firstName && card.lastName && (
               <h2
                 style={{
@@ -899,6 +1006,7 @@ const IdCard = ({
                 <QRCode value={participantUrl} size={92} level="H" />
               </div>
             )}
+
             {globalVisibility.participantId && card.participantId && (
               <div
                 style={{
@@ -911,6 +1019,9 @@ const IdCard = ({
                 {card.participantId}
               </div>
             )}
+            <div className="text-black font-bold bg-green-100 px-2 mt-[565px] ml-[343px]">
+              {card.tag}
+            </div>
           </div>
         </div>
       </div>
@@ -1028,7 +1139,7 @@ const IdCard = ({
                 </svg>
               ) : (
                 <div className="flex gap-2">
-                  WithoutBackground
+                  WithoutBg
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -1044,7 +1155,48 @@ const IdCard = ({
               )}
             </button>
           </div>
+
           <div className="mt-3 flex mb-4 gap-4 items-center justify-center">
+            <button
+              onClick={onCheckin}
+              disabled={isCheckingIn || card.checkin}
+              className={`flex items-center justify-between gap-2 text-white font-semibold py-2 px-4 rounded ${
+                card.checkin
+                  ? "bg-green-500 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              }`}
+            >
+              {isCheckingIn ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.963 7.963 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </>
+              ) : card.checkin ? (
+                <>Checked In</>
+              ) : (
+                <>Check In</>
+              )}
+            </button>
+
             {isPrinting && (
               <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
                 <div className="loader border-t-4 border-b-4 border-gray-200 rounded-full w-12 h-12 animate-spin"></div>
@@ -1052,9 +1204,9 @@ const IdCard = ({
             )}
             <button
               onClick={() => printIdCard(true)}
-              className="bg-gray-300 mb-3 flex items-center justify-between gap-2 text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
+              className="bg-gray-300  flex items-center justify-between gap-2 text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
             >
-              Print with Bg
+              Print
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -1069,7 +1221,7 @@ const IdCard = ({
             </button>
             <button
               onClick={() => printIdCard(false)}
-              className="bg-gray-300 flex items-center justify-between gap-2 mb-3 text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
+              className="bg-gray-300 flex items-center justify-between gap-2  text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
             >
               Print without Bg
               <svg
