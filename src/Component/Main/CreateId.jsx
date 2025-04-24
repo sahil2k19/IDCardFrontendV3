@@ -140,7 +140,7 @@ function CreateId() {
       formData.append("eventId", eventId);
       formData.append("eventName", eventName);
       formData.append("email", email);
-      formData.append("tag", "Invited");
+      // formData.append("tag", "Invited");
 
       const amenitiesObject = typeof amenities === "object" ? amenities : {};
       formData.append("amenities", JSON.stringify(amenitiesObject));

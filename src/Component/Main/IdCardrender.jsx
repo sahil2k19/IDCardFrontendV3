@@ -20,6 +20,8 @@ function IdCardrender({
 }) {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [data, setData] = useState(Dataid); // Dataid comes from API
+
   const [isModalOpenedit, setIsModalOpenedit] = useState(false);
   const [elementStyles, setElementStyles] = useState({
     profilePicture: { bottom: 160, size: 170 },
@@ -109,10 +111,14 @@ function IdCardrender({
         `${process.env.REACT_APP_API_URL}/api/participants/participant/${participantId}/checkin`
       );
 
-      setCheckedInParticipants((prev) => ({
-        ...prev,
-        [participantId]: true,
-      }));
+      // Update participant's checkin status locally
+      setData((prevData) =>
+        prevData.map((participant) =>
+          participant._id === participantId
+            ? { ...participant, checkin: true }
+            : participant
+        )
+      );
 
       Swal.fire({
         title: "Success!",
@@ -236,7 +242,7 @@ function IdCardrender({
       Amenities: JSON.stringify(card.amenities),
       CreatedAt: new Date(card.createdAt).toLocaleString(),
       UpdatedAt: new Date(card.updatedAt).toLocaleString(),
-      CheckedIn: checkedInParticipants[card._id] ? "Yes" : "No",
+      CheckedIn: checkedInParticipants[card._id] ? "true" : "false",
     }));
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(formattedData);
@@ -386,7 +392,7 @@ function IdCardrender({
     <div className="container mx-auto px-10">
       <div className="flex justify-center ">
         <h1 className="text-2xl border text-center px-5  p-1 rounded-md pb-2 bg-gray-200 mb-6 font-bold">
-          {eventName} All ID Cards update
+          {eventName} All ID Cards
         </h1>
       </div>
       <div className="flex  gap-4 my-10 justify-between">
@@ -782,7 +788,7 @@ const IdCard = ({
     card && card._id
       ? `http://idcard.insideoutprojects.in/checkin/${card._id}` // For Checkin
       : "#";
-
+  console.log("card", card);
   const downloadImage = () => {
     const element = idCardRef.current;
     if (!element) return;
