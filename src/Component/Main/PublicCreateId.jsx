@@ -67,7 +67,7 @@ export default function PublicCreateId() {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      toast.success(`ID created: ${data.participantId}`);
+      toast.success(`ID created`);
       setFirstName("");
       setLastName("");
       setDesignation("");
