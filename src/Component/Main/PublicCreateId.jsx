@@ -27,7 +27,7 @@ const [phone, setPhone] = useState("")
   useEffect(() => {
     if (eventId) {
       axios
-        .get("http://localhost:5000/api/events")
+        .get(`${process.env.REACT_APP_API_URL}/api/events`)
         .then((res) => {
           const found = res.data.find((e) => e._id === eventId);
           if (found) {
