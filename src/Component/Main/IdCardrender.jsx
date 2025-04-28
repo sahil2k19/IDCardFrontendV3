@@ -963,7 +963,7 @@ const IdCard = ({
               </div>
             )}
 
-            {globalVisibility.name && card.firstName && card.lastName && (
+            {globalVisibility.name && card.firstName  && (
               <h2
                 style={{
                   top: `${styles.name.top}px`,
@@ -973,7 +973,7 @@ const IdCard = ({
                 className="absolute top-[200px] uppercase left-[50%] transform -translate-x-1/2 text-[20px] font-bold text-center mt-2 w-full text-white"
               >
                 <p>
-                  {card.firstName} {card.lastName}
+                  {card.firstName} 
                 </p>
               </h2>
             )}
@@ -984,7 +984,7 @@ const IdCard = ({
                   fontSize: `${styles.institute.fontSize}px`,
                   color: styles.institute.color,
                 }}
-                className="absolute bottom-[130px] left-0 right-0 w-full text-lg font-semibold text-center text-white mt-1 w-[430px] px-10"
+                className="absolute bottom-[130px] left-0 right-0   text-lg font-semibold text-center text-white mt-1 w-[430px] px-10"
                 dangerouslySetInnerHTML={{
                   __html: card.institute.toUpperCase(),
                 }}
