@@ -33,6 +33,7 @@ function CreateId() {
   const [amenities, setamenities] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [copySuccess, setCopySuccess] = useState("");
+  const [phone, setPhone] = useState("");
   const [generatedSecureLink, setGeneratedSecureLink] = useState("");
   const [generatedPublicCreateLink, setGeneratedPublicCreateLink] =
     useState("");
@@ -133,11 +134,12 @@ function CreateId() {
     try {
       const formData = new FormData();
       formData.append("firstName", firstName);
-      formData.append("lastName", lastName);
+      // formData.append("lastName", lastName);
       formData.append("designation", designation);
       formData.append("idCardType", selectedIdCardType);
       formData.append("institute", institute);
       formData.append("eventId", eventId);
+      formData.append("phone", phone);
       formData.append("eventName", eventName);
       formData.append("email", email);
       // formData.append("tag", "Invited");
@@ -836,7 +838,7 @@ function CreateId() {
                 <div className="w-full max-w-2xl mx-auto py-5 px-4 sm:px-6 lg:px-8 overflow-y-auto h-[450px] sm:max-h-screen">
                   <div className="space-y-6">
                     <form className="space-y-6" onSubmit={handleSubmit}>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="">
                         <div>
                           <label
                             htmlFor="startname"
@@ -856,7 +858,7 @@ function CreateId() {
                           </div>
                         </div>
 
-                        <div>
+                        {/* <div>
                           <label
                             htmlFor="lastname"
                             className="block text-sm font-medium text-gray-700"
@@ -873,11 +875,28 @@ function CreateId() {
                               onChange={(e) => setLastName(e.target.value)}
                             />
                           </div>
+                        </div> */}
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="phone"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Phone
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            id="phone"
+                            placeholder="Enter your Phone"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                          />
                         </div>
                       </div>
                       <div>
                         <label
-                          htmlFor="lastname"
+                          htmlFor="email"
                           className="block text-sm font-medium text-gray-700"
                         >
                           Email
@@ -904,7 +923,7 @@ function CreateId() {
                             <input
                               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                               id="institute"
-                              placeholder="Enter your Institute"
+                              placeholder="Enter your Company/Institute"
                               value={institute}
                               onChange={(e) => setInstitute(e.target.value)}
                             />
@@ -918,24 +937,13 @@ function CreateId() {
                             Designation
                           </label>
                           <div className="mt-1">
-                            <select
-                              className="flex h-10 w-[100%] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            <input
+                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                               id="designation"
                               placeholder="Enter your Designation"
                               value={designation}
                               onChange={(e) => setDesignation(e.target.value)}
-                            >
-                              <option value="">Select Designation</option>
-                              {designations.map((designation) =>
-                                designation.categories.map(
-                                  (category, index) => (
-                                    <option key={index} value={category}>
-                                      {category}
-                                    </option>
-                                  )
-                                )
-                              )}
-                            </select>
+                            />
                           </div>
                         </div>
                       </div>

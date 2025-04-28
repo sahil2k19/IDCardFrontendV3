@@ -17,7 +17,7 @@ export default function PublicCreateId() {
   const [categories, setCategories] = useState([]);
   const [bgImage, setBgImage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+const [phone, setPhone] = useState("")
   useEffect(() => {
     if (!eventId || !eventName) {
       toast.error("Missing event information in URL");
@@ -32,7 +32,7 @@ export default function PublicCreateId() {
           const found = res.data.find((e) => e._id === eventId);
           if (found) {
             setCategories(found.categories || []);
-            const img =  found.idcardimage || "";
+            const img = found.idcardimage || "";
             setBgImage(img);
           } else {
             toast.error("Event not found");
@@ -51,12 +51,12 @@ export default function PublicCreateId() {
     try {
       const formData = new FormData();
       formData.append("firstName", firstName);
-      formData.append("lastName", lastName);
+      // formData.append("lastName", lastName);
       formData.append("designation", designation);
       formData.append("institute", institute);
       formData.append("email", email);
       formData.append("eventId", eventId);
-      formData.append("eventName", eventName);
+      formData.append("phone", phone);
       // Append background image URL to payload
       if (bgImage) formData.append("backgroundImage", bgImage);
       if (profilePicture) formData.append("profilePicture", profilePicture);
@@ -69,10 +69,11 @@ export default function PublicCreateId() {
 
       toast.success(`ID created`);
       setFirstName("");
-      setLastName("");
+      // setLastName("");
       setDesignation("");
       setInstitute("");
       setEmail("");
+      setPhone("");
       setProfilePicture(null);
     } catch (err) {
       console.error(err);
@@ -91,38 +92,32 @@ export default function PublicCreateId() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <input
             required
-            placeholder="First Name"
+            placeholder=" Name"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <input
-            required
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Company/Institute"
+            value={institute}
+            onChange={(e) => setInstitute(e.target.value)}
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <div>
-            <label className="block mb-1 font-medium">Designation</label>
-            <select
+            <input
               required
+              placeholder="Designation"
               value={designation}
               onChange={(e) => setDesignation(e.target.value)}
               className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="">Select Designation</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+            />
           </div>
+
           <input
-            placeholder="Institute"
-            value={institute}
-            onChange={(e) => setInstitute(e.target.value)}
+            type="phone"
+            placeholder="Phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <input
