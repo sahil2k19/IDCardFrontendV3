@@ -844,20 +844,55 @@ function CreateId() {
                             htmlFor="startname"
                             className="block text-sm font-medium text-gray-700"
                           >
-                            First Name
+                            Name
                           </label>
                           <div className="mt-1">
                             <input
                               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                               id="startname"
-                              placeholder="Enter your First Name"
+                              placeholder="Enter your Name"
                               required
                               value={firstName}
                               onChange={(e) => setFirstName(e.target.value)}
                             />
                           </div>
                         </div>
-
+                        <div className="grid-cols-2 grid gap-6">
+                          <div className="mt-4">
+                            <label
+                              htmlFor="institute"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Institute
+                            </label>
+                            <div className="mt-1">
+                              <input
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                id="institute"
+                                placeholder="Enter your Company/Institute"
+                                value={institute}
+                                onChange={(e) => setInstitute(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                          <div className="mt-4">
+                            <label
+                              htmlFor="designation"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Designation
+                            </label>
+                            <div className="mt-1">
+                              <input
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                id="designation"
+                                placeholder="Enter your Designation"
+                                value={designation}
+                                onChange={(e) => setDesignation(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
                         {/* <div>
                           <label
                             htmlFor="lastname"
@@ -909,42 +944,6 @@ function CreateId() {
                             value={email}
                             onChange={(e) => setemail(e.target.value)}
                           />
-                        </div>
-                      </div>
-                      <div className="grid-cols-2 grid gap-6">
-                        <div className="mt-4">
-                          <label
-                            htmlFor="institute"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Institute
-                          </label>
-                          <div className="mt-1">
-                            <input
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                              id="institute"
-                              placeholder="Enter your Company/Institute"
-                              value={institute}
-                              onChange={(e) => setInstitute(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <div className="mt-4">
-                          <label
-                            htmlFor="designation"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Designation
-                          </label>
-                          <div className="mt-1">
-                            <input
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                              id="designation"
-                              placeholder="Enter your Designation"
-                              value={designation}
-                              onChange={(e) => setDesignation(e.target.value)}
-                            />
-                          </div>
                         </div>
                       </div>
 
