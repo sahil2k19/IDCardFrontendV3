@@ -1009,7 +1009,7 @@ const IdCard = ({
                 }}
                 className="absolute bottom-[15px] left-[50%] transform -translate-x-1/2"
               >
-                <QRCode value={participantUrl} size={92} level="H" />
+                <QRCode value={participantUrl} size={120} level="H" />
               </div>
             )}
 

@@ -62,20 +62,20 @@ function Approved() {
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
             <div className="flex-shrink-0">
               <span className="relative flex shrink-0 overflow-hidden rounded-full w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 border-2 border-primary">
-                <img
+                {/* <img
                   className="aspect-square h-full w-full"
                   alt="Participant"
                   src={
                     participant.profilePicture ||
                     "https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/corporate-user-icon.png"
                   }
-                />
+                /> */}
               </span>
             </div>
             <div className="flex-1 space-y-2">
               <div className="grid lg:grid-cols-2 items-center gap-4">
                 <h2 className="text-2xl font-bold">
-                  {participant.firstName} {participant.lastName}
+                  {participant.firstName} 
                 </h2>
                 <div>
                   <span className="bg-gray-300  mt-1   px-3 py-1 rounded text-sm font-bold">

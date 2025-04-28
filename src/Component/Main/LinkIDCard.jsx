@@ -15,23 +15,23 @@ const defaultStyles = {
     size: "clamp(120px, 70%, 200px)",
   },
   name: {
-    top: "33%",
-    fontSize: "clamp(18px, 4.5vw, 28px)",
-    color: "white",
+    top: "35%",
+    fontSize: "clamp(18px, 4.5vw, 25px)",
+    color: "black",
   },
   institute: {
-    bottom: "28%",
-    fontSize: "clamp(14px, 3.5vw, 22px)",
-    color: "white",
+    bottom: "50%",
+    fontSize: "clamp(14px, 3.5vw, 18px)",
+    color: "black",
   },
   designation: {
-    bottom: "23.5%",
-    fontSize: "clamp(12px, 3vw, 18px)",
-    color: "white",
+    bottom: "55%",
+    fontSize: "clamp(12px, 3vw, 13px)",
+    color: "black",
   },
   qrCode: {
-    bottom: "1.5%",
-    size: 100, // Base size, will be adjusted dynamically
+    bottom: "25%",
+    size: 120, // Base size, will be adjusted dynamically
   },
   participantId: {
     bottom: "1%",

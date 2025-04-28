@@ -56,6 +56,7 @@ const [phone, setPhone] = useState("")
       formData.append("institute", institute);
       formData.append("email", email);
       formData.append("eventId", eventId);
+      formData.append("eventName", eventName);
       formData.append("phone", phone);
       // Append background image URL to payload
       if (bgImage) formData.append("backgroundImage", bgImage);

@@ -33,7 +33,7 @@ function Checkin() {
     <div className="container mx-auto my-10 px-4 md:px-6 lg:px-8">
       <div className="bg-white rounded-lg shadow-md p-6 md:p-8 lg:p-10 text-center">
         {/* Avatar */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <span className="inline-block rounded-full w-24 h-24 border-4 border-green-500 overflow-hidden">
             <img
               className="w-full h-full object-cover"
@@ -44,11 +44,11 @@ function Checkin() {
               alt="Participant"
             />
           </span>
-        </div>
+        </div> */}
 
         {/* Name & ID */}
         <h2 className="text-3xl font-bold mb-1">
-          {participant.firstName} {participant.lastName}
+          {participant.firstName}  
         </h2>
         <p className="text-lg mb-4">ID: {participant.participantId}</p>
 
