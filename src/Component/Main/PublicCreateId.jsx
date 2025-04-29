@@ -128,7 +128,7 @@ const [phone, setPhone] = useState("")
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium mb-1">
               Profile Picture
             </label>
@@ -138,7 +138,7 @@ const [phone, setPhone] = useState("")
               onChange={(e) => setProfilePicture(e.target.files[0])}
               className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             />
-          </div>
+          </div> */}
           <div className="mt-4">
             <button
               type="submit"

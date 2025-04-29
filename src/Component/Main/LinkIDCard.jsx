@@ -30,8 +30,8 @@ const defaultStyles = {
     color: "black",
   },
   qrCode: {
-    bottom: "25%",
-    size: 120, // Base size, will be adjusted dynamically
+    bottom: "23%",
+    size: 100, // Base size, will be adjusted dynamically
   },
   participantId: {
     bottom: "1%",

@@ -947,7 +947,7 @@ function CreateId() {
                         </div>
                       </div>
 
-                      <div className="grid lg:grid-cols-2 gap-6">
+                      {/* <div className="grid lg:grid-cols-2 gap-6">
                         <input
                           className="border p-2 rounded"
                           type="file"
@@ -977,7 +977,7 @@ function CreateId() {
                             </button>
                           </div>
                         )}
-                      </div>
+                      </div> */}
                       <div className="flex justify-between gap-5">
                         <button
                           type="button"
