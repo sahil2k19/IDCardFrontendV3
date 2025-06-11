@@ -38,7 +38,9 @@ function App() {
             <Route path="/id-card/:eventId/:participantId" element={<LinkIDCard />} />
           </Routes>
         </div>
-      </Router>
+      </Router>  
+
+      
     </div>
   );
 }

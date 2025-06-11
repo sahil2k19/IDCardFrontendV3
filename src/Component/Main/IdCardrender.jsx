@@ -1,4 +1,4 @@
-"use client";
+
 
 import { useRef, useState, useEffect } from "react";
 import Swal from "sweetalert2";
@@ -236,6 +236,7 @@ function IdCardrender({
       LastName: card.lastName,
       Designation: card.designation,
       Institute: card.institute,
+      PhoneNumber: card.phone,
       ParticipantID: card.participantId,
       email: card.email,
       ProfilePicture: card.profilePicture,
