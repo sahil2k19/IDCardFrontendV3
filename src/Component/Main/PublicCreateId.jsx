@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import RazorpayButton from "../Service/RazorpayButton";
 import Swal from "sweetalert2";
 import { CheckCircle } from "lucide-react"
+import { Loader2 } from "lucide-react";
 export default function PublicCreateId() {
   const [q] = useSearchParams();
   const eventId = q.get("eventid");
@@ -22,8 +23,10 @@ export default function PublicCreateId() {
   const [eventData, setEventData] = useState(null)
   const [phone, setPhone] = useState("")
   const [showThanksPage, setShowThanksPage] = useState(false);
+  const [errors, setErrors] = useState({});
   useEffect(() => {
     if (!eventId || !eventName) {
+      toast.dismiss();
       toast.error("Missing event information in URL");
     }
   }, [eventId, eventName]);
@@ -39,10 +42,12 @@ export default function PublicCreateId() {
             const img = found.idcardimage || "";
             setBgImage(img);
           } else {
+             toast.dismiss();
             toast.error("Event not found");
           }
         })
         .catch(() => {
+           toast.dismiss();
           toast.error("Failed to load event data");
         });
     }
@@ -96,6 +101,7 @@ export default function PublicCreateId() {
   };
 
   const handleSubmitAfterPayment = async (e) => {
+    toast.dismiss();
     // e.preventDefault();
     setIsSubmitting(true);
     if (!isValid) {
@@ -136,6 +142,7 @@ export default function PublicCreateId() {
 
     } catch (err) {
       console.error(err);
+       toast.dismiss();
       toast.error("Failed to create ID");
       setShowThanksPage(false);
       Swal.fire(
@@ -158,15 +165,31 @@ export default function PublicCreateId() {
     }
   };
 
-  const isValid = () => {
-    if (!firstName.trim()) return false;
-    // if (!lastName.trim()) return false;
-    if (!designation.trim()) return false;
-    if (!institute.trim()) return false;
-    if (!email.trim()) return false;
-    if (!phone.trim()) return false;
-    // if (!profilePicture) return false;
-    return true;
+
+
+  const isValid = (skipErrorSetting = false) => {
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10}$/;
+
+    if (!firstName.trim()) newErrors.firstName = "Name is required.";
+    if (!designation.trim()) newErrors.designation = "Designation is required.";
+    if (!institute.trim()) newErrors.institute = "Institute is required.";
+
+    if (!email.trim()) newErrors.email = "Email is required.";
+    else if (!emailRegex.test(email.trim()))
+      newErrors.email = "Enter a valid email.";
+
+    if (!phone.trim()) newErrors.phone = "Phone is required.";
+    else if (!phoneRegex.test(phone.trim()))
+      newErrors.phone = "Phone must be 10 digits.";
+
+    // only write into state when you really want errors shown
+    if (!skipErrorSetting) {
+      setErrors(newErrors);
+    }
+
+    return Object.keys(newErrors).length === 0;
   };
 
   useEffect(() => {
@@ -174,6 +197,11 @@ export default function PublicCreateId() {
   }, [eventId]);
 
 
+  const LoaderOverlay = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <Loader2 className="h-12 w-12 animate-spin text-white" />
+    </div>
+  );
 
   const ThanksPage = () => {
     return (
@@ -203,12 +231,6 @@ export default function PublicCreateId() {
                   Register Another Person
                 </button>
 
-                <button
-                  onClick={() => setShowThanksPage(false)}
-                  className="w-full py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200"
-                >
-                  Back to Home
-                </button>
               </div>
             </div>
           </div>
@@ -218,10 +240,13 @@ export default function PublicCreateId() {
   }
 
 
-  if(showThanksPage) return <ThanksPage />
+  if (showThanksPage) return <ThanksPage />
+
+
 
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4">
+      {isSubmitting && <LoaderOverlay />}
       <div className="bg-white bg-opacity-80 backdrop-blur-sm p-8 rounded-xl shadow-xl w-full max-w-lg">
         <h1 className="text-3xl font-bold mb-6 text-center">
           {eventName} - Create Your ID
@@ -229,41 +254,72 @@ export default function PublicCreateId() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <input
             required
-            placeholder=" Name"
+            placeholder="Name"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={(e) => {
+              setFirstName(e.target.value);
+              setErrors(prev => ({ ...prev, firstName: undefined }));
+            }}
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
+          {errors.firstName && (
+            <p className="mt-1 text-sm text-red-500">{errors.firstName}</p>
+          )}
           <input
             placeholder="Company/Institute"
             value={institute}
-            onChange={(e) => setInstitute(e.target.value)}
+            onChange={(e) => {
+              setInstitute(e.target.value);
+              setErrors(prev => ({ ...prev, institute: undefined }));
+            }}
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
+          {errors.institute && (
+            <p className="mt-1 text-sm text-red-500">{errors.institute}</p>
+          )}
           <div>
             <input
               required
               placeholder="Designation"
               value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
+              onChange={(e) => {
+                setDesignation(e.target.value);
+                setErrors(prev => ({ ...prev, designation: undefined }));
+              }}
               className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             />
+            {errors.designation && (
+              <p className="mt-1 text-sm text-red-500">{errors.designation}</p>
+            )}
           </div>
 
+          {/* Phone */}
           <input
             type="phone"
             placeholder="Phone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              setErrors(prev => ({ ...prev, phone: undefined }));
+            }}
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
+          {errors.phone && (
+            <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+          )}
           <input
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setErrors(prev => ({ ...prev, email: undefined }));
+            }}
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+          )}
           {/* <div>
             <label className="block text-sm font-medium mb-1">
               Profile Picture
@@ -288,7 +344,7 @@ export default function PublicCreateId() {
 
           {
             eventData?.isPaidEvent ?
-              <RazorpayButton isValid={isValid()} styleClass={`  w-full  px-4 py-3 text-sm font-medium text-white  rounded-md ${isValid() ? "bg-black" : "bg-gray-400 cursor-not-allowed"}  `} onSuccess={handleSubmitAfterPayment} buttonText={`${eventData?.isPaidEvent ? `Pay ${eventData?.amount} Rs and Create` : "Create"}`} amount={eventData?.amount} />
+              <RazorpayButton isValid={isValid(true)} styleClass={`  w-full  px-4 py-3 text-sm font-medium text-white  rounded-md ${isValid(true) ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}  `} onSuccess={handleSubmitAfterPayment} buttonText={`${eventData?.isPaidEvent ? `Pay ${eventData?.amount} Rs and Create` : "Create"}`} amount={eventData?.amount} />
               :
               <button
                 type="submit"

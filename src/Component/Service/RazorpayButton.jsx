@@ -8,6 +8,7 @@ const RazorpayButton = ({ amount,isValid,  user, buttonText = "Pay Now", onSucce
     console.log("isValid",isValid)
     e.preventDefault();
     if(!isValid) {
+       toast.dismiss();
       toast.error("Please fill all the fields");
       return
     }
