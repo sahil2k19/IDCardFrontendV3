@@ -10,9 +10,12 @@ import { saveAs } from "file-saver";
 import { toast } from "react-toastify";
 import { toPng } from "html-to-image";
 import JsBarcode from "jsbarcode";
+import RazorpayButton from "../Service/RazorpayButton";
+import Swal from "sweetalert2";
 
 function CreateId() {
   const location = useLocation();
+  // console.log("(new URLSearchParams(location.search))", new URLSearchParams(location.search).get("eventid"));
   const [modal, setModal] = useState(false);
   const [linkmodal, setlinkmodal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -37,6 +40,7 @@ function CreateId() {
   const [generatedSecureLink, setGeneratedSecureLink] = useState("");
   const [generatedPublicCreateLink, setGeneratedPublicCreateLink] =
     useState("");
+  const [eventData, setEventData] = useState(null); // State to hold fetched event data
 
   const handleGenerateSecureLink = async () => {
     try {
@@ -72,6 +76,20 @@ function CreateId() {
       }
     }
   };
+
+  const fetchEVentData = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/events/${eventId}`
+      );
+      setEventData(response.data);
+    } catch (error) {
+      console.error("Error fetching event data:", error);
+    }
+  };
+  useEffect(() => {
+    fetchEVentData();
+  }, [eventId]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -129,6 +147,72 @@ function CreateId() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsCreating(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("firstName", firstName);
+      // formData.append("lastName", lastName);
+      formData.append("designation", designation);
+      formData.append("idCardType", selectedIdCardType);
+      formData.append("institute", institute);
+      formData.append("eventId", eventId);
+      formData.append("phone", phone);
+      formData.append("eventName", eventName);
+      formData.append("email", email);
+      // formData.append("tag", "Invited");
+
+      const amenitiesObject = typeof amenities === "object" ? amenities : {};
+      formData.append("amenities", JSON.stringify(amenitiesObject));
+
+      if (backgroundImage) {
+        formData.append("backgroundImage", backgroundImage);
+      }
+      if (profilePicture) {
+        formData.append("profilePicture", profilePicture);
+      }
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/participants`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      const token = new URLSearchParams(window.location.search).get("token");
+
+      // Invalidate token only if form submission succeeded
+      if (token) {
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/participants/invalidate-token`,
+          { token }
+        );
+      }
+
+      setIdCard([...idCard, response.data]);
+      fetchData(eventId);
+      toggleModal();
+      // toast.success("ID card created successfully!");
+       Swal.fire("Success", "ID card generated successfully.", "success");
+
+      if (token) {
+        navigate(`/id-created?eventid=${eventId}&eventName=${eventName}`);
+      }
+    } catch (error) {
+      console.error("Error creating participant:", error);
+      // toast.error("Failed to create participant");
+        Swal.fire(
+              "Error", "Please check your internet connection."
+      
+      );
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const createIdAfterPayment = async () => {
+    // event.preventDefault();
     setIsCreating(true);
 
     try {
@@ -807,10 +891,11 @@ function CreateId() {
             <div className="relative p-4 w-full max-w-2xl max-h-full">
               <div className="relative bg-white rounded-lg shadow">
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-                  <div>
+                  <div className="flex items-center gap-2">
                     <h1 className="text-3xl font-bold text-gray-900">
-                      Create ID
+                     {` Create ID`} 
                     </h1>
+                    <span className="text-gray-500">{` ${eventData?.isPaidEvent ? " (Paid Event)" : ""}`}</span>
                   </div>
                   <button
                     type="button"
@@ -986,6 +1071,10 @@ function CreateId() {
                         >
                           Cancel
                         </button>
+                        {
+                          eventData?.isPaidEvent?
+                          <RazorpayButton styleClass={`ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50`}  onSuccess={createIdAfterPayment} buttonText={`${eventData?.isPaidEvent ?`Pay ${eventData?.amount} Rs and Create` : "Create"}`} amount={eventData?.amount}/>
+                          :
                         <button
                           type="submit"
                           className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
@@ -1016,9 +1105,10 @@ function CreateId() {
                               Creating...
                             </>
                           ) : (
-                            "Create"
+                           ` Create`
                           )}
                         </button>
+                        }
                       </div>
                     </form>
                   </div>

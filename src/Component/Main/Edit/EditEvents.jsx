@@ -11,7 +11,11 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
   const [currentAmenity, setCurrentAmenity] = useState("");
   const [eventImage, setEventImage] = useState(null);
   const [idCardImage, setIdCardImage] = useState(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, setIsCreating] = useState();
+  const [amount, setAmount] = useState(event.amount || 0);
+
+  const [isPaidEvent, setisPaidEvent] = useState(event.isPaidEvent || false);
+
 
   useEffect(() => {
     setAmenities(event.amenities || {});
@@ -55,7 +59,7 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsCreating(true);
-
+    console.log("isPaidEvent:", isPaidEvent);
     const formData = new FormData();
     formData.append("eventName", eventName);
     formData.append("address", address);
@@ -63,6 +67,8 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
     formData.append("endDate", endDate);
     formData.append("categories", JSON.stringify(categories));
     formData.append("amenities", JSON.stringify(amenities));
+   formData.append("isPaidEvent", isPaidEvent ? "true" : "false");// Add isPaidEvent field with false value
+    formData.append("amount", amount);
     if (eventImage) formData.append("photo", eventImage);
     if (idCardImage) formData.append("idcardimage", idCardImage);
 
@@ -87,6 +93,8 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
       }
     } catch (error) {
       console.error("Error updating event:", error);
+      setIsCreating(false);
+
     } finally {
       setIsCreating(false);
     }
@@ -331,6 +339,54 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
                         className="mt-1"
                       />
                     </div>
+                    {/* is paid event */}
+                     <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
+                      {/* Radio Buttons */}
+                      <div className="flex items-center space-x-6">
+                        <label className="inline-flex items-center space-x-2 cursor-pointer">
+                          <input
+                            id="free"
+                            type="radio"
+                            value="false"
+                            checked={isPaidEvent === false}
+                            onClick={(e) => setisPaidEvent(false)}
+                            className="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <span className="text-sm text-gray-800 font-medium">Free</span>
+                        </label>
+
+                        <label className="inline-flex items-center space-x-2 cursor-pointer">
+                          <input
+                            id="paid"
+                            type="radio"
+                            value="true"
+                            checked={isPaidEvent === true}
+                            onClick={(e) => setisPaidEvent(true)}
+                            className="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <span className="text-sm text-gray-800 font-medium">Paid</span>
+                        </label>
+                      </div>
+
+                      {/* Amount Input for Paid Option */}
+                      {isPaidEvent === true && (
+                        <div className="sm:ml-6 w-full sm:w-1/3">
+                          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+                            Amount (Rupees)
+                          </label>
+                          <input
+                            type="number"
+                            id="amount"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            placeholder="Enter amount"
+                            required
+                          />
+                        </div>
+                      )}
+                    </div>
+
                   </div>
 
                   <div className="flex justify-end mt-6">

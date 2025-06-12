@@ -24,14 +24,16 @@ function EventPage() {
   const [currentAmenity, setCurrentAmenity] = useState("");
   const [amenities, setAmenities] = useState([]);
 
-  const addCategory = () => {
+  const addCategory = (e) => {
+    e.preventDefault();
     if (currentCategory.trim()) {
       setCategories([...categories, currentCategory.trim()]);
       setCurrentCategory("");
     }
   };
 
-  const addAmenity = () => {
+  const addAmenity = (e) => {
+    e.preventDefault();
     if (currentAmenity.trim()) {
       setAmenities([...amenities, currentAmenity.trim()]);
       setCurrentAmenity("");
@@ -57,6 +59,9 @@ function EventPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [eventId, setEventID] = useState("");
+  const [amount, setAmount] = useState(0);
+
+  const [isPaidEvent, setisPaidEvent] = useState(false);
 
   const [isCreating, setIsCreating] = useState(false); // New state for loading spinner
 
@@ -73,7 +78,8 @@ function EventPage() {
       formData.append("photo", photo); // Append event image
       formData.append("idcardimage", idcardimage); // Append ID card image
       formData.append("categories", JSON.stringify(categories)); // Convert categories to JSON string
-
+      formData.append("isPaidEvent", JSON.stringify(isPaidEvent)); // Add isPaidEvent field with false value
+      formData.append("amount", amount);  // Add amount field
       // Convert amenities array to an object
       const amenitiesObject = amenities.reduce((acc, amenity) => {
         acc[amenity] = false;
@@ -290,11 +296,10 @@ function EventPage() {
                       <>
                         <li
                           key={index}
-                          className={`relative select-none py-2 hover:bg-gray-200 cursor-pointer px-3 ${
-                            option === selectedOption
+                          className={`relative select-none py-2 hover:bg-gray-200 cursor-pointer px-3 ${option === selectedOption
                               ? "bg-indigo-600 text-white"
                               : "text-gray-900"
-                          }`}
+                            }`}
                           role="option"
                           onClick={() => navigate("/archive-event")}
                         >
@@ -332,11 +337,10 @@ function EventPage() {
                         </li>
                         <li
                           key={index}
-                          className={`relative hover:bg-gray-200 cursor-pointer select-none  border-t-2 py-2 px-3 ${
-                            option === selectedOption
+                          className={`relative hover:bg-gray-200 cursor-pointer select-none  border-t-2 py-2 px-3 ${option === selectedOption
                               ? "bg-indigo-600 text-white"
                               : "text-gray-900"
-                          }`}
+                            }`}
                           role="option"
                           onClick={handleLogout}
                         >
@@ -634,6 +638,53 @@ function EventPage() {
                         </div>
                       </div>
                     </div>
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
+                      {/* Radio Buttons */}
+                      <div className="flex items-center space-x-6">
+                        <label className="inline-flex items-center space-x-2 cursor-pointer">
+                          <input
+                            id="free"
+                            type="radio"
+                            value="false"
+                            checked={isPaidEvent === false}
+                            onClick={(e) => setisPaidEvent(false)}
+                            className="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <span className="text-sm text-gray-800 font-medium">Free</span>
+                        </label>
+
+                        <label className="inline-flex items-center space-x-2 cursor-pointer">
+                          <input
+                            id="paid"
+                            type="radio"
+                            value="true"
+                            checked={isPaidEvent === true}
+                            onClick={(e) => setisPaidEvent(true)}
+                            className="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <span className="text-sm text-gray-800 font-medium">Paid</span>
+                        </label>
+                      </div>
+
+                      {/* Amount Input for Paid Option */}
+                      {isPaidEvent === true && (
+                        <div className="sm:ml-6 w-full sm:w-1/3">
+                          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+                            Amount (Rupees)
+                          </label>
+                          <input
+                            type="number"
+                            id="amount"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            placeholder="Enter amount"
+                            required
+                          />
+                        </div>
+                      )}
+                    </div>
+
 
                     <div className="flex  items-center justify-between  pt-5 gap-10">
                       <button
