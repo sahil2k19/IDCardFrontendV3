@@ -3,14 +3,14 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
-const RazorpayButton = ({ amount,isValid,  user, buttonText = "Pay Now", onSuccess,styleClass }) => {
+const RazorpayButton = ({ amount,isValid,onBeforePay,  user, buttonText = "Pay Now", onSuccess,styleClass }) => {
   const loadRazorpay = async (e) => {
     console.log("isValid",isValid)
     e.preventDefault();
-    if(!isValid) {
-       toast.dismiss();
+  if (onBeforePay && !onBeforePay()) {
+      toast.dismiss();
       toast.error("Please fill all the fields");
-      return
+      return;
     }
     try {
       const orderUrl = `${process.env.REACT_APP_API_URL}/api/payment/create-order`;
@@ -42,7 +42,7 @@ const RazorpayButton = ({ amount,isValid,  user, buttonText = "Pay Now", onSucce
           // alert("Payment Successful!");
         },
         prefill: {
-          name: user?.name || "Test User",
+          name: user?.firstName || "Test User",
           email: user?.email || "test@example.com",
           contact: user?.phone || "9999999999",
         },

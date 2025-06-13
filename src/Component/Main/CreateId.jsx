@@ -40,6 +40,7 @@ function CreateId() {
   const [generatedSecureLink, setGeneratedSecureLink] = useState("");
   const [generatedPublicCreateLink, setGeneratedPublicCreateLink] =
     useState("");
+      const [errors, setErrors] = useState({});
   const [eventData, setEventData] = useState(null); // State to hold fetched event data
 
   const handleGenerateSecureLink = async () => {
@@ -194,7 +195,7 @@ function CreateId() {
       fetchData(eventId);
       toggleModal();
       // toast.success("ID card created successfully!");
-       Swal.fire("Success", "ID card generated successfully.", "success");
+      Swal.fire("Success", "ID card generated successfully.", "success");
 
       if (token) {
         navigate(`/id-created?eventid=${eventId}&eventName=${eventName}`);
@@ -202,9 +203,9 @@ function CreateId() {
     } catch (error) {
       console.error("Error creating participant:", error);
       // toast.error("Failed to create participant");
-        Swal.fire(
-              "Error", "Please check your internet connection."
-      
+      Swal.fire(
+        "Error", "Please check your internet connection."
+
       );
     } finally {
       setIsCreating(false);
@@ -523,6 +524,39 @@ function CreateId() {
     }
   }, [location, navigate]);
 
+
+  const isFormFilled = () =>
+    !!firstName.trim() &&
+    !!designation.trim() &&
+    !!institute.trim() &&
+    !!email.trim() &&
+    !!phone.trim();
+
+      const isValid = (skipErrorSetting = false) => {
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10}$/;
+
+    if (!firstName.trim()) newErrors.firstName = "Name is required.";
+    if (!designation.trim()) newErrors.designation = "Designation is required.";
+    if (!institute.trim()) newErrors.institute = "Institute is required.";
+
+    if (!email.trim()) newErrors.email = "Email is required.";
+    else if (!emailRegex.test(email.trim()))
+      newErrors.email = "Enter a valid email.";
+
+    if (!phone.trim()) newErrors.phone = "Phone is required.";
+    else if (!phoneRegex.test(phone.trim()))
+      newErrors.phone = "Phone must be 10 digits.";
+
+    // only write into state when you really want errors shown
+    if (!skipErrorSetting) {
+      setErrors(newErrors);
+    }
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-50 w-full bg-gray-200 shadow-sm">
@@ -647,8 +681,7 @@ function CreateId() {
                 <button
                   onClick={() =>
                     setGeneratedPublicCreateLink(
-                      `${
-                        window.location.origin
+                      `${window.location.origin
                       }/public-create-id?eventid=${eventId}&eventName=${encodeURIComponent(
                         eventName
                       )}`
@@ -893,7 +926,7 @@ function CreateId() {
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
                   <div className="flex items-center gap-2">
                     <h1 className="text-3xl font-bold text-gray-900">
-                     {` Create ID`} 
+                      {` Create ID`}
                     </h1>
                     <span className="text-gray-500">{` ${eventData?.isPaidEvent ? " (Paid Event)" : ""}`}</span>
                   </div>
@@ -920,7 +953,7 @@ function CreateId() {
                     <span className="sr-only">Close modal</span>
                   </button>
                 </div>
-                <div className="w-full max-w-2xl mx-auto py-5 px-4 sm:px-6 lg:px-8 overflow-y-auto h-[450px] sm:max-h-screen">
+                <div className=" max-w-2xl mx-auto py-5 px-4 sm:px-6 lg:px-8 overflow-y-auto  sm:max-h-screen">
                   <div className="space-y-6">
                     <form className="space-y-6" onSubmit={handleSubmit}>
                       <div className="">
@@ -940,6 +973,11 @@ function CreateId() {
                               value={firstName}
                               onChange={(e) => setFirstName(e.target.value)}
                             />
+                            {errors.firstName && (
+                              <p className="text-red-500">
+                                {errors.firstName}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="grid-cols-2 grid gap-6">
@@ -958,6 +996,11 @@ function CreateId() {
                                 value={institute}
                                 onChange={(e) => setInstitute(e.target.value)}
                               />
+                              {errors.institute && (
+                                <p className="text-red-500">
+                                  {errors.institute}
+                                </p>
+                              )}
                             </div>
                           </div>
                           <div className="mt-4">
@@ -975,6 +1018,11 @@ function CreateId() {
                                 value={designation}
                                 onChange={(e) => setDesignation(e.target.value)}
                               />
+                              {errors.designation && (
+                                <p className="text-red-500">
+                                  {errors.designation}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1012,6 +1060,9 @@ function CreateId() {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                           />
+                          {errors.phone && (
+                            <p className="text-red-500">{errors.phone}</p>
+                          )}
                         </div>
                       </div>
                       <div>
@@ -1029,40 +1080,13 @@ function CreateId() {
                             value={email}
                             onChange={(e) => setemail(e.target.value)}
                           />
+                          {errors.email && (
+                            <p className="text-red-500">{errors.email}</p>
+                          )}
                         </div>
                       </div>
 
-                      {/* <div className="grid lg:grid-cols-2 gap-6">
-                        <input
-                          className="border p-2 rounded"
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) =>
-                            handleFileChange(e, setBackgroundImage)
-                          }
-                          disabled={isWebcamEnabled}
-                        />
-                        <WebcamCapture onCapture={handleCapture} />
-                        {profilePicture && (
-                          <div className="text-center">
-                            <img
-                              src={
-                                URL.createObjectURL(profilePicture) ||
-                                "/placeholder.svg"
-                              }
-                              alt="Profile"
-                              className="mx-auto w-32 h-32 object-cover rounded-full"
-                            />
-                            <button
-                              type="button"
-                              className="border bg-red-700 font-bold text-white px-2 mt-1 rounded"
-                              onClick={handleRemovePicture}
-                            >
-                              Remove Picture
-                            </button>
-                          </div>
-                        )}
-                      </div> */}
+                   
                       <div className="flex justify-between gap-5">
                         <button
                           type="button"
@@ -1072,42 +1096,50 @@ function CreateId() {
                           Cancel
                         </button>
                         {
-                          eventData?.isPaidEvent?
-                          <RazorpayButton styleClass={`ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50`}  onSuccess={createIdAfterPayment} buttonText={`${eventData?.isPaidEvent ?`Pay ${eventData?.amount} Rs and Create` : "Create"}`} amount={eventData?.amount}/>
-                          :
-                        <button
-                          type="submit"
-                          className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                          disabled={isCreating}
-                        >
-                          {isCreating ? (
-                            <>
-                              <svg
-                                className="animate-spin h-5 w-5 mr-3 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                ></circle>
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
-                                ></path>
-                              </svg>
-                              Creating...
-                            </>
-                          ) : (
-                           ` Create`
-                          )}
-                        </button>
+                          eventData?.isPaidEvent ?
+                            <RazorpayButton 
+                              styleClass={`w-full  px-4 py-3 text-sm font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
+                            onSuccess={createIdAfterPayment}
+                              buttonText={`${eventData?.isPaidEvent ? `Pay ${eventData?.amount} Rs and Create` : "Create"}`}
+                              amount={eventData?.amount}
+                              onBeforePay={() => isValid()} // New prop, returns true if valid and sets errors
+
+
+                            />
+                            :
+                            <button
+                              type="submit"
+                              className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                              disabled={isCreating}
+                            >
+                              {isCreating ? (
+                                <>
+                                  <svg
+                                    className="animate-spin h-5 w-5 mr-3 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
+                                    ></path>
+                                  </svg>
+                                  Creating...
+                                </>
+                              ) : (
+                                ` Create`
+                              )}
+                            </button>
                         }
                       </div>
                     </form>
@@ -1145,3 +1177,38 @@ function CreateId() {
 }
 
 export default CreateId;
+
+
+// commented code of form 
+
+   {/* <div className="grid lg:grid-cols-2 gap-6">
+                        <input
+                          className="border p-2 rounded"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) =>
+                            handleFileChange(e, setBackgroundImage)
+                          }
+                          disabled={isWebcamEnabled}
+                        />
+                        <WebcamCapture onCapture={handleCapture} />
+                        {profilePicture && (
+                          <div className="text-center">
+                            <img
+                              src={
+                                URL.createObjectURL(profilePicture) ||
+                                "/placeholder.svg"
+                              }
+                              alt="Profile"
+                              className="mx-auto w-32 h-32 object-cover rounded-full"
+                            />
+                            <button
+                              type="button"
+                              className="border bg-red-700 font-bold text-white px-2 mt-1 rounded"
+                              onClick={handleRemovePicture}
+                            >
+                              Remove Picture
+                            </button>
+                          </div>
+                        )}
+                      </div> */}

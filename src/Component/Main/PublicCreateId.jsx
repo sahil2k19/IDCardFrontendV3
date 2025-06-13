@@ -42,12 +42,12 @@ export default function PublicCreateId() {
             const img = found.idcardimage || "";
             setBgImage(img);
           } else {
-             toast.dismiss();
+            toast.dismiss();
             toast.error("Event not found");
           }
         })
         .catch(() => {
-           toast.dismiss();
+          toast.dismiss();
           toast.error("Failed to load event data");
         });
     }
@@ -105,6 +105,7 @@ export default function PublicCreateId() {
     // e.preventDefault();
     setIsSubmitting(true);
     if (!isValid) {
+      toast.dismiss();
       toast.error("Please fill all the fields");
       return
     }
@@ -142,7 +143,7 @@ export default function PublicCreateId() {
 
     } catch (err) {
       console.error(err);
-       toast.dismiss();
+      toast.dismiss();
       toast.error("Failed to create ID");
       setShowThanksPage(false);
       Swal.fire(
@@ -241,7 +242,12 @@ export default function PublicCreateId() {
 
 
   if (showThanksPage) return <ThanksPage />
-
+const isFormFilled = () =>
+  !!firstName.trim() &&
+  !!designation.trim() &&
+  !!institute.trim() &&
+  !!email.trim() &&
+  !!phone.trim();
 
 
   return (
@@ -263,7 +269,7 @@ export default function PublicCreateId() {
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
           {errors.firstName && (
-            <p className="mt-1 text-sm text-red-500">{errors.firstName}</p>
+            <span className=" text-sm text-red-500">{errors.firstName}</span>
           )}
           <input
             placeholder="Company/Institute"
@@ -275,7 +281,7 @@ export default function PublicCreateId() {
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
           {errors.institute && (
-            <p className="mt-1 text-sm text-red-500">{errors.institute}</p>
+            <span className=" text-sm text-red-500">{errors.institute}</span>
           )}
           <div>
             <input
@@ -289,13 +295,14 @@ export default function PublicCreateId() {
               className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             />
             {errors.designation && (
-              <p className="mt-1 text-sm text-red-500">{errors.designation}</p>
+              <span className=" text-sm text-red-500">{errors.designation}</span>
             )}
           </div>
 
           {/* Phone */}
           <input
             type="phone"
+            required
             placeholder="Phone"
             value={phone}
             onChange={(e) => {
@@ -305,10 +312,11 @@ export default function PublicCreateId() {
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
           {errors.phone && (
-            <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+            <span className=" text-sm text-red-500">{errors.phone}</span>
           )}
           <input
             type="email"
+            required
             placeholder="Email"
             value={email}
             onChange={(e) => {
@@ -318,7 +326,7 @@ export default function PublicCreateId() {
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
           {errors.email && (
-            <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+            <span className=" text-sm text-red-500">{errors.email}</span>
           )}
           {/* <div>
             <label className="block text-sm font-medium mb-1">
@@ -344,7 +352,14 @@ export default function PublicCreateId() {
 
           {
             eventData?.isPaidEvent ?
-              <RazorpayButton isValid={isValid(true)} styleClass={`  w-full  px-4 py-3 text-sm font-medium text-white  rounded-md ${isValid(true) ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}  `} onSuccess={handleSubmitAfterPayment} buttonText={`${eventData?.isPaidEvent ? `Pay ${eventData?.amount} Rs and Create` : "Create"}`} amount={eventData?.amount} />
+              <RazorpayButton
+                styleClass={`w-full  px-4 py-3 text-sm font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
+                buttonText={`Pay ${eventData?.amount} Rs and Create`}
+                amount={eventData?.amount}
+                onBeforePay={() => isValid()} // New prop, returns true if valid and sets errors
+                onSuccess={handleSubmitAfterPayment}
+                user={{email, phone, firstName , institute, designation}}
+              />
               :
               <button
                 type="submit"

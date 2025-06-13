@@ -287,23 +287,42 @@ function IdCardrender({
     colorControl = false
   ) => (
     <div className="space-y-4">
-      <label className="block text-sm font-medium text-gray-700">
-        {label} Position
-      </label>
-      <input
-        type="range"
-        min={minValue}
-        max={maxValue}
-        value={elementStyles[element].top || elementStyles[element].bottom}
-        onChange={(e) =>
-          updateElementStyle(
-            element,
-            element === "name" ? "top" : "bottom",
-            Number.parseInt(e.target.value)
-          )
-        }
-        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-      />
+     <label className="block text-sm font-medium text-gray-700">
+  {label} Y Position
+</label>
+<input
+  type="range"
+  min={minValue}
+  max={maxValue}
+  value={elementStyles[element].top || elementStyles[element].bottom}
+  onChange={(e) =>
+    updateElementStyle(
+      element,
+      element === "name" ? "top" : "bottom",
+      Number.parseInt(e.target.value)
+    )
+  }
+  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+/>
+
+{/* X Position */}
+<label className="block text-sm font-medium text-gray-700 mt-2">
+  {label} X Position
+</label>
+<input
+  type="range"
+  min={minValue}
+  max={maxValue}
+  value={elementStyles[element].left || elementStyles[element].right}
+  onChange={(e) =>
+    updateElementStyle(
+      element,
+      element === "name" ? "left" : "right",
+      Number.parseInt(e.target.value)
+    )
+  }
+  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+/>
       {sizeControl && (
         <>
           <label className="block text-sm font-medium text-gray-700">
@@ -396,7 +415,17 @@ function IdCardrender({
           {eventName} All ID Cards
         </h1>
       </div>
-      <div className="flex  gap-4 my-10 justify-between">
+        {/* search */}
+        <div className="w-full max-w-lg mx-auto mb-6">
+          <input
+            type="text"
+            placeholder="Search by name, email, ID or designation…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-4 my-5 justify-center">
         <button
           className="bg-green-500 hover:bg-green-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded"
           onClick={toggleModalOpenedit}
@@ -442,15 +471,7 @@ function IdCardrender({
             "Download All as ZIP"
           )}
         </button>
-        <div className="w-full max-w-lg mx-auto mb-6">
-          <input
-            type="text"
-            placeholder="Search by name, email, ID or designation…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+      
 
         <button
           className="bg-blue-500 hover:bg-blue-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded flex items-center"
