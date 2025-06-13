@@ -287,42 +287,42 @@ function IdCardrender({
     colorControl = false
   ) => (
     <div className="space-y-4">
-     <label className="block text-sm font-medium text-gray-700">
-  {label} Y Position
-</label>
-<input
-  type="range"
-  min={minValue}
-  max={maxValue}
-  value={elementStyles[element].top || elementStyles[element].bottom}
-  onChange={(e) =>
-    updateElementStyle(
-      element,
-      element === "name" ? "top" : "bottom",
-      Number.parseInt(e.target.value)
-    )
-  }
-  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-/>
+      <label className="block text-sm font-medium text-gray-700">
+        {label} Y Position
+      </label>
+      <input
+        type="range"
+        min={minValue}
+        max={maxValue}
+        value={elementStyles[element].top || elementStyles[element].bottom}
+        onChange={(e) =>
+          updateElementStyle(
+            element,
+            element === "name" ? "top" : "bottom",
+            Number.parseInt(e.target.value)
+          )
+        }
+        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+      />
 
-{/* X Position */}
-<label className="block text-sm font-medium text-gray-700 mt-2">
-  {label} X Position
-</label>
-<input
-  type="range"
-  min={minValue}
-  max={maxValue}
-  value={elementStyles[element].left || elementStyles[element].right}
-  onChange={(e) =>
-    updateElementStyle(
-      element,
-      element === "name" ? "left" : "right",
-      Number.parseInt(e.target.value)
-    )
-  }
-  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-/>
+      {/* X Position */}
+      <label className="block text-sm font-medium text-gray-700 mt-2">
+        {label} X Position
+      </label>
+      <input
+        type="range"
+        min={minValue}
+        max={maxValue}
+        value={elementStyles[element].left || elementStyles[element].right}
+        onChange={(e) =>
+          updateElementStyle(
+            element,
+            element === "name" ? "left" : "right",
+            Number.parseInt(e.target.value)
+          )
+        }
+        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+      />
       {sizeControl && (
         <>
           <label className="block text-sm font-medium text-gray-700">
@@ -375,17 +375,15 @@ function IdCardrender({
               <button
                 key={color}
                 onClick={() => updateElementStyle(element, "color", color)}
-                className={`w-8 h-8 rounded-full ${
-                  color === "white"
+                className={`w-8 h-8 rounded-full ${color === "white"
                     ? "bg-white border border-gray-300"
                     : color === "black"
-                    ? "bg-black"
-                    : "bg-orange-500"
-                } ${
-                  elementStyles[element].color === color
+                      ? "bg-black"
+                      : "bg-orange-500"
+                  } ${elementStyles[element].color === color
                     ? "ring-2 ring-blue-500"
                     : ""
-                }`}
+                  }`}
                 aria-label={`Set ${label} color to ${color}`}
               />
             ))}
@@ -397,14 +395,14 @@ function IdCardrender({
 
   const filteredData = Array.isArray(Dataid)
     ? [...Dataid].reverse().filter((card) => {
-        const term = searchTerm.toLowerCase();
-        return (
-          `${card.firstName} ${card.lastName}`.toLowerCase().includes(term) ||
-          card.email?.toLowerCase().includes(term) ||
-          card.participantId?.toLowerCase().includes(term) ||
-          card.designation?.toLowerCase().includes(term)
-        );
-      })
+      const term = searchTerm.toLowerCase();
+      return (
+        `${card.firstName} ${card.lastName}`.toLowerCase().includes(term) ||
+        card.email?.toLowerCase().includes(term) ||
+        card.participantId?.toLowerCase().includes(term) ||
+        card.designation?.toLowerCase().includes(term)
+      );
+    })
     : [];
   const reversedData = filteredData;
 
@@ -415,16 +413,16 @@ function IdCardrender({
           {eventName} All ID Cards
         </h1>
       </div>
-        {/* search */}
-        <div className="w-full max-w-lg mx-auto mb-6">
-          <input
-            type="text"
-            placeholder="Search by name, email, ID or designation…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+      {/* search */}
+      <div className="w-full max-w-lg mx-auto mb-6">
+        <input
+          type="text"
+          placeholder="Search by name, email, ID or designation…"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
       <div className="grid grid-cols-3 md:grid-cols-5 gap-4 my-5 justify-center">
         <button
           className="bg-green-500 hover:bg-green-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded"
@@ -471,7 +469,7 @@ function IdCardrender({
             "Download All as ZIP"
           )}
         </button>
-      
+
 
         <button
           className="bg-blue-500 hover:bg-blue-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded flex items-center"
@@ -968,7 +966,10 @@ const IdCard = ({
             {globalVisibility.profilePicture && card.profilePicture && (
               <div
                 style={{
-                  bottom: `${styles.profilePicture.bottom}px`,
+                  bottom: styles.profilePicture.bottom ?? undefined,
+                  top: styles.profilePicture.top ?? undefined,
+                  left: styles.profilePicture.left ?? undefined,
+                  right: styles.profilePicture.right ?? undefined,
                 }}
                 className="absolute bottom-[160px] left-[50%] transform -translate-x-1/2"
               >
@@ -985,28 +986,34 @@ const IdCard = ({
               </div>
             )}
 
-            {globalVisibility.name && card.firstName  && (
+            {globalVisibility.name && card.firstName && (
               <h2
                 style={{
-                  top: `${styles.name.top}px`,
+                  top: styles.name.top ?? undefined,
+                  bottom: styles.name.bottom ?? undefined,
+                  left: styles.name.left ?? undefined,
+                  right: styles.name.right ?? undefined,
                   fontSize: `${styles.name.fontSize}px`,
                   color: styles.name.color,
                 }}
-                className="absolute top-[200px] uppercase left-[50%] transform -translate-x-1/2 text-[20px] font-bold text-center mt-2 w-full text-white"
+                className="absolute top-[200px] uppercase  transform -translate-x-1/2 text-[20px] font-bold text-center mt-2 w-full text-white"
               >
                 <p>
-                  {card.firstName} 
+                  {card.firstName}
                 </p>
               </h2>
             )}
             {globalVisibility.institute && card.institute && (
               <p
                 style={{
-                  bottom: `${styles.institute.bottom}px`,
+                  top: styles.institute.top ?? undefined,
+                  bottom: styles.institute.bottom ?? undefined,
+                  left: styles.institute.left ?? undefined,
+                  right: styles.institute.right ?? undefined,
                   fontSize: `${styles.institute.fontSize}px`,
                   color: styles.institute.color,
                 }}
-                className="absolute bottom-[130px] left-0 right-0   text-lg font-semibold text-center text-white mt-1 w-[430px] px-10"
+                className="absolute bottom-[130px]  text-lg font-semibold text-center text-white mt-1  px-10"
                 dangerouslySetInnerHTML={{
                   __html: card.institute.toUpperCase(),
                 }}
@@ -1015,11 +1022,14 @@ const IdCard = ({
             {globalVisibility.designation && card.designation && (
               <p
                 style={{
-                  bottom: `${styles.designation.bottom}px`,
+                  top: styles.designation.top ?? undefined,
+                  bottom: styles.designation.bottom ?? undefined,
+                  left: styles.designation.left ?? undefined,
+                  right: styles.designation.right ?? undefined,
                   fontSize: `${styles.designation.fontSize}px`,
                   color: styles.designation.color,
                 }}
-                className="absolute bottom-[107px] left-[50%] transform -translate-x-1/2 text-md font-bold text-center text-black"
+                className="absolute bottom-[107px]  transform -translate-x-1/2 text-md font-bold text-center text-black"
               >
                 {card.designation}
               </p>
@@ -1027,9 +1037,12 @@ const IdCard = ({
             {globalVisibility.qrCode && (
               <div
                 style={{
-                  bottom: `${styles.qrCode.bottom}px`,
+                  top: styles.qrCode.top ?? undefined,
+                  bottom: styles.qrCode.bottom ?? undefined,
+                  left: styles.qrCode.left ?? undefined,
+                  right: styles.qrCode.right ?? undefined,
                 }}
-                className="absolute bottom-[15px] left-[50%] transform -translate-x-1/2"
+                className="absolute bottom-[15px]  transform -translate-x-1/2"
               >
                 <QRCode value={participantUrl} size={120} level="H" />
               </div>
@@ -1038,11 +1051,14 @@ const IdCard = ({
             {globalVisibility.participantId && card.participantId && (
               <div
                 style={{
-                  bottom: `${styles.participantId.bottom}px`,
+                  top: styles.participantId.top ?? undefined,
+                  bottom: styles.participantId.bottom ?? undefined,
+                  left: styles.participantId.left ?? undefined,
+                  right: styles.participantId.right ?? undefined,
                   fontSize: `${styles.participantId.fontSize}px`,
                   color: styles.participantId.color,
                 }}
-                className="absolute bottom-[1px] left-[50%] transform -translate-x-1/2 text-xs font-bold text-center text-black"
+                className="absolute bottom-[1px]  transform -translate-x-1/2 text-xs font-bold text-center text-black"
               >
                 {card.participantId}
               </div>
@@ -1188,11 +1204,10 @@ const IdCard = ({
             <button
               onClick={onCheckin}
               disabled={isCheckingIn || card.checkin}
-              className={`flex items-center justify-between gap-2 text-white font-semibold py-2 px-4 rounded ${
-                card.checkin
+              className={`flex items-center justify-between gap-2 text-white font-semibold py-2 px-4 rounded ${card.checkin
                   ? "bg-green-500 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600"
-              }`}
+                }`}
             >
               {isCheckingIn ? (
                 <>
