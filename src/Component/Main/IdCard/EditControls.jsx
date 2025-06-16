@@ -58,11 +58,12 @@ const EditControls = ({
       <label className="block text-sm font-medium text-gray-700 mt-2">
         {label} X Position
       </label>
+      
       <input
         type="range"
         min={minValue}
         max={maxValue}
-        value={elementStyles[element].left }
+        value={elementStyles[element].left}
         onChange={(e) =>
           updateElementStyle(
             element,
@@ -72,6 +73,19 @@ const EditControls = ({
         }
         className="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer"
       />
+       <button
+        onClick={() => updateElementStyle(element, "left", "20%")}
+        className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+      >
+        Left
+      </button>
+      <button
+        onClick={() => updateElementStyle(element, "left", "50%")}
+        className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+      >
+        Center
+      </button>
+
       {sizeControl && (
         <>
           <label className="block text-sm font-medium text-gray-700">

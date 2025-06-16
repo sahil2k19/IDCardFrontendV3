@@ -270,7 +270,7 @@ const defaultElementStyles = {
             )}
 
             {globalVisibility.name && card.firstName && (
-              <h2
+              <p
                 style={{
                   top: styles.name.top ?? undefined,
                   bottom: styles.name.bottom ?? undefined,
@@ -279,12 +279,10 @@ const defaultElementStyles = {
                   fontSize: `${styles.name.fontSize}px`,
                   color: styles.name.color,
                 }}
-                className="absolute top-[200px] uppercase  transform -translate-x-1/2 text-[20px] font-bold text-center mt-2 w-full text-white"
+                className="absolute top-[200px] uppercase  transform -translate-x-1/2 text-[20px] font-bold   mt-2 w-full text-white"
               >
-                <p>
                   {card.firstName}
-                </p>
-              </h2>
+              </p>
             )}
             {globalVisibility.institute && card.institute && (
               <p
@@ -296,7 +294,7 @@ const defaultElementStyles = {
                   fontSize: `${styles.institute.fontSize}px`,
                   color: styles.institute.color,
                 }}
-                className="absolute bottom-[130px]  text-lg font-semibold text-center text-white mt-1  px-10"
+                className="absolute bottom-[130px]  text-lg transform -translate-x-1/2 font-semibold   text-white mt-1  px-10"
                 dangerouslySetInnerHTML={{
                   __html: card.institute.toUpperCase(),
                 }}
@@ -312,7 +310,7 @@ const defaultElementStyles = {
                   fontSize: `${styles.designation.fontSize}px`,
                   color: styles.designation.color,
                 }}
-                className="absolute bottom-[107px]  transform -translate-x-1/2 text-md font-bold text-center text-black"
+                className="absolute bottom-[107px]  transform -translate-x-1/2 text-md font-bold   text-black"
               >
                 {card.designation}
               </p>
@@ -341,7 +339,7 @@ const defaultElementStyles = {
                   fontSize: `${styles.participantId.fontSize}px`,
                   color: styles.participantId.color,
                 }}
-                className="absolute bottom-[1px]  transform -translate-x-1/2 text-xs font-bold text-center text-black"
+                className="absolute bottom-[1px]  transform -translate-x-1/2 text-xs font-bold   text-black"
               >
                 {card.participantId}
               </div>
