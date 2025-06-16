@@ -279,7 +279,8 @@ const defaultElementStyles = {
                   fontSize: `${styles.name.fontSize}px`,
                   color: styles.name.color,
                 }}
-                className="absolute bottom-[130px]  text-lg transform -translate-x-1/2 font-bold whitespace-nowrap text-center text-white mt-1  px-10"
+                             className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-bold text-center text-white mt-1 px-10 truncate"
+
               >
                   {card.firstName}
               </p>
@@ -296,7 +297,8 @@ const defaultElementStyles = {
                   fontSize: `${styles.institute.fontSize}px`,
                   color: styles.institute.color,
                 }}
-                className="absolute bottom-[130px] whitespace-nowrap  text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1  px-10"
+              className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1 px-10 truncate"
+
                 dangerouslySetInnerHTML={{
                   __html: card.institute.toUpperCase(),
                 }}
@@ -327,7 +329,7 @@ const defaultElementStyles = {
                 }}
                 className="absolute bottom-[15px]  transform -translate-x-1/2"
               >
-                <QRCode value={participantUrl} size={120} level="H" />
+                <QRCode value={participantUrl} size={styles.qrCode.size} level="H" />
               </div>
             )}
 
