@@ -284,6 +284,8 @@ const defaultElementStyles = {
                   {card.firstName}
               </p>
             )}
+
+            
             {globalVisibility.institute && card.institute && (
               <p
                 style={{
@@ -294,7 +296,7 @@ const defaultElementStyles = {
                   fontSize: `${styles.institute.fontSize}px`,
                   color: styles.institute.color,
                 }}
-                className="absolute bottom-[130px]  text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1  px-10"
+                className="absolute bottom-[130px] whitespace-nowrap  text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1  px-10"
                 dangerouslySetInnerHTML={{
                   __html: card.institute.toUpperCase(),
                 }}

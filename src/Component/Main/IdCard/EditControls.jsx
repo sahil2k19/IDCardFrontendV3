@@ -73,12 +73,7 @@ const EditControls = ({
         }
         className="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer"
       />
-       <button
-        onClick={() => updateElementStyle(element, "left", "20%")}
-        className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
-      >
-        Left
-      </button>
+       
       <button
         onClick={() => updateElementStyle(element, "left", "50%")}
         className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
