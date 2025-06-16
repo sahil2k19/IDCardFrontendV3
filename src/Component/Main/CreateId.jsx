@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Webcam from "react-webcam";
-import IdCardrender from "./IdCardrender";
+import IdCardrender from "./IdCard/IdCardrender";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import JSZip from "jszip";
