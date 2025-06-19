@@ -1,7 +1,7 @@
 services:
   frontend:
     build:
-      context: .
+      context: "../IDCardFrontend"
     image: idFrontend:latest
     ports:
       - '8080:80'
