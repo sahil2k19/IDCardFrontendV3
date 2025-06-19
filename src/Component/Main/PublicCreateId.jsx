@@ -353,11 +353,12 @@ const isFormFilled = () =>
           {
             eventData?.isPaidEvent ?
               <RazorpayButton
-                styleClass={`w-full  px-4 py-3 text-sm font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
+                styleClass={`w-full  px-4 py-3 text-sm font-medium text-white  disabled:cursor-not-allowed rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
                 buttonText={`Pay ${eventData?.amount} Rs and Create`}
                 amount={eventData?.amount}
                 onBeforePay={() => isValid()} // New prop, returns true if valid and sets errors
                 onSuccess={handleSubmitAfterPayment}
+                  loading={isSubmitting}
                 user={{email, phone, firstName , institute, designation}}
               />
               :

@@ -3,7 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
-const RazorpayButton = ({ amount,isValid,onBeforePay,  user, buttonText = "Pay Now", onSuccess,styleClass }) => {
+const RazorpayButton = ({ amount,isValid,onBeforePay,loading,  user, buttonText = "Pay Now", onSuccess,styleClass }) => {
   const loadRazorpay = async (e) => {
     console.log("isValid",isValid)
     e.preventDefault();
@@ -58,10 +58,9 @@ const RazorpayButton = ({ amount,isValid,onBeforePay,  user, buttonText = "Pay N
       console.error("Razorpay load failed:", err);
     }
   };
-
   return (
-    <button onClick={loadRazorpay} className={styleClass}>
-      {buttonText}
+    <button onClick={loadRazorpay} className={styleClass} disabled={loading}>
+      {loading ? "Loading..." : buttonText}
     </button>
   );
 };
