@@ -1,8 +1,8 @@
 services:
-  backend:
+  frontend:
     build:
       context: .
-    image: frontend
+    image: idFrontend:latest
     ports:
       - '8080:80'
     restart: always
