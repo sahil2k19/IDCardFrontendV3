@@ -160,11 +160,11 @@ export default function LinkIDCard() {
   }`;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 font-sans">
+    <div className="flex flex-col  items-center justify-center min-h-screen bg-gray-100 p-4 font-sans">
       {/* ID Card Container */}
       <div
         ref={idCardRef}
-        className="relative w-[90vw] max-w-[430px] aspect-[430/610] bg-white rounded-sm overflow-hidden shadow-lg"
+        className="relative h-[610px] w-[430px] aspect-[430/610] bg-white rounded-sm overflow-hidden shadow-lg"
       >
         {/* Background Image */}
         {backgroundImage && (

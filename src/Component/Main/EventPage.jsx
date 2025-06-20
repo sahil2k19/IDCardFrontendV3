@@ -65,6 +65,15 @@ function EventPage() {
 
   const [isCreating, setIsCreating] = useState(false); // New state for loading spinner
 
+  // NEW states for ticket setup
+  const [ticketType, setTicketType] = useState('free'); // 'free' or 'paid'
+  const [regionType, setRegionType] = useState('indian'); // 'indian' or 'international'
+  const [ticketCategories, setTicketCategories] = useState([]);
+  const [currentTicketName, setCurrentTicketName] = useState("");
+  const [currentTicketPrice, setCurrentTicketPrice] = useState("");
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsCreating(true);
@@ -75,19 +84,23 @@ function EventPage() {
       formData.append("address", address);
       formData.append("startDate", startDate);
       formData.append("endDate", endDate);
-      formData.append("photo", photo); // Append event image
-      formData.append("idcardimage", idcardimage); // Append ID card image
-      formData.append("categories", JSON.stringify(categories)); // Convert categories to JSON string
-      formData.append("isPaidEvent", JSON.stringify(isPaidEvent)); // Add isPaidEvent field with false value
-      formData.append("amount", amount);  // Add amount field
-      // Convert amenities array to an object
+      formData.append("photo", photo);
+      formData.append("idcardimage", idcardimage);
+      formData.append("categories", JSON.stringify(categories));
+      formData.append("isPaidEvent", JSON.stringify(isPaidEvent));
+      formData.append("ticketType", ticketType);
+      if (ticketType === 'paid') {
+        formData.append("regionType", regionType);
+        formData.append("ticketCategories", JSON.stringify(ticketCategories));
+      }
+
       const amenitiesObject = amenities.reduce((acc, amenity) => {
         acc[amenity] = false;
         return acc;
       }, {});
-      formData.append("amenities", JSON.stringify(amenitiesObject)); // Convert amenities to JSON string
+      formData.append("amenities", JSON.stringify(amenitiesObject));
 
-      // Debugging: Log FormData entries
+      // Debug FormData
       for (const [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
@@ -95,23 +108,37 @@ function EventPage() {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/events`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       console.log("Event created:", response.data);
       toggleModal();
       fetchEvents();
-      toast.success("Event created successfully!", "Success");
+      toast.success("Event created successfully!");
     } catch (error) {
       console.error("Error creating event:", error);
     } finally {
-      setIsCreating(false); // Stop loading spinner
+      setIsCreating(false);
     }
   };
+
+
+  // NEW handlers for ticket categories
+  const addTicketCategory = (e) => {
+    e.preventDefault();
+    if (currentTicketName.trim() && currentTicketPrice) {
+      setTicketCategories([
+        ...ticketCategories,
+        { name: currentTicketName.trim(), price: currentTicketPrice }
+      ]);
+      setCurrentTicketName("");
+      setCurrentTicketPrice("");
+    }
+  };
+  const removeTicketCategory = index => {
+    setTicketCategories(ticketCategories.filter((_, i) => i !== index));
+  };
+
 
   const handleFileChange = (e) => {
     const { id, files } = e.target;
@@ -297,8 +324,8 @@ function EventPage() {
                         <li
                           key={index}
                           className={`relative select-none py-2 hover:bg-gray-200 cursor-pointer px-3 ${option === selectedOption
-                              ? "bg-indigo-600 text-white"
-                              : "text-gray-900"
+                            ? "bg-indigo-600 text-white"
+                            : "text-gray-900"
                             }`}
                           role="option"
                           onClick={() => navigate("/archive-event")}
@@ -338,8 +365,8 @@ function EventPage() {
                         <li
                           key={index}
                           className={`relative hover:bg-gray-200 cursor-pointer select-none  border-t-2 py-2 px-3 ${option === selectedOption
-                              ? "bg-indigo-600 text-white"
-                              : "text-gray-900"
+                            ? "bg-indigo-600 text-white"
+                            : "text-gray-900"
                             }`}
                           role="option"
                           onClick={handleLogout}
@@ -640,7 +667,7 @@ function EventPage() {
                     </div>
                     <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
                       {/* Radio Buttons */}
-                      <div className="flex items-center space-x-6">
+                      {/* <div className="flex items-center space-x-6">
                         <label className="inline-flex items-center space-x-2 cursor-pointer">
                           <input
                             id="free"
@@ -664,10 +691,10 @@ function EventPage() {
                           />
                           <span className="text-sm text-gray-800 font-medium">Paid</span>
                         </label>
-                      </div>
+                      </div> */}
 
                       {/* Amount Input for Paid Option */}
-                      {isPaidEvent === true && (
+                      {/* {isPaidEvent === true && (
                         <div className="sm:ml-6 w-full sm:w-1/3">
                           <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
                             Amount (Rupees)
@@ -682,8 +709,97 @@ function EventPage() {
                             required
                           />
                         </div>
-                      )}
+                      )} */}
                     </div>
+                    <div className="flex items-center space-x-6">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          value="free"
+                          checked={ticketType === 'free'}
+                          onChange={() => { setTicketType('free'); setisPaidEvent(false); }}
+                          className="h-5 w-5 text-indigo-600"
+                        />
+                        <span className="ml-2 text-gray-800">Free</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          value="paid"
+                          checked={ticketType === 'paid'}
+                          onChange={() => { setTicketType('paid'); setisPaidEvent(true); }}
+                          className="h-5 w-5 text-indigo-600"
+                        />
+                        <span className="ml-2 text-gray-800">Paid</span>
+                      </label>
+                    </div>
+
+                    {/* Region & Category for Paid */}
+                    {ticketType === 'paid' && (
+                      <div className="space-y-4">
+                        {/* Region Selection */}
+                        <div className="flex items-center space-x-6">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              value="indian"
+                              checked={regionType === 'indian'}
+                              onChange={() => setRegionType('indian')}
+                              className="h-5 w-5 text-indigo-600"
+                            />
+                            <span className="ml-2 text-gray-800">Indian</span>
+                          </label>
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              value="international"
+                              checked={regionType === 'international'}
+                              onChange={() => setRegionType('international')}
+                              className="h-5 w-5 text-indigo-600"
+                            />
+                            <span className="ml-2 text-gray-800">International</span>
+                          </label>
+                        </div>
+
+                        {/* Ticket Categories Input */}
+                        <div className="space-y-2">
+                          <div className="flex space-x-2">
+                            <input
+                              type="text"
+                              placeholder="Category Name"
+                              value={currentTicketName}
+                              onChange={(e) => setCurrentTicketName(e.target.value)}
+                              className="w-1/2 px-4 py-2 border rounded-md"
+                            />
+                            <input
+                              type="number"
+                              placeholder={`Price (${regionType === 'indian' ? 'INR' : 'USD'})`}
+                              value={currentTicketPrice}
+                              onChange={(e) => setCurrentTicketPrice(e.target.value)}
+                              className="w-1/2 px-4 py-2 border rounded-md"
+                            />
+                            <button
+                              onClick={addTicketCategory}
+                              className="px-4 bg-black text-white rounded-md"
+                            >Add</button>
+                          </div>
+                          {/* List of added categories */}
+                          {ticketCategories.length > 0 && (
+                            <ul className="list-disc pl-5 space-y-1">
+                              {ticketCategories.map((tc, i) => (
+                                <li key={i} className="flex justify-between">
+                                  <span>{tc.name} - {regionType === 'indian' ? '₹' : '$'}{tc.price}</span>
+                                  <button
+                                    onClick={() => removeTicketCategory(i)}
+                                    className="text-red-600"
+                                  >Remove</button>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
 
                     <div className="flex  items-center justify-between  pt-5 gap-10">
