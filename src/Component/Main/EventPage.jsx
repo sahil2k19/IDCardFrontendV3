@@ -65,19 +65,53 @@ function EventPage() {
 
   const [isCreating, setIsCreating] = useState(false); // New state for loading spinner
 
-  // NEW states for ticket setup
-  const [ticketType, setTicketType] = useState('free'); // 'free' or 'paid'
-  const [regionType, setRegionType] = useState('indian'); // 'indian' or 'international'
-  const [ticketCategories, setTicketCategories] = useState([]);
-  const [currentTicketName, setCurrentTicketName] = useState("");
-  const [currentTicketPrice, setCurrentTicketPrice] = useState("");
+  // Ticket pricing states
+  const [indianTicketCategories, setIndianTicketCategories] = useState([]);
+  const [currentIndianTicketName, setCurrentIndianTicketName] = useState("");
+  const [currentIndianTicketPrice, setCurrentIndianTicketPrice] = useState("");
+  const [internationalTicketCategories, setInternationalTicketCategories] = useState([]);
+  const [currentInternationalTicketName, setCurrentInternationalTicketName] = useState("");
+  const [currentInternationalTicketPrice, setCurrentInternationalTicketPrice] = useState("");
+
+
+  // Ticket handlers
+  const addIndianTicketCategory = e => {
+    e.preventDefault();
+    if (currentIndianTicketName.trim() && currentIndianTicketPrice) {
+      setIndianTicketCategories([
+        ...indianTicketCategories,
+        { name: currentIndianTicketName.trim(), price: currentIndianTicketPrice }
+      ]);
+      setCurrentIndianTicketName("");
+      setCurrentIndianTicketPrice("");
+    }
+  };
+  const removeIndianTicketCategory = index => setIndianTicketCategories(
+    indianTicketCategories.filter((_, i) => i !== index)
+  );
+
+  const addInternationalTicketCategory = e => {
+    e.preventDefault();
+    if (currentInternationalTicketName.trim() && currentInternationalTicketPrice) {
+      setInternationalTicketCategories([
+        ...internationalTicketCategories,
+        { name: currentInternationalTicketName.trim(), price: currentInternationalTicketPrice }
+      ]);
+      setCurrentInternationalTicketName("");
+      setCurrentInternationalTicketPrice("");
+    }
+  };
+  const removeInternationalTicketCategory = index => setInternationalTicketCategories(
+    internationalTicketCategories.filter((_, i) => i !== index)
+  );
 
 
 
-  const handleSubmit = async (e) => {
+
+  // Submit
+  const handleSubmit = async e => {
     e.preventDefault();
     setIsCreating(true);
-
     try {
       const formData = new FormData();
       formData.append("eventName", eventName);
@@ -88,56 +122,41 @@ function EventPage() {
       formData.append("idcardimage", idcardimage);
       formData.append("categories", JSON.stringify(categories));
       formData.append("isPaidEvent", JSON.stringify(isPaidEvent));
-      formData.append("ticketType", ticketType);
-      if (ticketType === 'paid') {
-        formData.append("regionType", regionType);
-        formData.append("ticketCategories", JSON.stringify(ticketCategories));
-      }
 
-      const amenitiesObject = amenities.reduce((acc, amenity) => {
-        acc[amenity] = false;
-        return acc;
-      }, {});
+        const regionPricings = [];
+  if (indianTicketCategories.length) {
+    regionPricings.push({ region: 'indian', categories: indianTicketCategories });
+  }
+  if (internationalTicketCategories.length) {
+    regionPricings.push({ region: 'international', categories: internationalTicketCategories });
+  }
+  formData.append('regionPricings', JSON.stringify(regionPricings));
+
+  // await axios.post('/api/events', formData, {
+  //   headers: { 'Content-Type': 'multipart/form-data' }
+  // });
+
+
+
+      const amenitiesObject = amenities.reduce((acc, amenity) => { acc[amenity] = false; return acc; }, {});
       formData.append("amenities", JSON.stringify(amenitiesObject));
 
-      // Debug FormData
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
+      for (const [key, value] of formData.entries()) console.log(`${key}:`, value);
 
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/events`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
       console.log("Event created:", response.data);
-      toggleModal();
-      fetchEvents();
-      toast.success("Event created successfully!");
+      toggleModal(); fetchEvents(); toast.success("Event created successfully!");
     } catch (error) {
       console.error("Error creating event:", error);
-    } finally {
-      setIsCreating(false);
-    }
+    } finally { setIsCreating(false); }
   };
 
 
-  // NEW handlers for ticket categories
-  const addTicketCategory = (e) => {
-    e.preventDefault();
-    if (currentTicketName.trim() && currentTicketPrice) {
-      setTicketCategories([
-        ...ticketCategories,
-        { name: currentTicketName.trim(), price: currentTicketPrice }
-      ]);
-      setCurrentTicketName("");
-      setCurrentTicketPrice("");
-    }
-  };
-  const removeTicketCategory = index => {
-    setTicketCategories(ticketCategories.filter((_, i) => i !== index));
-  };
+
 
 
   const handleFileChange = (e) => {
@@ -711,92 +730,91 @@ function EventPage() {
                         </div>
                       )} */}
                     </div>
+                    {/* Paid vs Free */}
                     <div className="flex items-center space-x-6">
                       <label className="inline-flex items-center">
                         <input
                           type="radio"
-                          value="free"
-                          checked={ticketType === 'free'}
-                          onChange={() => { setTicketType('free'); setisPaidEvent(false); }}
+                          value="false"
+                          checked={!isPaidEvent}
+                          onChange={() => setisPaidEvent(false)}
                           className="h-5 w-5 text-indigo-600"
                         />
-                        <span className="ml-2 text-gray-800">Free</span>
+                        <span className="ml-2">Free</span>
                       </label>
                       <label className="inline-flex items-center">
                         <input
                           type="radio"
-                          value="paid"
-                          checked={ticketType === 'paid'}
-                          onChange={() => { setTicketType('paid'); setisPaidEvent(true); }}
+                          value="true"
+                          checked={isPaidEvent}
+                          onChange={() => setisPaidEvent(true)}
                           className="h-5 w-5 text-indigo-600"
                         />
-                        <span className="ml-2 text-gray-800">Paid</span>
+                        <span className="ml-2">Paid</span>
                       </label>
                     </div>
 
-                    {/* Region & Category for Paid */}
-                    {ticketType === 'paid' && (
-                      <div className="space-y-4">
-                        {/* Region Selection */}
-                        <div className="flex items-center space-x-6">
-                          <label className="inline-flex items-center">
-                            <input
-                              type="radio"
-                              value="indian"
-                              checked={regionType === 'indian'}
-                              onChange={() => setRegionType('indian')}
-                              className="h-5 w-5 text-indigo-600"
-                            />
-                            <span className="ml-2 text-gray-800">Indian</span>
-                          </label>
-                          <label className="inline-flex items-center">
-                            <input
-                              type="radio"
-                              value="international"
-                              checked={regionType === 'international'}
-                              onChange={() => setRegionType('international')}
-                              className="h-5 w-5 text-indigo-600"
-                            />
-                            <span className="ml-2 text-gray-800">International</span>
-                          </label>
-                        </div>
-
-                        {/* Ticket Categories Input */}
-                        <div className="space-y-2">
-                          <div className="flex space-x-2">
+                    {/* Pricing columns for paid events */}
+                    {isPaidEvent && (
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Indian column */}
+                        <div>
+                          <h3 className="font-semibold mb-2">Indian Pricing (INR)</h3>
+                          <div className="flex space-x-2 mb-2">
                             <input
                               type="text"
                               placeholder="Category Name"
-                              value={currentTicketName}
-                              onChange={(e) => setCurrentTicketName(e.target.value)}
+                              value={currentIndianTicketName}
+                              onChange={e => setCurrentIndianTicketName(e.target.value)}
                               className="w-1/2 px-4 py-2 border rounded-md"
                             />
                             <input
                               type="number"
-                              placeholder={`Price (${regionType === 'indian' ? 'INR' : 'USD'})`}
-                              value={currentTicketPrice}
-                              onChange={(e) => setCurrentTicketPrice(e.target.value)}
+                              placeholder="Price (INR)"
+                              value={currentIndianTicketPrice}
+                              onChange={e => setCurrentIndianTicketPrice(e.target.value)}
                               className="w-1/2 px-4 py-2 border rounded-md"
                             />
-                            <button
-                              onClick={addTicketCategory}
-                              className="px-4 bg-black text-white rounded-md"
-                            >Add</button>
+                            <button onClick={addIndianTicketCategory} className="px-4 bg-black text-white rounded-md">Add</button>
                           </div>
-                          {/* List of added categories */}
-                          {ticketCategories.length > 0 && (
-                            <ul className="list-disc pl-5 space-y-1">
-                              {ticketCategories.map((tc, i) => (
-                                <li key={i} className="flex justify-between">
-                                  <span>{tc.name} - {regionType === 'indian' ? '₹' : '$'}{tc.price}</span>
-                                  <button
-                                    onClick={() => removeTicketCategory(i)}
-                                    className="text-red-600"
-                                  >Remove</button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                          <ul className="list-disc pl-5">
+                            {indianTicketCategories.map((tc, i) => (
+                              <li key={i} className="flex justify-between">
+                                <span>{tc.name} – ₹{tc.price}</span>
+                                <button onClick={() => removeIndianTicketCategory(i)} className="text-red-600">Remove</button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* International column */}
+                        <div>
+                          <h3 className="font-semibold mb-2">International Pricing (USD)</h3>
+                          <div className="flex space-x-2 mb-2">
+                            <input
+                              type="text"
+                              placeholder="Category Name"
+                              value={currentInternationalTicketName}
+                              onChange={e => setCurrentInternationalTicketName(e.target.value)}
+                              className="w-1/2 px-4 py-2 border rounded-md"
+                            />
+                            <input
+                              type="number"
+                              placeholder="Price (USD)"
+                              value={currentInternationalTicketPrice}
+                              onChange={e => setCurrentInternationalTicketPrice(e.target.value)}
+                              className="w-1/2 px-4 py-2 border rounded-md"
+                            />
+                            <button onClick={addInternationalTicketCategory} className="px-4 bg-black text-white rounded-md">Add</button>
+                          </div>
+                          <ul className="list-disc pl-5">
+                            {internationalTicketCategories.map((tc, i) => (
+                              <li key={i} className="flex justify-between">
+                                <span>{tc.name} – ${tc.price}</span>
+                                <button onClick={() => removeInternationalTicketCategory(i)} className="text-red-600">Remove</button>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       </div>
                     )}

@@ -41,8 +41,19 @@ function CreateId() {
   const [generatedSecureLink, setGeneratedSecureLink] = useState("");
   const [generatedPublicCreateLink, setGeneratedPublicCreateLink] =
     useState("");
-      const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({});
   const [eventData, setEventData] = useState(null); // State to hold fetched event data
+
+  // Ticket selection state
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+
+  // Derive dropdown options
+  const regionOptions = eventData?.regionPricings?.map(r => r.region) || [];
+  const categoryOptions = selectedRegion
+    ? eventData.regionPricings.find(r => r.region === selectedRegion)?.categories || []
+    : [];
 
   const handleGenerateSecureLink = async () => {
     try {
@@ -79,7 +90,7 @@ function CreateId() {
     }
   };
 
-    const LoaderOverlay = () => (
+  const LoaderOverlay = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <Loader2 className="h-12 w-12 animate-spin text-white" />
     </div>
@@ -169,6 +180,11 @@ function CreateId() {
       formData.append("eventName", eventName);
       formData.append("email", email);
       // formData.append("tag", "Invited");
+
+      formData.append("ticketRegion", selectedRegion);
+      formData.append("ticketCategory", selectedCategory);
+
+
 
       const amenitiesObject = typeof amenities === "object" ? amenities : {};
       formData.append("amenities", JSON.stringify(amenitiesObject));
@@ -539,7 +555,7 @@ function CreateId() {
     !!email.trim() &&
     !!phone.trim();
 
-      const isValid = (skipErrorSetting = false) => {
+  const isValid = (skipErrorSetting = false) => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
@@ -555,6 +571,11 @@ function CreateId() {
     if (!phone.trim()) newErrors.phone = "Phone is required.";
     else if (!phoneRegex.test(phone.trim()))
       newErrors.phone = "Phone must be 10 digits.";
+
+    if (eventData?.isPaidEvent) {
+      if (!selectedRegion) newErrors.ticketRegion = "Ticket Region is required.";
+      if (!selectedCategory) newErrors.ticketCategory = "Ticket Category is required.";
+    }
 
     // only write into state when you really want errors shown
     if (!skipErrorSetting) {
@@ -725,200 +746,7 @@ function CreateId() {
         </div>
       )}
 
-      {/* If it's a secure form, show the form directly */}
-      {isSecureForm && (
-        <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">
-              Create Your ID Card
-            </h1>
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label
-                    htmlFor="startname"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    First Name
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="startname"
-                      placeholder="Enter your First Name"
-                      required
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
-                  </div>
-                </div>
 
-                <div>
-                  <label
-                    htmlFor="lastname"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Last name
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="lastname"
-                      placeholder="Enter your Last name"
-                      required
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <div className="mt-1">
-                  <input
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    id="email"
-                    type="email"
-                    placeholder="Enter your Email"
-                    value={email}
-                    onChange={(e) => setemail(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label
-                    htmlFor="institute"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Institute
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="institute"
-                      placeholder="Enter your Institute"
-                      value={institute}
-                      onChange={(e) => setInstitute(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="designation"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Designation
-                  </label>
-                  <div className="mt-1">
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="designation"
-                      placeholder="Enter your Designation"
-                      value={designation}
-                      onChange={(e) => setDesignation(e.target.value)}
-                    >
-                      <option value="">Select Designation</option>
-                      {designations.map((designation) =>
-                        designation.categories.map((category, index) => (
-                          <option key={index} value={category}>
-                            {category}
-                          </option>
-                        ))
-                      )}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Profile Picture
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      className="w-full border p-2 rounded"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      disabled={isWebcamEnabled}
-                    />
-                  </div>
-                  <WebcamCapture onCapture={handleCapture} />
-                </div>
-                {profilePicture && (
-                  <div className="flex flex-col items-center mt-4">
-                    <img
-                      src={
-                        URL.createObjectURL(profilePicture) ||
-                        "/placeholder.svg"
-                      }
-                      alt="Profile"
-                      className="w-32 h-32 object-cover rounded-full"
-                    />
-                    <button
-                      type="button"
-                      className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      onClick={handleRemovePicture}
-                    >
-                      Remove Picture
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-between gap-5 pt-4">
-                <button
-                  type="button"
-                  className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-black bg-gray-200 border border-transparent rounded-md hover:bg-gray-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  onClick={() => window.history.back()}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white rounded-md hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                  disabled={isCreating}
-                >
-                  {isCreating ? (
-                    <>
-                      <svg
-                        className="animate-spin h-5 w-5 mr-3 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
-                        ></path>
-                      </svg>
-                      Creating...
-                    </>
-                  ) : (
-                    "Create ID Card"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {modal && (
         <div>
@@ -960,10 +788,10 @@ function CreateId() {
                     <span className="sr-only">Close modal</span>
                   </button>
                 </div>
-                <div className=" max-w-2xl mx-auto py-5 px-4 sm:px-6 lg:px-8 overflow-y-auto  sm:max-h-screen">
+                <div className=" max-w-2xl mx-auto py-5 px-4 sm:px-6 lg:px-8 overflow-y-auto  max-h-[70vh]">
                   <div className="space-y-6">
                     <form className="space-y-6" onSubmit={handleSubmit}>
-                        {isCreating && <LoaderOverlay />}
+                      {isCreating && <LoaderOverlay />}
                       <div className="">
                         <div>
                           <label
@@ -1093,67 +921,129 @@ function CreateId() {
                           )}
                         </div>
                       </div>
-
-                   
-                      <div className="flex justify-between gap-5">
-                        <button
-                          type="button"
-                          className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-black bg-gray-400 border border-transparent rounded-md hover:bg-gray-500 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                          onClick={toggleModal}
+                      {/* Ticket Selection */}
+                   {eventData.regionPricings.length > 0 &&   <div>
+                        <label className="block text-sm font-medium text-gray-700">Region</label>
+                        <select
+                          value={selectedRegion}
+                          onChange={e => { setSelectedRegion(e.target.value); setSelectedCategory(""); }}
+                          className="mt-1 block w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                          required
                         >
-                          Cancel
-                        </button>
-                        {
-                          eventData?.isPaidEvent ?
-                            <RazorpayButton 
-                              styleClass={`w-full  px-4 py-3 text-sm disabled:cursor-not-allowed font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
-                            onSuccess={createIdAfterPayment}
-                              buttonText={`${eventData?.isPaidEvent ? `Pay ${eventData?.amount} Rs and Create` : "Create"}`}
-                              amount={eventData?.amount}
-                              loading={isCreating}
-                              onBeforePay={() => isValid()} // New prop, returns true if valid and sets errors
+                          <option value="">Select Region</option>
+                          {regionOptions.map(region => (
+                            <option key={region} value={region}>
+                              {region.charAt(0).toUpperCase() + region.slice(1)}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.ticketRegion && (
+                          <p className="text-red-500">{errors.ticketRegion}</p>
+                        )}
+                      </div>}
+                      {selectedRegion && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Category</label>
+                          <select
+                            value={selectedCategory}
+                            onChange={e => setSelectedCategory(e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                            required
+                          >
+                            <option value="">Select Category</option>
+                            {categoryOptions.map(({ name, price }) => (
+                              <option key={name} value={name}>
+                                {`${name} – ${selectedRegion === 'indian' ? '₹' : '$'}${price}`}
+                              </option>
+                            ))}
+                          </select>
+                          {errors.ticketCategory && (
+                            <p className="text-red-500">{errors.ticketCategory}</p>
+                          )}
+                        </div>
+                      )}
 
 
-                            />
-                            :
-                            <button
-                              type="submit"
-                              className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                              disabled={isCreating}
-                            >
-                              {isCreating ? (
-                                <>
-                                  <svg
-                                    className="animate-spin h-5 w-5 mr-3 text-white"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <circle
-                                      className="opacity-25"
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      stroke="currentColor"
-                                      strokeWidth="4"
-                                    ></circle>
-                                    <path
-                                      className="opacity-75"
-                                      fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
-                                    ></path>
-                                  </svg>
-                                  Creating...
-                                </>
-                              ) : (
-                                ` Create`
-                              )}
-                            </button>
-                        }
-                      </div>
+
                     </form>
                   </div>
+                 
                 </div>
+                 <div className="flex justify-between gap-5 p-4">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-black bg-gray-400 border border-transparent rounded-md hover:bg-gray-500 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={toggleModal}
+                    >
+                      Cancel
+                    </button>
+                    {
+                      eventData?.isPaidEvent ?
+                        <RazorpayButton
+                          styleClass={`w-full  px-4 py-3 text-sm disabled:cursor-not-allowed font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
+                          onSuccess={createIdAfterPayment}
+                          buttonText={
+                            selectedCategory
+                              ? `Pay & Create (${selectedRegion === 'indian' ? '₹' : '$'}${eventData.regionPricings
+                                .find(r => r.region === selectedRegion)
+                                .categories.find(c => c.name === selectedCategory).price
+                              })`
+                              : 'Select ticket first'
+                          }
+                          amount={
+                            (eventData.regionPricings.find(r => r.region === selectedRegion)?.categories
+                              .find(c => c.name === selectedCategory)?.price || 0)
+                          }
+                          user={
+                            {
+                              firstName,
+                              lastName,
+                              email,
+                              phone
+                            }
+                          }
+                          currency={selectedRegion === 'indian' ? 'INR' : 'USD'}
+                          loading={isCreating}
+                          onBeforePay={() => isValid()} // New prop, returns true if valid and sets errors
+
+
+                        />
+                        :
+                        <button
+                          onClick={handleSubmit}
+                          className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                          disabled={isCreating}
+                        >
+                          {isCreating ? (
+                            <>
+                              <svg
+                                className="animate-spin h-5 w-5 mr-3 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
+                                ></path>
+                              </svg>
+                              Creating...
+                            </>
+                          ) : (
+                            ` Create`
+                          )}
+                        </button>
+                    }
+                  </div>
               </div>
             </div>
           </div>
@@ -1190,7 +1080,7 @@ export default CreateId;
 
 // commented code of form 
 
-   {/* <div className="grid lg:grid-cols-2 gap-6">
+{/* <div className="grid lg:grid-cols-2 gap-6">
                         <input
                           className="border p-2 rounded"
                           type="file"
@@ -1221,3 +1111,205 @@ export default CreateId;
                           </div>
                         )}
                       </div> */}
+
+
+
+
+
+/*
+
+      // {isSecureForm && (
+      //   <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      //     <div className="bg-white shadow rounded-lg p-6">
+      //       <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      //         Create Your ID Card
+      //       </h1>
+      //       <form className="space-y-6" onSubmit={handleSubmit}>
+      //         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      //           <div>
+      //             <label
+      //               htmlFor="startname"
+      //               className="block text-sm font-medium text-gray-700"
+      //             >
+      //               First Name
+      //             </label>
+      //             <div className="mt-1">
+      //               <input
+      //                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      //                 id="startname"
+      //                 placeholder="Enter your First Name"
+      //                 required
+      //                 value={firstName}
+      //                 onChange={(e) => setFirstName(e.target.value)}
+      //               />
+      //             </div>
+      //           </div>
+
+      //           <div>
+      //             <label
+      //               htmlFor="lastname"
+      //               className="block text-sm font-medium text-gray-700"
+      //             >
+      //               Last name
+      //             </label>
+      //             <div className="mt-1">
+      //               <input
+      //                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      //                 id="lastname"
+      //                 placeholder="Enter your Last name"
+      //                 required
+      //                 value={lastName}
+      //                 onChange={(e) => setLastName(e.target.value)}
+      //               />
+      //             </div>
+      //           </div>
+      //         </div>
+      //         <div>
+      //           <label
+      //             htmlFor="email"
+      //             className="block text-sm font-medium text-gray-700"
+      //           >
+      //             Email
+      //           </label>
+      //           <div className="mt-1">
+      //             <input
+      //               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      //               id="email"
+      //               type="email"
+      //               placeholder="Enter your Email"
+      //               value={email}
+      //               onChange={(e) => setemail(e.target.value)}
+      //             />
+      //           </div>
+      //         </div>
+      //         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      //           <div>
+      //             <label
+      //               htmlFor="institute"
+      //               className="block text-sm font-medium text-gray-700"
+      //             >
+      //               Institute
+      //             </label>
+      //             <div className="mt-1">
+      //               <input
+      //                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      //                 id="institute"
+      //                 placeholder="Enter your Institute"
+      //                 value={institute}
+      //                 onChange={(e) => setInstitute(e.target.value)}
+      //               />
+      //             </div>
+      //           </div>
+      //           <div>
+      //             <label
+      //               htmlFor="designation"
+      //               className="block text-sm font-medium text-gray-700"
+      //             >
+      //               Designation
+      //             </label>
+      //             <div className="mt-1">
+      //               <select
+      //                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      //                 id="designation"
+      //                 placeholder="Enter your Designation"
+      //                 value={designation}
+      //                 onChange={(e) => setDesignation(e.target.value)}
+      //               >
+      //                 <option value="">Select Designation</option>
+      //                 {designations.map((designation) =>
+      //                   designation.categories.map((category, index) => (
+      //                     <option key={index} value={category}>
+      //                       {category}
+      //                     </option>
+      //                   ))
+      //                 )}
+      //               </select>
+      //             </div>
+      //           </div>
+      //         </div>
+
+      //         <div className="space-y-4">
+      //           <label className="block text-sm font-medium text-gray-700">
+      //             Profile Picture
+      //           </label>
+      //           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      //             <div>
+      //               <input
+      //                 className="w-full border p-2 rounded"
+      //                 type="file"
+      //                 accept="image/*"
+      //                 onChange={handleFileChange}
+      //                 disabled={isWebcamEnabled}
+      //               />
+      //             </div>
+      //             <WebcamCapture onCapture={handleCapture} />
+      //           </div>
+      //           {profilePicture && (
+      //             <div className="flex flex-col items-center mt-4">
+      //               <img
+      //                 src={
+      //                   URL.createObjectURL(profilePicture) ||
+      //                   "/placeholder.svg"
+      //                 }
+      //                 alt="Profile"
+      //                 className="w-32 h-32 object-cover rounded-full"
+      //               />
+      //               <button
+      //                 type="button"
+      //                 className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+      //                 onClick={handleRemovePicture}
+      //               >
+      //                 Remove Picture
+      //               </button>
+      //             </div>
+      //           )}
+      //         </div>
+
+      //         <div className="flex justify-between gap-5 pt-4">
+      //           <button
+      //             type="button"
+      //             className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-black bg-gray-200 border border-transparent rounded-md hover:bg-gray-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      //             onClick={() => window.history.back()}
+      //           >
+      //             Cancel
+      //           </button>
+      //           <button
+      //             type="submit"
+      //             className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white rounded-md hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+      //             disabled={isCreating}
+      //           >
+      //             {isCreating ? (
+      //               <>
+      //                 <svg
+      //                   className="animate-spin h-5 w-5 mr-3 text-white"
+      //                   xmlns="http://www.w3.org/2000/svg"
+      //                   fill="none"
+      //                   viewBox="0 0 24 24"
+      //                 >
+      //                   <circle
+      //                     className="opacity-25"
+      //                     cx="12"
+      //                     cy="12"
+      //                     r="10"
+      //                     stroke="currentColor"
+      //                     strokeWidth="4"
+      //                   ></circle>
+      //                   <path
+      //                     className="opacity-75"
+      //                     fill="currentColor"
+      //                     d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
+      //                   ></path>
+      //                 </svg>
+      //                 Creating...
+      //               </>
+      //             ) : (
+      //               "Create ID Card"
+      //             )}
+      //           </button>
+      //         </div>
+      //       </form>
+      //     </div>
+      //   </div>
+      // )}
+
+*/

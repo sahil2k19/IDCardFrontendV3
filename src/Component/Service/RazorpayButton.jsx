@@ -3,9 +3,9 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
-const RazorpayButton = ({ amount,isValid,onBeforePay,loading,  user, buttonText = "Pay Now", onSuccess,styleClass }) => {
+const RazorpayButton = ({ amount,isValid,onBeforePay,loading,currency,  user, buttonText = "Pay Now", onSuccess,styleClass }) => {
   const loadRazorpay = async (e) => {
-    console.log("isValid",isValid)
+    console.log("user",user)
     e.preventDefault();
   if (onBeforePay && !onBeforePay()) {
       toast.dismiss();
@@ -14,7 +14,7 @@ const RazorpayButton = ({ amount,isValid,onBeforePay,loading,  user, buttonText 
     }
     try {
       const orderUrl = `${process.env.REACT_APP_API_URL}/api/payment/create-order`;
-      const { data } = await axios.post(orderUrl, { amount });
+      const { data } = await axios.post(orderUrl, { amount, currency });
 
       const options = {
         key: "rzp_test_9biOcO86B9dZyQ", // your real test key

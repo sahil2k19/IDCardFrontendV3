@@ -16,10 +16,32 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
 
   const [isPaidEvent, setisPaidEvent] = useState(event.isPaidEvent || false);
 
+  // New: ticket pricing
+  const [indianTicketCategories, setIndianTicketCategories] = useState([]);
+  const [intlTicketCategories, setIntlTicketCategories] = useState([]);
+  const [currIndianName, setCurrIndianName] = useState("");
+  const [currIndianPrice, setCurrIndianPrice] = useState("");
+  const [currIntlName, setCurrIntlName] = useState("");
+  const [currIntlPrice, setCurrIntlPrice] = useState("");
 
+  useEffect(() => {
+    // Prefill pricing from event.regionPricings
+    const rp = event.regionPricings || [];
+    const ind = rp.find(r => r.region === 'indian');
+    const intl = rp.find(r => r.region === 'international');
+    if (ind) setIndianTicketCategories(ind.categories);
+    if (intl) setIntlTicketCategories(intl.categories);
+  }, [event.regionPricings]);
   useEffect(() => {
     setAmenities(event.amenities || {});
   }, [event.amenities]);
+
+  // Ticket handlers
+  const addIndianTicket = e => { e.preventDefault(); if (currIndianName && currIndianPrice) { setIndianTicketCategories([...indianTicketCategories, { name: currIndianName, price: Number(currIndianPrice) }]); setCurrIndianName(""); setCurrIndianPrice(""); } };
+  const removeIndianTicket = i => setIndianTicketCategories(indianTicketCategories.filter((_, idx) => idx !== i));
+  const addIntlTicket = e => { e.preventDefault(); if (currIntlName && currIntlPrice) { setIntlTicketCategories([...intlTicketCategories, { name: currIntlName, price: Number(currIntlPrice) }]); setCurrIntlName(""); setCurrIntlPrice(""); } };
+  const removeIntlTicket = i => setIntlTicketCategories(intlTicketCategories.filter((_, idx) => idx !== i));
+
 
   const addCategory = (e) => {
     e.preventDefault(); // Prevent form submission
@@ -67,10 +89,15 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
     formData.append("endDate", endDate);
     formData.append("categories", JSON.stringify(categories));
     formData.append("amenities", JSON.stringify(amenities));
-   formData.append("isPaidEvent", isPaidEvent ? "true" : "false");// Add isPaidEvent field with false value
+    formData.append("isPaidEvent", isPaidEvent ? "true" : "false");// Add isPaidEvent field with false value
     formData.append("amount", amount);
     if (eventImage) formData.append("photo", eventImage);
     if (idCardImage) formData.append("idcardimage", idCardImage);
+    // Region pricings
+    const regionPricings = [];
+    if (indianTicketCategories.length) regionPricings.push({ region: 'indian', categories: indianTicketCategories });
+    if (intlTicketCategories.length) regionPricings.push({ region: 'international', categories: intlTicketCategories });
+    formData.append("regionPricings", JSON.stringify(regionPricings));
 
     try {
       const response = await fetch(
@@ -340,7 +367,7 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
                       />
                     </div>
                     {/* is paid event */}
-                     <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
                       {/* Radio Buttons */}
                       <div className="flex items-center space-x-6">
                         <label className="inline-flex items-center space-x-2 cursor-pointer">
@@ -368,26 +395,50 @@ function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
                         </label>
                       </div>
 
-                      {/* Amount Input for Paid Option */}
-                      {isPaidEvent === true && (
-                        <div className="sm:ml-6 w-full sm:w-1/3">
-                          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-                            Amount (Rupees)
-                          </label>
-                          <input
-                            type="number"
-                            id="amount"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            placeholder="Enter amount"
-                            required
-                          />
-                        </div>
-                      )}
+                 
                     </div>
 
+
+
                   </div>
+
+                  {/* Pricing columns */}
+                  {isPaidEvent && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                      <div>
+                        <h4 className="font-semibold">Indian (INR)</h4>
+                        <div className="flex space-x-2 mb-2">
+                          <input value={currIndianName} onChange={e => setCurrIndianName(e.target.value)} placeholder="Name" className="border p-1 flex-1" />
+                          <input value={currIndianPrice} onChange={e => setCurrIndianPrice(e.target.value)} placeholder="Price" type="number" className="border p-1 w-24" />
+                          <button onClick={addIndianTicket} className="bg-black text-white px-2">Add</button>
+                        </div>
+                        <ul className="list-disc pl-5">
+                          {indianTicketCategories.map((t, i) => (
+                            <li key={i} className="flex justify-between items-center">
+                              {t.name} – ₹{t.price}
+                              <button onClick={() => removeIndianTicket(i)} className="text-red-600">Remove</button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">International (USD)</h4>
+                        <div className="flex space-x-2 mb-2">
+                          <input value={currIntlName} onChange={e => setCurrIntlName(e.target.value)} placeholder="Name" className="border p-1 flex-1" />
+                          <input value={currIntlPrice} onChange={e => setCurrIntlPrice(e.target.value)} placeholder="Price" type="number" className="border p-1 w-24" />
+                          <button onClick={addIntlTicket} className="bg-black text-white px-2">Add</button>
+                        </div>
+                        <ul className="list-disc pl-5">
+                          {intlTicketCategories.map((t, i) => (
+                            <li key={i} className="flex justify-between items-center">
+                              {t.name} – ${t.price}
+                              <button onClick={() => removeIntlTicket(i)} className="text-red-600">Remove</button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex justify-end mt-6">
                     <button
