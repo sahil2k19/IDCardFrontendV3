@@ -1,12 +1,11 @@
 services:
-  backend:
+  frontend:
     build:
-      context: .
-    image: frontend
+      context: "../IDCardFrontend"
+    image: idfrontend:latest
     ports:
-      - '8080:80'
+      - '8080:3000'
     restart: always
-    network_mode: host
     environment:
       - NODE_EN=preprod
-      - PORT=8080
+      - PORT=3000

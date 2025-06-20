@@ -872,7 +872,7 @@ function EventPage() {
                     <img
                       src={
                         event.photoUrl ||
-                        "https://www.cvent.com/sites/default/files/styles/focus_scale_and_crop_800x450/public/image/2019-10/48980241783_2b57e5f535_k.jpg?h=a1e1a043&itok=TvObf6VQ"
+                        "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                       }
                       alt={event.eventName}
                       className="w-full h-full object-cover"

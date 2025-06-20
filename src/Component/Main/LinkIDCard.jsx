@@ -9,7 +9,7 @@ import { Download } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 // Enhanced responsive default style settings
-const defaultStyles = {
+const defaultElementStyles = {
   profilePicture: {
     bottom: "35%",
     size: "clamp(120px, 70%, 200px)",
@@ -48,7 +48,7 @@ export default function LinkIDCard() {
   const params = useParams();
   const eventId = params?.eventId;
   const participantId = params?.participantId;
-
+  const [defaultStyles, setDefaultStyles] = useState(defaultElementStyles);
   const [participant, setParticipant] = useState(null);
   const [backgroundImage, setBackgroundImage] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
@@ -84,6 +84,8 @@ export default function LinkIDCard() {
         );
       })
       .catch((err) => console.error("Error fetching participant:", err));
+
+      fetchCardDesgin();
   }, [eventId, participantId]);
 
   const downloadImage = () => {
@@ -147,6 +149,19 @@ export default function LinkIDCard() {
         setIsDownloading(false);
       });
   };
+
+  const fetchCardDesgin = ()=>{
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/api/participants/design/${eventId}`)
+      .then((res) => {
+        if (res.data && res.data.elementStyles) {
+          setDefaultStyles(res.data.elementStyles);
+        }
+        // if (res.data && res.data.visibility) {
+        //   setGlobalVisibility(res.data.visibility);
+        // }
+      })
+  }
 
   if (!participant)
     return (

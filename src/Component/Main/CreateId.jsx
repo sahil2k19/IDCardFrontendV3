@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Webcam from "react-webcam";
-import IdCardrender from "./IdCardrender";
+import IdCardrender from "./IdCard/IdCardrender";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import JSZip from "jszip";
@@ -12,6 +12,7 @@ import { toPng } from "html-to-image";
 import JsBarcode from "jsbarcode";
 import RazorpayButton from "../Service/RazorpayButton";
 import Swal from "sweetalert2";
+import { Loader2 } from "lucide-react";
 
 function CreateId() {
   const location = useLocation();
@@ -77,6 +78,12 @@ function CreateId() {
       }
     }
   };
+
+    const LoaderOverlay = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <Loader2 className="h-12 w-12 animate-spin text-white" />
+    </div>
+  );
 
   const fetchEVentData = async () => {
     try {
@@ -260,7 +267,7 @@ function CreateId() {
       setIdCard([...idCard, response.data]);
       fetchData(eventId);
       toggleModal();
-      toast.success("ID card created successfully!");
+      Swal.fire("Success", "ID card generated successfully.", "success");
 
       if (token) {
         navigate(`/id-created?eventid=${eventId}&eventName=${eventName}`);
@@ -956,6 +963,7 @@ function CreateId() {
                 <div className=" max-w-2xl mx-auto py-5 px-4 sm:px-6 lg:px-8 overflow-y-auto  sm:max-h-screen">
                   <div className="space-y-6">
                     <form className="space-y-6" onSubmit={handleSubmit}>
+                        {isCreating && <LoaderOverlay />}
                       <div className="">
                         <div>
                           <label
@@ -1098,10 +1106,11 @@ function CreateId() {
                         {
                           eventData?.isPaidEvent ?
                             <RazorpayButton 
-                              styleClass={`w-full  px-4 py-3 text-sm font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
+                              styleClass={`w-full  px-4 py-3 text-sm disabled:cursor-not-allowed font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
                             onSuccess={createIdAfterPayment}
                               buttonText={`${eventData?.isPaidEvent ? `Pay ${eventData?.amount} Rs and Create` : "Create"}`}
                               amount={eventData?.amount}
+                              loading={isCreating}
                               onBeforePay={() => isValid()} // New prop, returns true if valid and sets errors
 
 

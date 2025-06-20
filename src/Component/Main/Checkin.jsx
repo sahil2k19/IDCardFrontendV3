@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function Checkin() {
   const { participantId } = useParams();
@@ -28,6 +29,33 @@ function Checkin() {
 
   if (loading) return <div>Loading...</div>;
   if (error)   return <div>Error during check‑in.</div>;
+
+    const handleAmenityChange = (amenity) => {
+    const updatedAmenities = {
+      ...participant.amenities,
+      [amenity]: !participant.amenities[amenity],
+    };
+    setParticipant((prev) => ({
+      ...prev,
+      amenities: updatedAmenities,
+    }));
+  };
+
+    const saveAmenities = async () => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/participants/participant/${participantId}/amenities`,
+        {
+          amenities: participant.amenities,
+        }
+      );
+      setParticipant(response.data);
+      toast.success("Approved");
+    } catch (error) {
+      console.error("Error updating amenities:", error);
+      toast.error("Error updating amenities:", error);
+    }
+  };
 
   return (
     <div className="container mx-auto my-10 px-4 md:px-6 lg:px-8">
@@ -61,6 +89,52 @@ function Checkin() {
             <p><strong>Institute:</strong> {participant.institute}</p>
           )}
         </div>
+
+        <div className="bg-muted rounded-lg p-6 md:p-8 lg:p-10">
+            <h3 className="text-xl font-bold mb-4">Event Amenities</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {participant.amenities &&
+                Object.keys(participant.amenities).map((amenity, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    {participant.amenities[amenity] ? (
+                      <div className="flex items-center gap-2 border border-green-200   bg-green-200 rounded-sm p-1 px-2">
+                        <input
+                          type="checkbox"
+                          checked
+                          className="peer h-4 w-4 shrink-0 rounded-sm border border-blue-200 ring-offset-background bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                        <span className="text-black font-bold">{amenity}</span>
+                      </div>
+                    ) : (
+                      <>
+                        <input
+                          type="checkbox"
+                          checked={participant.amenities[amenity]}
+                          onChange={() => handleAmenityChange(amenity)}
+                          className="peer h-4 w-4 shrink-0 rounded-sm border border-blue-500 ring-offset-background bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          id={`amenity-${index}`}
+                        />
+                        <label
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          htmlFor={`amenity-${index}`}
+                        >
+                          {amenity}
+                        </label>
+                      </>
+                    )}
+                  </div>
+                ))}
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={saveAmenities}
+                className="border p-2 px-7 bg-black text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
 
         {/* Check‑in badge */}
         {participant.checkin ? (
