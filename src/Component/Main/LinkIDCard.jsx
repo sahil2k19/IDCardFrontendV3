@@ -216,11 +216,12 @@ export default function LinkIDCard() {
 
         {/* Name */}
         <h2
-          className="absolute left-1/2 -translate-x-1/2 text-center w-full uppercase font-bold"
+          className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-bold text-center text-white mt-1 px-10 truncate"
           style={{
             top: defaultStyles.name.top,
             fontSize: defaultStyles.name.fontSize,
             color: defaultStyles.name.color,
+            left: defaultStyles.name.left,
           }}
         >
           {participant.firstName} {participant.lastName}
