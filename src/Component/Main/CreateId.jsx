@@ -13,6 +13,7 @@ import JsBarcode from "jsbarcode";
 import RazorpayButton from "../Service/RazorpayButton";
 import Swal from "sweetalert2";
 import { Loader2 } from "lucide-react";
+import CreateIdModalForm from "./CreateUpdateIdCard/CreateIdModalForm";
 
 function CreateId() {
   const location = useLocation();
@@ -20,40 +21,18 @@ function CreateId() {
   const [modal, setModal] = useState(false);
   const [linkmodal, setlinkmodal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [designation, setDesignation] = useState("");
   const [idCard, setIdCard] = useState([]);
   const [designations, setDesignations] = useState([]); // State to hold fetched designations
   const [Dataid, setDataid] = useState("");
   const [params, setparams] = useState(new URLSearchParams(location.search));
   const [eventId, setEventId] = useState(params.get("eventid"));
   const [eventName, setEventName] = useState("");
-  const [institute, setInstitute] = useState("");
-  const [email, setemail] = useState("");
-  const [selectedIdCardType, setSelectedIdCardType] = useState("vertical");
-  const [isWebcamEnabled, setIsWebcamEnabled] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [amenities, setamenities] = useState(null);
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [copySuccess, setCopySuccess] = useState("");
-  const [phone, setPhone] = useState("");
   const [generatedSecureLink, setGeneratedSecureLink] = useState("");
   const [generatedPublicCreateLink, setGeneratedPublicCreateLink] =
     useState("");
-  const [errors, setErrors] = useState({});
-  const [eventData, setEventData] = useState(null); // State to hold fetched event data
 
-  // Ticket selection state
-  const [selectedRegion, setSelectedRegion] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-
-
-  // Derive dropdown options
-  const regionOptions = eventData?.regionPricings?.map(r => r.region) || [];
-  const categoryOptions = selectedRegion
-    ? eventData.regionPricings.find(r => r.region === selectedRegion)?.categories || []
-    : [];
 
   const handleGenerateSecureLink = async () => {
     try {
@@ -73,42 +52,21 @@ function CreateId() {
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(generatedLink)
-      .then(() => setCopySuccess("Copied!"))
-      .catch(() => setCopySuccess("Failed to copy!"));
-  };
 
-  const handleImageChange = (event) => {
-    const { id, files } = event.target;
-    if (files && files[0]) {
-      const file = files[0];
-      if (id === "profilePicture") {
-        setProfilePicture(file);
-      }
-    }
-  };
 
-  const LoaderOverlay = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <Loader2 className="h-12 w-12 animate-spin text-white" />
-    </div>
-  );
-
-  const fetchEVentData = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/events/${eventId}`
-      );
-      setEventData(response.data);
-    } catch (error) {
-      console.error("Error fetching event data:", error);
-    }
-  };
-  useEffect(() => {
-    fetchEVentData();
-  }, [eventId]);
+  // const fetchEVentData = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${process.env.REACT_APP_API_URL}/api/events/${eventId}`
+  //     );
+  //     setEventData(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching event data:", error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchEVentData();
+  // }, [eventId]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -139,162 +97,8 @@ function CreateId() {
     fetchData();
   }, []);
 
-  const handleFileChange = (e) => {
-    setProfilePicture(e.target.files[0]);
-    setIsWebcamEnabled(false);
-  };
-
-  const handleCapture = (imageSrc) => {
-    const byteString = atob(imageSrc.split(",")[1]);
-    const mimeString = imageSrc.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
-    setProfilePicture(blob);
-    setIsWebcamEnabled(false);
-  };
-
-  const handleRemovePicture = () => {
-    setProfilePicture(null);
-    setIsWebcamEnabled(false);
-  };
-
-  const [isCreating, setIsCreating] = useState(false); // New state for loading spinner
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setIsCreating(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("firstName", firstName);
-      // formData.append("lastName", lastName);
-      formData.append("designation", designation);
-      formData.append("idCardType", selectedIdCardType);
-      formData.append("institute", institute);
-      formData.append("eventId", eventId);
-      formData.append("phone", phone);
-      formData.append("eventName", eventName);
-      formData.append("email", email);
-      // formData.append("tag", "Invited");
-
-      formData.append("ticketRegion", selectedRegion);
-      formData.append("ticketCategory", selectedCategory);
 
 
-
-      const amenitiesObject = typeof amenities === "object" ? amenities : {};
-      formData.append("amenities", JSON.stringify(amenitiesObject));
-
-      if (backgroundImage) {
-        formData.append("backgroundImage", backgroundImage);
-      }
-      if (profilePicture) {
-        formData.append("profilePicture", profilePicture);
-      }
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/participants`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      const token = new URLSearchParams(window.location.search).get("token");
-
-      // Invalidate token only if form submission succeeded
-      if (token) {
-        await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/participants/invalidate-token`,
-          { token }
-        );
-      }
-
-      setIdCard([...idCard, response.data]);
-      fetchData(eventId);
-      toggleModal();
-      // toast.success("ID card created successfully!");
-      Swal.fire("Success", "ID card generated successfully.", "success");
-
-      if (token) {
-        navigate(`/id-created?eventid=${eventId}&eventName=${eventName}`);
-      }
-    } catch (error) {
-      console.error("Error creating participant:", error);
-      // toast.error("Failed to create participant");
-      Swal.fire(
-        "Error", "Please check your internet connection."
-
-      );
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const createIdAfterPayment = async () => {
-    // event.preventDefault();
-    setIsCreating(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("firstName", firstName);
-      // formData.append("lastName", lastName);
-      formData.append("designation", designation);
-      formData.append("idCardType", selectedIdCardType);
-      formData.append("institute", institute);
-      formData.append("eventId", eventId);
-      formData.append("phone", phone);
-      formData.append("eventName", eventName);
-      formData.append("email", email);
-      // formData.append("tag", "Invited");
-
-      const amenitiesObject = typeof amenities === "object" ? amenities : {};
-      formData.append("amenities", JSON.stringify(amenitiesObject));
-
-      if (backgroundImage) {
-        formData.append("backgroundImage", backgroundImage);
-      }
-      if (profilePicture) {
-        formData.append("profilePicture", profilePicture);
-      }
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/participants`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      const token = new URLSearchParams(window.location.search).get("token");
-
-      // Invalidate token only if form submission succeeded
-      if (token) {
-        await axios.post(
-          `${process.env.REACT_APP_API_URL}/api/participants/invalidate-token`,
-          { token }
-        );
-      }
-
-      setIdCard([...idCard, response.data]);
-      fetchData(eventId);
-      toggleModal();
-      Swal.fire("Success", "ID card generated successfully.", "success");
-
-      if (token) {
-        navigate(`/id-created?eventid=${eventId}&eventName=${eventName}`);
-      }
-    } catch (error) {
-      console.error("Error creating participant:", error);
-      toast.error("Failed to create participant");
-    } finally {
-      setIsCreating(false);
-    }
-  };
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -447,80 +251,7 @@ function CreateId() {
     navigate(`/archive-id-card?eventid=${eventId}&eventName=${eventName}`);
   };
 
-  const handleEmbed = () => {
-    navigate(`/form-url?eventid=${eventId}&eventName=${eventName}`);
-  };
-
-  const WebcamCapture = ({ onCapture }) => {
-    const webcamRef = useRef(null);
-    const [capturing, setCapturing] = useState(false);
-
-    const capture = useCallback(() => {
-      const imageSrc = webcamRef.current.getScreenshot();
-      onCapture(imageSrc);
-      setCapturing(false);
-    }, [webcamRef, onCapture]);
-
-    return (
-      <div className="border p-2 bg-gray-600 rounded text-center">
-        {capturing ? (
-          <div>
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              width="100%"
-            />
-            <button
-              className="bg-gray-300 hover:bg-gray-500 px-2 mt-2 rounded text-white"
-              onClick={capture}
-            >
-              Capture
-            </button>
-          </div>
-        ) : (
-          <div
-            onClick={() => setCapturing(true)}
-            className="flex justify-center text-center items-center gap-2 cursor-pointer font-semibold text-white text-lg"
-          >
-            <button className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                fill="currentColor"
-                className="bi bi-camera"
-                viewBox="0 0 16 16"
-              >
-                <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z" />
-                <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
-              </svg>
-              Take Picture
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const [generatedLink, setGeneratedLink] = useState("");
-
-  const handleGenerateLink = async () => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/participants/generate-token`,
-        {
-          eventId,
-          eventName,
-        }
-      );
-      const token = response.data.token;
-      const link = `${window.location.origin}/form-url?eventid=${eventId}&eventName=${eventName}&token=${token}`;
-      setGeneratedLink(link);
-    } catch (error) {
-      console.error("Error generating link:", error);
-    }
-  };
 
   // Check if the form is being accessed with a token
   const [isSecureForm, setIsSecureForm] = useState(false);
@@ -547,43 +278,6 @@ function CreateId() {
     }
   }, [location, navigate]);
 
-
-  const isFormFilled = () =>
-    !!firstName.trim() &&
-    !!designation.trim() &&
-    !!institute.trim() &&
-    !!email.trim() &&
-    !!phone.trim();
-
-  const isValid = (skipErrorSetting = false) => {
-    const newErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10}$/;
-
-    if (!firstName.trim()) newErrors.firstName = "Name is required.";
-    if (!designation.trim()) newErrors.designation = "Designation is required.";
-    if (!institute.trim()) newErrors.institute = "Institute is required.";
-
-    if (!email.trim()) newErrors.email = "Email is required.";
-    else if (!emailRegex.test(email.trim()))
-      newErrors.email = "Enter a valid email.";
-
-    if (!phone.trim()) newErrors.phone = "Phone is required.";
-    else if (!phoneRegex.test(phone.trim()))
-      newErrors.phone = "Phone must be 10 digits.";
-
-    if (eventData?.isPaidEvent) {
-      if (!selectedRegion) newErrors.ticketRegion = "Ticket Region is required.";
-      if (!selectedCategory) newErrors.ticketCategory = "Ticket Category is required.";
-    }
-
-    // only write into state when you really want errors shown
-    if (!skipErrorSetting) {
-      setErrors(newErrors);
-    }
-
-    return Object.keys(newErrors).length === 0;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -748,306 +442,8 @@ function CreateId() {
 
 
 
-      {modal && (
-        <div>
-          <div
-            id="default-modal"
-            tabIndex="-1"
-            aria-hidden="true"
-            className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50"
-          >
-            <div className="relative p-4 w-full max-w-2xl max-h-full">
-              <div className="relative bg-white rounded-lg shadow">
-                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                      {` Create ID`}
-                    </h1>
-                    <span className="text-gray-500">{` ${eventData?.isPaidEvent ? " (Paid Event)" : ""}`}</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center"
-                    onClick={toggleModal}
-                  >
-                    <svg
-                      className="w-3 h-3"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 14 14"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7l-6 6"
-                      />
-                    </svg>
-                    <span className="sr-only">Close modal</span>
-                  </button>
-                </div>
-                <div className=" max-w-2xl mx-auto py-5 px-4 sm:px-6 lg:px-8 overflow-y-auto  max-h-[70vh]">
-                  <div className="space-y-6">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                      {isCreating && <LoaderOverlay />}
-                      <div className="">
-                        <div>
-                          <label
-                            htmlFor="startname"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Name
-                          </label>
-                          <div className="mt-1">
-                            <input
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                              id="startname"
-                              placeholder="Enter your Name"
-                              required
-                              value={firstName}
-                              onChange={(e) => setFirstName(e.target.value)}
-                            />
-                            {errors.firstName && (
-                              <p className="text-red-500">
-                                {errors.firstName}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="grid-cols-2 grid gap-6">
-                          <div className="mt-4">
-                            <label
-                              htmlFor="institute"
-                              className="block text-sm font-medium text-gray-700"
-                            >
-                              Institute
-                            </label>
-                            <div className="mt-1">
-                              <input
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                id="institute"
-                                placeholder="Enter your Company/Institute"
-                                value={institute}
-                                onChange={(e) => setInstitute(e.target.value)}
-                              />
-                              {errors.institute && (
-                                <p className="text-red-500">
-                                  {errors.institute}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="mt-4">
-                            <label
-                              htmlFor="designation"
-                              className="block text-sm font-medium text-gray-700"
-                            >
-                              Designation
-                            </label>
-                            <div className="mt-1">
-                              <input
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                id="designation"
-                                placeholder="Enter your Designation"
-                                value={designation}
-                                onChange={(e) => setDesignation(e.target.value)}
-                              />
-                              {errors.designation && (
-                                <p className="text-red-500">
-                                  {errors.designation}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        {/* <div>
-                          <label
-                            htmlFor="lastname"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Last name
-                          </label>
-                          <div className="mt-1">
-                            <input
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                              id="lastname"
-                              placeholder="Enter your Last name"
-                              required
-                              value={lastName}
-                              onChange={(e) => setLastName(e.target.value)}
-                            />
-                          </div>
-                        </div> */}
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="phone"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Phone
-                        </label>
-                        <div className="mt-1">
-                          <input
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            id="phone"
-                            placeholder="Enter your Phone"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                          />
-                          {errors.phone && (
-                            <p className="text-red-500">{errors.phone}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="email"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Email
-                        </label>
-                        <div className="mt-1">
-                          <input
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            id="email"
-                            placeholder="Enter your Email"
-                            value={email}
-                            onChange={(e) => setemail(e.target.value)}
-                          />
-                          {errors.email && (
-                            <p className="text-red-500">{errors.email}</p>
-                          )}
-                        </div>
-                      </div>
-                      {/* Ticket Selection */}
-                   {eventData.regionPricings.length > 0 &&   <div>
-                        <label className="block text-sm font-medium text-gray-700">Region</label>
-                        <select
-                          value={selectedRegion}
-                          onChange={e => { setSelectedRegion(e.target.value); setSelectedCategory(""); }}
-                          className="mt-1 block w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                          required
-                        >
-                          <option value="">Select Region</option>
-                          {regionOptions.map(region => (
-                            <option key={region} value={region}>
-                              {region.charAt(0).toUpperCase() + region.slice(1)}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.ticketRegion && (
-                          <p className="text-red-500">{errors.ticketRegion}</p>
-                        )}
-                      </div>}
-                      {selectedRegion && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">Category</label>
-                          <select
-                            value={selectedCategory}
-                            onChange={e => setSelectedCategory(e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
-                            required
-                          >
-                            <option value="">Select Category</option>
-                            {categoryOptions.map(({ name, price }) => (
-                              <option key={name} value={name}>
-                                {`${name} – ${selectedRegion === 'indian' ? '₹' : '$'}${price}`}
-                              </option>
-                            ))}
-                          </select>
-                          {errors.ticketCategory && (
-                            <p className="text-red-500">{errors.ticketCategory}</p>
-                          )}
-                        </div>
-                      )}
-
-
-
-                    </form>
-                  </div>
-                 
-                </div>
-                 <div className="flex justify-between gap-5 p-4">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-black bg-gray-400 border border-transparent rounded-md hover:bg-gray-500 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      onClick={toggleModal}
-                    >
-                      Cancel
-                    </button>
-                    {
-                      eventData?.isPaidEvent ?
-                        <RazorpayButton
-                          styleClass={`w-full  px-4 py-3 text-sm disabled:cursor-not-allowed font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
-                          onSuccess={createIdAfterPayment}
-                          buttonText={
-                            selectedCategory
-                              ? `Pay & Create (${selectedRegion === 'indian' ? '₹' : '$'}${eventData.regionPricings
-                                .find(r => r.region === selectedRegion)
-                                .categories.find(c => c.name === selectedCategory).price
-                              })`
-                              : 'Select ticket first'
-                          }
-                          amount={
-                            (eventData.regionPricings.find(r => r.region === selectedRegion)?.categories
-                              .find(c => c.name === selectedCategory)?.price || 0)
-                          }
-                          user={
-                            {
-                              firstName,
-                              lastName,
-                              email,
-                              phone
-                            }
-                          }
-                          currency={selectedRegion === 'indian' ? 'INR' : 'USD'}
-                          loading={isCreating}
-                          onBeforePay={() => isValid()} // New prop, returns true if valid and sets errors
-
-
-                        />
-                        :
-                        <button
-                          onClick={handleSubmit}
-                          className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                          disabled={isCreating}
-                        >
-                          {isCreating ? (
-                            <>
-                              <svg
-                                className="animate-spin h-5 w-5 mr-3 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                ></circle>
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
-                                ></path>
-                              </svg>
-                              Creating...
-                            </>
-                          ) : (
-                            ` Create`
-                          )}
-                        </button>
-                    }
-                  </div>
-              </div>
-            </div>
-          </div>
-        </div>
+     {modal && (
+        <CreateIdModalForm fetchData={fetchData} toggleModal={toggleModal} eventId={eventId} />
       )}
 
       {loading ? (
