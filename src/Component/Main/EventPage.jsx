@@ -312,7 +312,7 @@ function EventPage() {
                 >
                   <span className="flex items-center">
                     <img
-                      src="https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/corporate-user-icon.png"
+                      src="/profilePhoto/profile.jpg"
                       alt=""
                       className="h-5 w-5 flex-shrink-0 rounded-full"
                     />

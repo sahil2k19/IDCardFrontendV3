@@ -175,8 +175,8 @@ export default function PublicCreateId() {
     const phoneRegex = /^\d{10}$/;
 
     if (!firstName.trim()) newErrors.firstName = "Name is required.";
-    if (!designation.trim()) newErrors.designation = "Designation is required.";
-    if (!institute.trim()) newErrors.institute = "Institute is required.";
+    // if (!designation.trim()) newErrors.designation = "Designation is required.";
+    // if (!institute.trim()) newErrors.institute = "Institute is required.";
 
     if (!email.trim()) newErrors.email = "Email is required.";
     else if (!emailRegex.test(email.trim()))
@@ -245,8 +245,8 @@ export default function PublicCreateId() {
   if (showThanksPage) return <ThanksPage />
 const isFormFilled = () =>
   !!firstName.trim() &&
-  !!designation.trim() &&
-  !!institute.trim() &&
+  // !!designation.trim() &&
+  // !!institute.trim() &&
   !!email.trim() &&
   !!phone.trim();
 
@@ -273,7 +273,7 @@ const isFormFilled = () =>
           {errors.firstName && (
             <span className=" text-sm text-red-500">{errors.firstName}</span>
           )}
-          <input
+          {/* <input
             placeholder="Company/Institute"
             value={institute}
             onChange={(e) => {
@@ -284,8 +284,8 @@ const isFormFilled = () =>
           />
           {errors.institute && (
             <span className=" text-sm text-red-500">{errors.institute}</span>
-          )}
-          <div>
+          )} */}
+          {/* <div>
             <input
               required
               placeholder="Designation"
@@ -299,7 +299,7 @@ const isFormFilled = () =>
             {errors.designation && (
               <span className=" text-sm text-red-500">{errors.designation}</span>
             )}
-          </div>
+          </div> */}
 
           {/* Phone */}
           <input
