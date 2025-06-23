@@ -14,6 +14,7 @@ import EmbedForm from './Component/Main/EmbedFOrm/EmbedForm';
 import Checkin from './Component/Main/Checkin';
 import PublicCreateId from './Component/Main/PublicCreateId';
 import LinkIDCard from './Component/Main/LinkIDCard';
+import PublicRoute from './PublicRoute';
 
 function App() {
   return (
@@ -23,7 +24,10 @@ function App() {
         <div className="flex-grow">
           <Routes>
             {/* Route for login page, without PrivateRoute */}
-            <Route path="/" element={<Login />} />
+            {/* <Route path="/" element={<Login />} /> */}
+
+            <Route path="/" element={<PublicRoute element={<Login />} />} />
+
 
             {/* Protected Routes */}
             <Route path="/event" element={<PrivateRoute element={EventPage} />} />
@@ -38,9 +42,9 @@ function App() {
             <Route path="/id-card/:eventId/:participantId" element={<LinkIDCard />} />
           </Routes>
         </div>
-      </Router>  
+      </Router>
 
-      
+
     </div>
   );
 }
