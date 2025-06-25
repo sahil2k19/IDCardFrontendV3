@@ -276,7 +276,7 @@ const IdCard = ({
 
 
   return (
-    <div className={`relative ${isPreview ? "" : "mb-20"} h-[610px] w-[430px]`}>
+    <div className={`relative ${isPreview ? "" : "mb-20"} border border-gray-300 rounded-lg w-[430px]`}>
       <div
         ref={idCardRef}
         id={`id-card-${index}`}
@@ -404,21 +404,13 @@ const IdCard = ({
 
       <div className="">
         {/* Content to Print */}
-        <div ref={printRef} className="text-center border rounded-lg shadow">
+        <div ref={printRef} className="text-center hidden border rounded-lg shadow">
           <h1 className="text-xl font-semibold">{card.firstName}</h1>
           <h3 className="text-lg font-semibold">{card.designation}</h3>
           <h2 className="text-base font-semibold">{card.institute}</h2>
         </div>
 
-        {/* Print Button */}
-        <div className="mt-4 text-center">
-          <button
-            onClick={handlePrint}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Print without-BG (small)
-          </button>
-        </div>
+       
       </div>
 
       {!isPreview && (
@@ -534,7 +526,7 @@ const IdCard = ({
                 </svg>
               ) : (
                 <div className="flex gap-2">
-                  WithoutBg
+                  NoBg
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -600,7 +592,7 @@ const IdCard = ({
               onClick={() => printIdCard(true)}
               className="bg-gray-300  flex items-center justify-between gap-2 text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
             >
-              Print
+              
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -617,7 +609,7 @@ const IdCard = ({
               onClick={() => printIdCard(false)}
               className="bg-gray-300 flex items-center justify-between gap-2  text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
             >
-              Print without Bg
+               No Bg
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -630,6 +622,13 @@ const IdCard = ({
                 <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1" />
               </svg>
             </button>
+             <button
+            onClick={handlePrint}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Print_no_BG
+          </button>
+            
           </div>
         </div>
       )}

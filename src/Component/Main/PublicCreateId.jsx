@@ -24,6 +24,7 @@ export default function PublicCreateId() {
   const [phone, setPhone] = useState("")
   const [showThanksPage, setShowThanksPage] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showIdcardLink, setShowIdcardLink] = useState("");
   useEffect(() => {
     if (!eventId || !eventName) {
       toast.dismiss();
@@ -76,7 +77,7 @@ export default function PublicCreateId() {
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
+      setShowIdcardLink(data.link);
       toast.success(`ID created`);
       setFirstName("");
       // setLastName("");
@@ -129,7 +130,7 @@ export default function PublicCreateId() {
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
+      setShowIdcardLink(data.link);
       toast.success(`ID created`);
       setFirstName("");
       // setLastName("");
@@ -232,6 +233,12 @@ export default function PublicCreateId() {
                   Register Another Person
                 </button>
 
+                <a
+                  href={showIdcardLink}
+                  className="w-full block py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-center"
+                >
+                  View Your ID Card
+                </a>
               </div>
             </div>
           </div>
