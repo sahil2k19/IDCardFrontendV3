@@ -8,6 +8,7 @@ import { saveAs } from "file-saver";
 import { toPng } from "html-to-image";
 import EditParticipent from "../Edit/EditParticipent";
 import * as XLSX from "xlsx";
+import html2canvas from "html2canvas";
 
 const IdCard = ({
   card,
@@ -31,56 +32,90 @@ const IdCard = ({
 
   const printRef = useRef();
 
-const handlePrint = () => {
-  const content = printRef.current.innerHTML;
-  const printWindow = window.open('', '', '');
+  const handlePrint = async () => {
+    // 1. Render the div to a canvas
+    const canvas = await html2canvas(printRef.current, {
+      scale: 2,            // boost resolution
+      useCORS: true,       // if you have cross-origin images
+    });
 
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Print</title>
-        <style>
-          @page {
-            size: 50mm 50mm;
-            margin: 0;
-          }
-          body {
-            margin: 0;
-            padding: 0;
-            width: 50mm;
-            height: 50mm;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-          }
-          h1, h2, h3 {
-            display: block;
-            margin: 0;
-            line-height: 1.4;
-          }
-          .print-container {
-            text-align: center;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="print-container">
-          ${content}
-        </div>
-      </body>
-    </html>
-  `);
+    // 2. Convert the canvas to a PNG data URL
+    const imgData = canvas.toDataURL("image/png");
 
-  printWindow.document.close(); // This triggers the DOM to load
-
-  // Wait for print window to finish rendering before calling print
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+    // 3. Open a print window and inject that <img>
+    const printWindow = window.open("", "", "");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Badge</title>
+          <style>
+            @page { margin: 0; }
+            body { margin:0; display:flex; justify-content:center; align-items:center; }
+            img { max-width: 100%; height: auto; }
+          </style>
+        </head>
+        <body>
+          <img src="${imgData}" alt="Badge" />
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    };
   };
-};
+
+//   const handlePrint = () => {
+//   const content = printRef.current.innerHTML;
+//   const printWindow = window.open('', '', '');
+
+//   printWindow.document.write(`
+//     <html>
+//       <head>
+//         <title>Print</title>
+//         <style>
+//           @page {
+           
+//             margin: 0;
+//           }
+//           body {
+//             margin: 0;
+//             padding: 0;
+          
+//             display: flex;
+//             justify-content: center;
+//             align-items: center;
+//             font-family: Arial, sans-serif;
+//           }
+//           h1, h2, h3 {
+//             display: block;
+//             margin: 0;
+//             line-height: 1.4;
+//           }
+//           .print-container {
+//             text-align: center;
+//           }
+//         </style>
+//       </head>
+//       <body>
+//         <div class="print-container">
+//           ${content}
+//         </div>
+//       </body>
+//     </html>
+//   `);
+
+//   printWindow.document.close(); // This triggers the DOM to load
+
+//   // Wait for print window to finish rendering before calling print
+//   printWindow.onload = () => {
+//     printWindow.focus();
+//     printWindow.print();
+//     printWindow.close();
+//   };
+// };
   const toggleModal = () => {
     setModal(!modal);
     fetchDesignations(eventId);
@@ -411,10 +446,19 @@ const handlePrint = () => {
 
       <div className="">
         {/* Content to Print */}
-        <div ref={printRef} className="text-center border rounded-lg shadow">
-          <h1 className="text-xl font-semibold">{card.firstName}</h1>
-          <h3 className="text-lg font-semibold">{card.designation}</h3>
-          <h2 className="text-base font-semibold">{card.institute}</h2>
+        <div ref={printRef} className="text-center  border rounded-lg shadow">
+          <p className="text-xl font-bold">{card.firstName}</p>
+          <p className="text-lg font-semibold">{card.designation}</p>
+          <p className="text-base font-semibold">{card.institute}</p>
+          {/* <div className="flex justify-center mt-4">
+            <QRCode
+              value={participantUrl}
+              size={100}
+              level="H"
+              renderAs="svg"    // ← add this
+            />
+
+          </div> */}
         </div>
 
         {/* Print Button */}
