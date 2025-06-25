@@ -31,49 +31,56 @@ const IdCard = ({
 
   const printRef = useRef();
 
-  const handlePrint = () => {
-    const content = printRef.current.innerHTML;
+const handlePrint = () => {
+  const content = printRef.current.innerHTML;
+  const printWindow = window.open('', '', '');
 
-    const printWindow = window.open('', '', '');
-    printWindow.document.write(`
-  <html>
-    <head>
-      <title>Print</title>
-      <style>
-        @page {
-          margin: 0;
-        }
-        body {
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-family: Arial, sans-serif;
-        }
-        h1, h2, h3 {
-          display: block;
-          margin: 0;
-          line-height: 1.4;
-        }
-        .print-container {
-          text-align: center;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="print-container">
-        ${content}
-      </div>
-    </body>
-  </html>
-`);
-    printWindow.document.close();
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print</title>
+        <style>
+          @page {
+            size: 50mm 50mm;
+            margin: 0;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            width: 50mm;
+            height: 50mm;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+          }
+          h1, h2, h3 {
+            display: block;
+            margin: 0;
+            line-height: 1.4;
+          }
+          .print-container {
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="print-container">
+          ${content}
+        </div>
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close(); // This triggers the DOM to load
+
+  // Wait for print window to finish rendering before calling print
+  printWindow.onload = () => {
     printWindow.focus();
     printWindow.print();
     printWindow.close();
   };
-
+};
   const toggleModal = () => {
     setModal(!modal);
     fetchDesignations(eventId);
