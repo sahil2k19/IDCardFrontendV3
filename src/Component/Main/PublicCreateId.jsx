@@ -254,7 +254,7 @@ const isFormFilled = () =>
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4">
       {isSubmitting && <LoaderOverlay />}
-      <CreateIdModalForm  eventId={eventId} />
+      {/* <CreateIdModalForm  eventId={eventId} /> */}
       <div className="bg-white bg-opacity-80 backdrop-blur-sm p-8 rounded-xl shadow-xl w-full max-w-lg">
         <h1 className="text-3xl font-bold mb-6 text-center">
           {eventName} - Create Your ID
