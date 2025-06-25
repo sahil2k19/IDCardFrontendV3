@@ -29,18 +29,63 @@ const IdCard = ({
   const idCardRef = useRef(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const printRef = useRef();
+
+  const handlePrint = () => {
+    const content = printRef.current.innerHTML;
+
+    const printWindow = window.open('', '', '');
+    printWindow.document.write(`
+  <html>
+    <head>
+      <title>Print</title>
+      <style>
+        @page {
+          margin: 0;
+        }
+        body {
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-family: Arial, sans-serif;
+        }
+        h1, h2, h3 {
+          display: block;
+          margin: 0;
+          line-height: 1.4;
+        }
+        .print-container {
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="print-container">
+        ${content}
+      </div>
+    </body>
+  </html>
+`);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
+
   const toggleModal = () => {
     setModal(!modal);
     fetchDesignations(eventId);
   };
-const defaultElementStyles = {
-  profilePicture: { left: 215, bottom: 160, size: 170 },
-  name: { left: 215, top: 200, fontSize: 20, color: "black" },
-  institute: { left: 215, bottom: 130, fontSize: 18, color: "black" },
-  designation: { left: 215, bottom: 107, fontSize: 16, color: "black" },
-  qrCode: { left: 215, bottom: 15 }, // Add size if you want: size: 100
-  participantId: { left: 215, bottom: 1, fontSize: 12, color: "black" },
-};
+  const defaultElementStyles = {
+    profilePicture: { left: 215, bottom: 160, size: 170 },
+    name: { left: 215, top: 200, fontSize: 20, color: "black" },
+    institute: { left: 215, bottom: 130, fontSize: 18, color: "black" },
+    designation: { left: 215, bottom: 107, fontSize: 16, color: "black" },
+    qrCode: { left: 215, bottom: 15 }, // Add size if you want: size: 100
+    participantId: { left: 215, bottom: 1, fontSize: 12, color: "black" },
+  };
 
   const styles = elementStyles || defaultElementStyles;
   const handleDelete = (id) => {
@@ -91,7 +136,7 @@ const defaultElementStyles = {
     card && card._id
       ? `http://idcard.insideoutprojects.in/checkin/${card._id}` // For Checkin
       : "#";
-//   console.log("card", card);
+  //   console.log("card", card);
   const downloadImage = () => {
     const element = idCardRef.current;
     if (!element) return;
@@ -228,6 +273,8 @@ const defaultElementStyles = {
 
   // Handle case when Dataid is not an array or is empty
 
+
+
   return (
     <div className={`relative ${isPreview ? "" : "mb-20"} h-[610px] w-[430px]`}>
       <div
@@ -279,14 +326,14 @@ const defaultElementStyles = {
                   fontSize: `${styles.name.fontSize}px`,
                   color: styles.name.color,
                 }}
-                             className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-bold text-center text-white mt-1 px-10 truncate"
+                className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-bold text-center text-white mt-1 px-10 truncate"
 
               >
-                  {card.firstName}
+                {card.firstName}
               </p>
             )}
 
-            
+
             {globalVisibility.institute && card.institute && (
               <p
                 style={{
@@ -297,7 +344,7 @@ const defaultElementStyles = {
                   fontSize: `${styles.institute.fontSize}px`,
                   color: styles.institute.color,
                 }}
-              className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1 px-10 truncate"
+                className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1 px-10 truncate"
 
                 dangerouslySetInnerHTML={{
                   __html: card.institute.toUpperCase(),
@@ -352,6 +399,25 @@ const defaultElementStyles = {
               {card.tag}
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="">
+        {/* Content to Print */}
+        <div ref={printRef} className="text-center border rounded-lg shadow">
+          <h1 className="text-xl font-semibold">{card.firstName}</h1>
+          <h3 className="text-lg font-semibold">{card.designation}</h3>
+          <h2 className="text-base font-semibold">{card.institute}</h2>
+        </div>
+
+        {/* Print Button */}
+        <div className="mt-4 text-center">
+          <button
+            onClick={handlePrint}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Print without-BG (small)
+          </button>
         </div>
       </div>
 
@@ -490,8 +556,8 @@ const defaultElementStyles = {
               onClick={onCheckin}
               disabled={isCheckingIn || card.checkin}
               className={`flex items-center justify-between gap-2 text-white font-semibold py-2 px-4 rounded ${card.checkin
-                  ? "bg-green-500 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
+                ? "bg-green-500 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
                 }`}
             >
               {isCheckingIn ? (
