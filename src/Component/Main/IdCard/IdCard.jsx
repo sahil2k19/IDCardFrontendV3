@@ -35,38 +35,52 @@ const handlePrint = () => {
   const content = printRef.current.innerHTML;
   const printWindow = window.open('', '', '');
 
-  // Grab your existing <head> innerHTML, or just insert your Tailwind link directly:
-  const tailwindLink = `<link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.4/dist/tailwind.min.css"
-  >`;
-
   printWindow.document.write(`
     <html>
       <head>
         <title>Print</title>
-        ${tailwindLink}
         <style>
-          @page { size: 50mm 50mm; margin: 0; }
-          body { margin:0; width:50mm; height:50mm; font-family: Arial, sans-serif; }
+          @page {
+            size: 50mm 50mm;
+            margin: 0;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            width: 50mm;
+            height: 50mm;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+          }
+          h1, h2, h3 {
+            display: block;
+            margin: 0;
+            line-height: 1.4;
+          }
+          .print-container {
+            text-align: center;
+          }
         </style>
       </head>
       <body>
-        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;" class="print-container text-center">
+        <div style="tetx-align: center;" class="print-container">
           ${content}
         </div>
       </body>
     </html>
   `);
 
-  printWindow.document.close();
+  printWindow.document.close(); // This triggers the DOM to load
+
+  // Wait for print window to finish rendering before calling print
   printWindow.onload = () => {
     printWindow.focus();
     printWindow.print();
     printWindow.close();
   };
 };
-
 
   const toggleModal = () => {
     setModal(!modal);
@@ -402,8 +416,8 @@ const handlePrint = () => {
         {/* Content to Print */}
         <div ref={printRef} className="text-center hidden border rounded-lg shadow">
           <h1 style={{fontSize: `16px`}} className="text-xl font-semibold">{card.firstName}</h1>
-          <p style={{fontSize: `14px`}} className="text-lg font-semibold">{card.designation}</p>
-          <p style={{fontSize: `14px`}} className="text-base font-semibold">{card.institute}</p>
+          <p style={{fontSize: `12px`}} className="text-lg font-semibold">{card.designation}</p>
+          <p style={{fontSize: `13px`,  fontWeight: "500"}} className="text-base font-semibold">{card.institute}</p>
         </div>
 
        
