@@ -35,56 +35,45 @@ const handlePrint = () => {
   const content = printRef.current.innerHTML;
   const printWindow = window.open('', '', '');
 
+  // Grab your existing <head> innerHTML, or just insert your Tailwind link directly:
+  const tailwindLink = `<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.4/dist/tailwind.min.css"
+  >`;
+
   printWindow.document.write(`
     <html>
       <head>
         <title>Print</title>
+        ${tailwindLink}
         <style>
-          @page {
-            size: 50mm 50mm;
-            margin: 0;
-          }
-          body {
-            margin: 0;
-            padding: 0;
-            width: 50mm;
-            height: 50mm;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-          }
-          h1, h2, h3 {
-            display: block;
-            margin: 0;
-            line-height: 1.4;
-          }
-          .print-container {
-            text-align: center;
-          }
+          @page { size: 50mm 50mm; margin: 0; }
+          body { margin:0; width:50mm; height:50mm; font-family: Arial, sans-serif; }
         </style>
       </head>
       <body>
-        <div class="print-container">
+        <div style="text-align: center;" class="print-container text-center">
           ${content}
         </div>
       </body>
     </html>
   `);
 
-  printWindow.document.close(); // This triggers the DOM to load
-
-  // Wait for print window to finish rendering before calling print
+  printWindow.document.close();
   printWindow.onload = () => {
     printWindow.focus();
     printWindow.print();
     printWindow.close();
   };
 };
+
+
   const toggleModal = () => {
     setModal(!modal);
     fetchDesignations(eventId);
   };
+
+  
   const defaultElementStyles = {
     profilePicture: { left: 215, bottom: 160, size: 170 },
     name: { left: 215, top: 200, fontSize: 20, color: "black" },
@@ -412,9 +401,9 @@ const handlePrint = () => {
       <div className="">
         {/* Content to Print */}
         <div ref={printRef} className="text-center hidden border rounded-lg shadow">
-          <h1 className="text-xl font-semibold">{card.firstName}</h1>
-          <h3 className="text-lg font-semibold">{card.designation}</h3>
-          <h2 className="text-base font-semibold">{card.institute}</h2>
+          <h1 style={{fontSize: `16px`}} className="text-xl font-semibold">{card.firstName}</h1>
+          <p style={{fontSize: `14px`}} className="text-lg font-semibold">{card.designation}</p>
+          <p style={{fontSize: `14px`}} className="text-base font-semibold">{card.institute}</p>
         </div>
 
        
