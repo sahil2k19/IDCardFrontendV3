@@ -52,7 +52,7 @@ const handlePrint = () => {
         </style>
       </head>
       <body>
-        <div style="text-align: center;" class="print-container text-center">
+        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;" class="print-container text-center">
           ${content}
         </div>
       </body>
