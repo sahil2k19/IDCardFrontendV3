@@ -534,13 +534,13 @@ function printAsSVG(node) {
 
        
       </div>
-       <button onClick={handlePrint2} className="mt-4 btn">
+       {/* <button onClick={handlePrint2} className="mt-4 btn">
         Print
       </button>
 
           <button onClick={handlePrintSVG} className="mt-4 btn">
         Print as SVG
-      </button>
+      </button> */}
 
       {!isPreview && (
         <div>
@@ -752,7 +752,7 @@ function printAsSVG(node) {
               </svg>
             </button>
              <button
-            onClick={handlePrint}
+            onClick={handlePrintSVG}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
             Print_no_BG
