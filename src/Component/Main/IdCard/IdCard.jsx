@@ -82,6 +82,118 @@ const handlePrint = () => {
   };
 };
 
+const handlePrint2 = () => {
+    if (printRef.current) {
+      printScaled(printRef.current);
+    }
+  };
+
+function printScaled(node) {
+  const html = `
+    <html>
+      <head>
+        <style>
+          /* remove all margins and make our container fill the page */
+          @page { size: auto; margin: 0; }
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+          }
+
+          /* this wrapper will stretch your content to the full printable area */
+          #print-wrapper {
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div style="text-align: center;" id="print-wrapper">
+          ${node.outerHTML}
+        </div>
+        <script>
+          window.onload = () => {
+            window.focus();
+            window.print();
+          };
+          window.onafterprint = () => window.close();
+        </script>
+      </body>
+    </html>
+  `;
+
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    return alert("Please allow pop-ups for printing.");
+  }
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
+function printAsSVG(node) {
+  // Serialize your node’s HTML
+  const html = node.outerHTML;
+
+  // Build an SVG that fills the page and embeds your HTML via foreignObject
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="100%" height="100%"
+         preserveAspectRatio="none">
+      <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml"
+             style="box-sizing: border-box;
+                    width:100%; height:100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;">
+          ${html}
+        </div>
+      </foreignObject>
+    </svg>
+  `;
+
+  // Wrap it in an HTML page that forces no margins and auto-prints
+  const page = `
+    <html>
+      <head>
+        <style>
+          @page { margin: 0; size: auto; }
+          html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
+        </style>
+      </head>
+      <body style="text-align: center;">
+        ${svg}
+        <script>
+          window.onload = () => { window.print(); };
+          window.onafterprint = () => { window.close(); };
+        </script>
+      </body>
+    </html>
+  `;
+
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    return alert("Please enable pop-ups to print.");
+  }
+  printWindow.document.open();
+  printWindow.document.write(page);
+  printWindow.document.close();
+}
+
+  const handlePrintSVG = () => {
+    if (printRef.current) {
+      printAsSVG(printRef.current);
+    }
+  };
+
+
   const toggleModal = () => {
     setModal(!modal);
     fetchDesignations(eventId);
@@ -422,6 +534,13 @@ const handlePrint = () => {
 
        
       </div>
+       <button onClick={handlePrint2} className="mt-4 btn">
+        Print
+      </button>
+
+          <button onClick={handlePrintSVG} className="mt-4 btn">
+        Print as SVG
+      </button>
 
       {!isPreview && (
         <div>
