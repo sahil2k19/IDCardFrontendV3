@@ -168,7 +168,7 @@ function printAsSVG(node) {
           html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
         </style>
       </head>
-      <body style="text-align: center;">
+      <body  style="text-align: center; font-family: Arial, sans-serif;">
         ${svg}
         <script>
           window.onload = () => { window.print(); };
@@ -527,9 +527,9 @@ function printAsSVG(node) {
       <div className="">
         {/* Content to Print */}
         <div ref={printRef} className="text-center hidden border rounded-lg shadow">
-          <h1 style={{fontSize: `16px`}} className="text-xl font-semibold">{card.firstName}</h1>
-          <p style={{fontSize: `12px`}} className="text-lg font-semibold">{card.designation}</p>
-          <p style={{fontSize: `13px`,  fontWeight: "500"}} className="text-base font-semibold">{card.institute}</p>
+          <h1 style={{fontSize: `15px`}} className="text-xl font-semibold">{card.firstName}</h1>
+          {/* <p style={{fontSize: `12px`}} className="text-lg font-semibold">{card.designation}</p> */}
+          <p style={{fontSize: `12px`,  fontWeight: "500"}} className="text-base font-semibold">{card.institute}</p>
         </div>
 
        
