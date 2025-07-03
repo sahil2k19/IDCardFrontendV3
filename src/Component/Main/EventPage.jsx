@@ -1,28 +1,60 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import EditEvents from "./Edit/EditEvents";
+import {
+  MapPin,
+  Users,
+  Edit,
+  Trash2,
+  Eye,
+  Search,
+  Loader2,
+  Filter,
+  Grid3X3,
+  List,
+  Sparkles,
+  TrendingUp,
+  Clock,
+  X,
+  Upload,
+  Tag,
+  Building,
+  DollarSign,
+  Ticket,
+} from "lucide-react";
+import { Calendar, Plus, ChevronDown, Archive, LogOut } from "lucide-react";
+
 function EventPage() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [Dataid, setDataid] = useState("");
+
   const toggleModal = () => {
     setShowModal(!showModal);
   };
-  const [showEditModal, setActiveEventId] = useState(null); // State to track which event's modal is open
 
+  const [showEditModal, setActiveEventId] = useState(null);
   const toggleEditModal = (eventId) => {
     setActiveEventId(eventId);
   };
+
   const [inputs, setInputs] = useState([]);
   const [currentInput, setCurrentInput] = useState("");
-
   const [currentCategory, setCurrentCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const [currentAmenity, setCurrentAmenity] = useState("");
   const [amenities, setAmenities] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState("grid");
+  const [sortBy, setSortBy] = useState("newest");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [animateCards, setAnimateCards] = useState(false);
+  const observerRef = useRef(null);
 
   const addCategory = (e) => {
     e.preventDefault();
@@ -54,64 +86,75 @@ function EventPage() {
   const [address, setAddress] = useState("");
   const [endDate, setendDate] = useState("");
   const [startDate, setDate] = useState("");
-  const [photo, setPhoto] = useState(null); // State to hold base64 encoded image
-  const [idcardimage, setIdcardimage] = useState(null); // State to hold base64 encoded image
+  const [photo, setPhoto] = useState(null);
+  const [idcardimage, setIdcardimage] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [eventId, setEventID] = useState("");
   const [amount, setAmount] = useState(0);
-
   const [isPaidEvent, setisPaidEvent] = useState(false);
-
-  const [isCreating, setIsCreating] = useState(false); // New state for loading spinner
+  const [isCreating, setIsCreating] = useState(false);
 
   // Ticket pricing states
   const [indianTicketCategories, setIndianTicketCategories] = useState([]);
   const [currentIndianTicketName, setCurrentIndianTicketName] = useState("");
   const [currentIndianTicketPrice, setCurrentIndianTicketPrice] = useState("");
-  const [internationalTicketCategories, setInternationalTicketCategories] = useState([]);
-  const [currentInternationalTicketName, setCurrentInternationalTicketName] = useState("");
-  const [currentInternationalTicketPrice, setCurrentInternationalTicketPrice] = useState("");
-
+  const [internationalTicketCategories, setInternationalTicketCategories] =
+    useState([]);
+  const [currentInternationalTicketName, setCurrentInternationalTicketName] =
+    useState("");
+  const [currentInternationalTicketPrice, setCurrentInternationalTicketPrice] =
+    useState("");
 
   // Ticket handlers
-  const addIndianTicketCategory = e => {
+  const addIndianTicketCategory = (e) => {
     e.preventDefault();
     if (currentIndianTicketName.trim() && currentIndianTicketPrice) {
       setIndianTicketCategories([
         ...indianTicketCategories,
-        { name: currentIndianTicketName.trim(), price: currentIndianTicketPrice }
+        {
+          name: currentIndianTicketName.trim(),
+          price: currentIndianTicketPrice,
+        },
       ]);
       setCurrentIndianTicketName("");
       setCurrentIndianTicketPrice("");
     }
   };
-  const removeIndianTicketCategory = index => setIndianTicketCategories(
-    indianTicketCategories.filter((_, i) => i !== index)
-  );
 
-  const addInternationalTicketCategory = e => {
+  const removeIndianTicketCategory = (index) =>
+    setIndianTicketCategories(
+      indianTicketCategories.filter((_, i) => i !== index)
+    );
+
+  const addInternationalTicketCategory = (e) => {
     e.preventDefault();
-    if (currentInternationalTicketName.trim() && currentInternationalTicketPrice) {
+    if (
+      currentInternationalTicketName.trim() &&
+      currentInternationalTicketPrice
+    ) {
       setInternationalTicketCategories([
         ...internationalTicketCategories,
-        { name: currentInternationalTicketName.trim(), price: currentInternationalTicketPrice }
+        {
+          name: currentInternationalTicketName.trim(),
+          price: currentInternationalTicketPrice,
+        },
       ]);
       setCurrentInternationalTicketName("");
       setCurrentInternationalTicketPrice("");
     }
   };
-  const removeInternationalTicketCategory = index => setInternationalTicketCategories(
-    internationalTicketCategories.filter((_, i) => i !== index)
-  );
 
-
-
+  const removeInternationalTicketCategory = (index) =>
+    setInternationalTicketCategories(
+      internationalTicketCategories.filter((_, i) => i !== index)
+    );
 
   // Submit
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsCreating(true);
+
     try {
       const formData = new FormData();
       formData.append("eventName", eventName);
@@ -123,41 +166,48 @@ function EventPage() {
       formData.append("categories", JSON.stringify(categories));
       formData.append("isPaidEvent", JSON.stringify(isPaidEvent));
 
-        const regionPricings = [];
-  if (indianTicketCategories.length) {
-    regionPricings.push({ region: 'indian', categories: indianTicketCategories });
-  }
-  if (internationalTicketCategories.length) {
-    regionPricings.push({ region: 'international', categories: internationalTicketCategories });
-  }
-  formData.append('regionPricings', JSON.stringify(regionPricings));
+      const regionPricings = [];
+      if (indianTicketCategories.length) {
+        regionPricings.push({
+          region: "indian",
+          categories: indianTicketCategories,
+        });
+      }
+      if (internationalTicketCategories.length) {
+        regionPricings.push({
+          region: "international",
+          categories: internationalTicketCategories,
+        });
+      }
+      formData.append("regionPricings", JSON.stringify(regionPricings));
 
-  // await axios.post('/api/events', formData, {
-  //   headers: { 'Content-Type': 'multipart/form-data' }
-  // });
-
-
-
-      const amenitiesObject = amenities.reduce((acc, amenity) => { acc[amenity] = false; return acc; }, {});
+      const amenitiesObject = amenities.reduce((acc, amenity) => {
+        acc[amenity] = false;
+        return acc;
+      }, {});
       formData.append("amenities", JSON.stringify(amenitiesObject));
 
-      for (const [key, value] of formData.entries()) console.log(`${key}:`, value);
+      for (const [key, value] of formData.entries())
+        console.log(`${key}:`, value);
 
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/events`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
+
       console.log("Event created:", response.data);
-      toggleModal(); fetchEvents(); toast.success("Event created successfully!");
+      toggleModal();
+      fetchEvents();
+      toast.success("Event created successfully!");
     } catch (error) {
       console.error("Error creating event:", error);
-    } finally { setIsCreating(false); }
+    } finally {
+      setIsCreating(false);
+    }
   };
-
-
-
-
 
   const handleFileChange = (e) => {
     const { id, files } = e.target;
@@ -183,17 +233,95 @@ function EventPage() {
       setLoading(false);
     }
   };
+
   console.log("Events", events);
 
   const fetchData = async () => {
     try {
       const url = `${process.env.REACT_APP_API_URL}/api/participants/event/${eventId}`;
       const response = await axios.get(url);
-      console.log("Participants by EventId:", response.data); // Log fetched participants
-      setDataid(response.data); // Update state with fetched data
+      console.log("Participants by EventId:", response.data);
+      setDataid(response.data);
     } catch (error) {
       console.error("Error fetching participants by eventId:", error);
-      setDataid([]); // Clear state or handle error case
+      setDataid([]);
+    }
+  };
+
+  useEffect(() => {
+    setTimeout(() => setAnimateCards(true), 300);
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-in");
+            observerRef.current.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const cards = document.querySelectorAll(".event-card");
+    if (cards.length && observerRef.current) {
+      cards.forEach((card) => {
+        observerRef.current.observe(card);
+      });
+    }
+  }, [events, animateCards]);
+
+  const filteredEvents = events.filter((event) =>
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const sortedEvents = [...filteredEvents].sort((a, b) => {
+    if (sortBy === "newest") {
+      return new Date(b.startDate) - new Date(a.startDate);
+    } else if (sortBy === "oldest") {
+      return new Date(a.startDate) - new Date(b.startDate);
+    } else if (sortBy === "name") {
+      return a.eventName.localeCompare(b.eventName);
+    } else if (sortBy === "participants") {
+      return b.participantCount - a.participantCount;
+    }
+    return 0;
+  });
+
+  const formatDateRange = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const options = { day: "numeric", month: "short", year: "numeric" };
+
+    if (start.toDateString() === end.toDateString()) {
+      return start.toLocaleDateString(undefined, options);
+    }
+
+    return `${start.toLocaleDateString(
+      undefined,
+      options
+    )} - ${end.toLocaleDateString(undefined, options)}`;
+  };
+
+  const getEventStatus = (startDate, endDate) => {
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (now < start) {
+      return { status: "upcoming", color: "blue", label: "Upcoming" };
+    } else if (now >= start && now <= end) {
+      return { status: "ongoing", color: "green", label: "Ongoing" };
+    } else {
+      return { status: "completed", color: "gray", label: "Completed" };
     }
   };
 
@@ -204,11 +332,12 @@ function EventPage() {
   useEffect(() => {
     fetchEvents();
   }, []);
+
   const handleTaskView = (groupId, groupName) => {
     setEventID(groupId);
-    // Navigate to the /task route with the group ID and group name as parameters
     navigate(`/create-id?eventid=${groupId}&eventName=${groupName}`);
   };
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState({
     name: "Admin",
@@ -222,7 +351,6 @@ function EventPage() {
       imgSrc:
         "https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
     },
-    // Add more options here
   ];
 
   const handleToggle = () => {
@@ -239,10 +367,17 @@ function EventPage() {
       title: "Archive Event?",
       text: "This will archive the event and it won't be deleted permanently.",
       icon: "warning",
+      iconColor: "#4f46e5",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, archive it!",
+      background: "#fff",
+      customClass: {
+        popup: "rounded-2xl shadow-2xl",
+        confirmButton: "rounded-lg",
+        cancelButton: "rounded-lg",
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         axios
@@ -250,8 +385,19 @@ function EventPage() {
             archive: true,
           })
           .then((res) => {
-            Swal.fire("Archived!", "Event has been archived.", "success");
-            fetchEvents(); // Assuming fetchEvents is a function to fetch updated events list
+            Swal.fire({
+              title: "Archived!",
+              text: "Event has been archived.",
+              icon: "success",
+              iconColor: "#10b981",
+              confirmButtonColor: "#4f46e5",
+              background: "#fff",
+              customClass: {
+                popup: "rounded-2xl shadow-2xl",
+                confirmButton: "rounded-lg",
+              },
+            });
+            fetchEvents();
           })
           .catch((error) => {
             console.log(error);
@@ -268,250 +414,200 @@ function EventPage() {
 
   return (
     <div>
-      <header className="sticky top-0 z-50 w-full bg-gray-200 shadow-sm">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-white via-gray-50 to-slate-100 backdrop-blur-md border-b border-gray-200/50 shadow-lg">
         <div className="flex h-16 mx-auto items-center justify-between px-4 lg:px-[80px]">
-          <a className="flex items-center gap-2" href="/event" rel="ugc">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6"
-            >
-              <path d="M8 2v4"></path>
-              <path d="M16 2v4"></path>
-              <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-              <path d="M3 10h18"></path>
-            </svg>
-            <span className="font-bold hidden lg:block tracking-tight">
+          <a
+            className="group flex items-center gap-3 hover:scale-105 transition-all duration-300 cursor-pointer"
+            onClick={() => navigate("/")}
+            rel="ugc"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+              <Calendar className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-bold hidden cursor-pointer lg:block text-lg bg-gradient-to-r from-gray-800 to-slate-700 bg-clip-text text-transparent">
               Event ID Card Generator App
             </span>
           </a>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-4">
             <button
               onClick={toggleModal}
-              className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-lg hover:shadow-blue-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
             >
-              Create Event
+              <Plus className="w-4 h-4" />
+              <span className="text-sm whitespace-nowrap">Create Event</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
             </button>
 
-            <div>
-              <div className="relative ">
-                <button
-                  type="button"
-                  className="relative w-full cursor-default rounded-md bg-white h-10 py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6"
-                  aria-haspopup="listbox"
-                  aria-expanded={isOpen}
-                  aria-labelledby="listbox-label"
-                  onClick={handleToggle}
-                >
-                  <span className="flex items-center">
+            <div className="relative">
+              <button
+                type="button"
+                className="group relative w-full cursor-pointer rounded-xl bg-gradient-to-r from-white via-gray-50 to-slate-50 h-10 py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-lg hover:shadow-xl border border-gray-200/60 hover:border-gray-300/80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 min-w-[180px]"
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
+                onClick={handleToggle}
+              >
+                <span className="flex items-center">
+                  <div className="relative">
                     <img
                       src="/profilePhoto/profile.jpg"
-                      alt=""
-                      className="h-5 w-5 flex-shrink-0 rounded-full"
+                      alt="Profile"
+                      className="h-6 w-6 flex-shrink-0 rounded-full border-2 border-white shadow-md"
                     />
-                    <span className="ml-3 block  truncate">
-                      {selectedOption.name}
-                    </span>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></div>
+                  </div>
+                  <span className="ml-3 block truncate font-medium text-gray-800">
+                    {selectedOption.name}
                   </span>
-                  <span className="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                </button>
+                </span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-3">
+                  <ChevronDown
+                    className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
 
-                {isOpen && (
-                  <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {options.map((option, index) => (
-                      <>
-                        <li
-                          key={index}
-                          className={`relative select-none py-2 hover:bg-gray-200 cursor-pointer px-3 ${option === selectedOption
-                            ? "bg-indigo-600 text-white"
-                            : "text-gray-900"
-                            }`}
-                          role="option"
-                          onClick={() => navigate("/archive-event")}
-                        >
-                          <div className="flex items-center text-[15px]  justify-between">
-                            Archive Events{" "}
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20"
-                              height="20"
-                              fill="currentColor"
-                              class="bi bi-file-earmark-zip"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M5 7.5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v.938l.4 1.599a1 1 0 0 1-.416 1.074l-.93.62a1 1 0 0 1-1.11 0l-.929-.62a1 1 0 0 1-.415-1.074L5 8.438zm2 0H6v.938a1 1 0 0 1-.03.243l-.4 1.598.93.62.929-.62-.4-1.598A1 1 0 0 1 7 8.438z" />
-                              <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1h-2v1h-1v1h1v1h-1v1h1v1H6V5H5V4h1V3H5V2h1V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                            </svg>
-                          </div>
+              {isOpen && (
+                <ul className="absolute z-10 mt-2 w-full overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5 focus:outline-none border border-gray-200/50 backdrop-blur-md">
+                  <li
+                    className="group relative select-none py-3 px-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer transition-all duration-200 border-b border-gray-100"
+                    role="option"
+                    onClick={() => navigate("/archive-event")}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center shadow-md">
+                          <Archive className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-800 group-hover:text-blue-700">
+                          Archive Events
+                        </span>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-gray-400 rotate-[-90deg]" />
+                    </div>
+                  </li>
 
-                          {option === selectedOption && (
-                            <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
-                              <svg
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </span>
-                          )}
-                        </li>
-                        <li
-                          key={index}
-                          className={`relative hover:bg-gray-200 cursor-pointer select-none  border-t-2 py-2 px-3 ${option === selectedOption
-                            ? "bg-indigo-600 text-white"
-                            : "text-gray-900"
-                            }`}
-                          role="option"
-                          onClick={handleLogout}
-                        >
-                          <div className="flex items-center text-[15px]  justify-between">
-                            Logout{" "}
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20"
-                              height="20"
-                              fill="currentColor"
-                              class="bi bi-box-arrow-right"
-                              viewBox="0 0 16 16"
-                            >
-                              <path
-                                fill-rule="evenodd"
-                                d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"
-                              />
-                              <path
-                                fill-rule="evenodd"
-                                d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"
-                              />
-                            </svg>
-                          </div>
-
-                          {option === selectedOption && (
-                            <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
-                              <svg
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </span>
-                          )}
-                        </li>
-                      </>
-                    ))}
-                  </ul>
-                )}
-              </div>
+                  <li
+                    className="group relative select-none py-3 px-4 hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 cursor-pointer transition-all duration-200"
+                    role="option"
+                    onClick={handleLogout}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center shadow-md">
+                          <LogOut className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-800 group-hover:text-red-700">
+                          Logout
+                        </span>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-gray-400 rotate-[-90deg]" />
+                    </div>
+                  </li>
+                </ul>
+              )}
             </div>
           </div>
         </div>
+
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, rgb(59 130 246) 1px, transparent 0)`,
+              backgroundSize: "24px 24px",
+            }}
+          ></div>
+        </div>
+
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-2 left-1/4 w-1 h-1 bg-blue-400 rounded-full opacity-20 animate-pulse delay-0"></div>
+          <div className="absolute top-4 right-1/3 w-0.5 h-0.5 bg-purple-400 rounded-full opacity-30 animate-pulse delay-1000"></div>
+          <div className="absolute bottom-2 left-2/3 w-1 h-1 bg-indigo-400 rounded-full opacity-15 animate-pulse delay-2000"></div>
+        </div>
       </header>
 
+      {/* Create Event Modal */}
       {showModal && (
-        <div
-          id="default-modal"
-          tabIndex="-1"
-          aria-hidden="true"
-          className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50"
-        >
-          <div className="relative p-4 w-full max-w-4xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow">
-              <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    Create an Event
-                  </h1>
-                </div>
-                <button
-                  type="button"
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center"
-                  onClick={toggleModal}
-                >
-                  <svg
-                    className="w-3 h-3"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 14 14"
+        <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-5xl max-h-[95vh] overflow-hidden">
+            <div className="relative bg-gradient-to-br from-white via-gray-50 to-slate-100 rounded-3xl shadow-2xl border border-gray-200/50">
+              {/* Modal Header */}
+              <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 px-8 py-6 rounded-t-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 rounded-t-3xl to-indigo-700/10 backdrop-blur-sm"></div>
+                <div className="relative z-10 flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                      <Plus className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-white">
+                        Create New Event
+                      </h1>
+                      <p className="text-white/90 text-sm mt-1">
+                        Set up your event details and preferences
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={toggleModal}
+                    className="group w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-105"
                   >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7l-6 6"
-                    />
-                  </svg>
-                  <span className="sr-only">Close modal</span>
-                </button>
+                    <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-300" />
+                  </button>
+                </div>
+
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <div className="absolute top-4 left-12 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+                  <div className="absolute top-8 right-16 w-0.5 h-0.5 bg-white/50 rounded-full animate-pulse delay-300"></div>
+                  <div className="absolute bottom-6 left-20 w-1.5 h-1.5 bg-white/30 rounded-full animate-pulse delay-700"></div>
+                </div>
               </div>
-              <div className="w-full max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8 overflow-y-auto h-[450px] sm:max-h-screen">
-                <div className="space-y-6">
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div>
-                        <label
-                          htmlFor="eventName"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Event Name
-                        </label>
-                        <div className="mt-1">
+
+              {/* Modal Content */}
+              <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="p-8">
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Basic Info Section */}
+                    <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 border border-blue-200/50">
+                      <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                        <Calendar className="w-5 h-5 text-blue-600" />
+                        <span>Basic Information</span>
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="group">
+                          <label
+                            htmlFor="eventName"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            Event Name
+                          </label>
                           <input
                             type="text"
                             id="eventName"
-                            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500"
                             placeholder="Enter Event Name"
                             value={eventName}
                             onChange={(e) => setEventName(e.target.value)}
                             required
                           />
                         </div>
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="address"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Address
-                        </label>
-                        <div className="mt-1">
+                        <div className="group">
+                          <label
+                            htmlFor="address"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            Address
+                          </label>
                           <input
                             type="text"
                             id="address"
-                            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500"
                             placeholder="Enter Address"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
@@ -520,127 +616,124 @@ function EventPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="grid lg:grid-cols-2 gap-6">
-                      <div>
-                        <label
-                          htmlFor="Category"
-                          className="block mb-1 text-sm font-medium text-gray-700"
-                        >
-                          Category
-                        </label>
-                        <div className="flex items-center space-x-4">
+
+                    {/* Categories and Amenities */}
+                    <div className="grid lg:grid-cols-2 gap-8">
+                      <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-2xl p-6 border border-green-200/50">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                          <Tag className="w-5 h-5 text-green-600" />
+                          <span>Categories</span>
+                        </h3>
+                        <div className="flex items-center space-x-3 mb-4">
                           <input
                             type="text"
                             value={currentCategory}
                             onChange={(e) => setCurrentCategory(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 h-10 px-4 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300"
                             placeholder="Add Category"
                           />
                           <button
                             onClick={addCategory}
-                            className="px-4 w-20 bg-black h-8 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                           >
                             Add
                           </button>
                         </div>
-                        <div className="mt-4">
-                          {categories.length > 0 && (
-                            <ul className="list-disc list-inside space-y-2">
-                              {categories.map((category, index) => (
-                                <li
-                                  key={index}
-                                  className="flex items-center justify-between text-gray-700"
-                                >
-                                  <span>{category}</span>
-                                  <button
-                                    onClick={() => removeCategory(index)}
-                                    className="px-2 py-1 bg-red-500 text-white rounded-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                  >
-                                    Remove
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {categories.map((category, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between bg-white p-3 rounded-lg border border-green-200/60 shadow-sm"
+                            >
+                              <span className="text-gray-700 font-medium">
+                                {category}
+                              </span>
+                              <button
+                                onClick={() => removeCategory(index)}
+                                className="p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-all duration-300"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      <div>
-                        <label
-                          htmlFor="Amenity"
-                          className="block mb-1 text-sm font-medium text-gray-700"
-                        >
-                          Amenity
-                        </label>
-                        <div className="flex items-center space-x-4">
+
+                      <div className="bg-gradient-to-r from-purple-50 via-violet-50 to-indigo-50 rounded-2xl p-6 border border-purple-200/50">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                          <Building className="w-5 h-5 text-purple-600" />
+                          <span>Amenities</span>
+                        </h3>
+                        <div className="flex items-center space-x-3 mb-4">
                           <input
                             type="text"
                             value={currentAmenity}
                             onChange={(e) => setCurrentAmenity(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 h-10 px-4 bg-white border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
                             placeholder="Add Amenity"
                           />
                           <button
                             onClick={addAmenity}
-                            className="px-4 w-20 bg-black h-8 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="group relative overflow-hidden bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-400 hover:to-violet-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                           >
                             Add
                           </button>
                         </div>
-                        <div className="mt-4">
-                          {amenities.length > 0 && (
-                            <ul className="list-disc list-inside space-y-2">
-                              {amenities.map((amenity, index) => (
-                                <li
-                                  key={index}
-                                  className="flex items-center justify-between text-gray-700"
-                                >
-                                  <span>{amenity}</span>
-                                  <button
-                                    onClick={() => removeAmenity(index)}
-                                    className="px-2 py-1 bg-red-500 text-white rounded-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                  >
-                                    Remove
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {amenities.map((amenity, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between bg-white p-3 rounded-lg border border-purple-200/60 shadow-sm"
+                            >
+                              <span className="text-gray-700 font-medium">
+                                {amenity}
+                              </span>
+                              <button
+                                onClick={() => removeAmenity(index)}
+                                className="p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-all duration-300"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
-                    <div className="grid lg:grid-cols-2  gap-7">
-                      <div>
-                        <label
-                          htmlFor="date"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Start Date
-                        </label>
-                        <div className="mt-1">
+
+                    {/* Dates */}
+                    <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 rounded-2xl p-6 border border-orange-200/50">
+                      <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                        <Calendar className="w-5 h-5 text-orange-600" />
+                        <span>Event Dates</span>
+                      </h3>
+                      <div className="grid lg:grid-cols-2 gap-6">
+                        <div className="group">
+                          <label
+                            htmlFor="startDate"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            Start Date
+                          </label>
                           <input
                             type="date"
-                            id="date"
-                            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Select Event Date"
+                            id="startDate"
+                            className="w-full h-12 px-4 bg-white border-2 border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                             value={startDate}
                             onChange={(e) => setDate(e.target.value)}
                             required
                           />
                         </div>
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="date"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          End Date
-                        </label>
-                        <div className="mt-1">
+                        <div className="group">
+                          <label
+                            htmlFor="endDate"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            End Date
+                          </label>
                           <input
                             type="date"
-                            id="date"
-                            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Select Event Date"
+                            id="endDate"
+                            className="w-full h-12 px-4 bg-white border-2 border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                             value={endDate}
                             onChange={(e) => setendDate(e.target.value)}
                             required
@@ -648,378 +741,680 @@ function EventPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="grid   grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div>
-                        <label
-                          htmlFor="event-image"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Event Image
-                        </label>
-                        <div className="mt-1">
+
+                    {/* Images */}
+                    <div className="bg-gradient-to-r from-pink-50 via-rose-50 to-red-50 rounded-2xl p-6 border border-pink-200/50">
+                      <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                        <Upload className="w-5 h-5 text-pink-600" />
+                        <span>Images</span>
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="group">
+                          <label
+                            htmlFor="event-image"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            Event Image
+                          </label>
                           <input
                             type="file"
                             id="event-image"
                             accept="image/*"
                             onChange={handleFileChange}
-                            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full h-12 px-4 bg-white border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                           />
                         </div>
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="idcard-image"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Id Card Background Image
-                        </label>
-                        <div className="mt-1">
+                        <div className="group">
+                          <label
+                            htmlFor="idcard-image"
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                          >
+                            ID Card Background
+                          </label>
                           <input
                             type="file"
                             id="idcard-image"
                             accept="image/*"
                             onChange={handleFileChange}
-                            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full h-12 px-4 bg-white border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                           />
                         </div>
                       </div>
                     </div>
-                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
-                      {/* Radio Buttons */}
-                      {/* <div className="flex items-center space-x-6">
-                        <label className="inline-flex items-center space-x-2 cursor-pointer">
+
+                    {/* Pricing */}
+                    <div className="bg-gradient-to-r from-cyan-50 via-blue-50 to-indigo-50 rounded-2xl p-6 border border-cyan-200/50">
+                      <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                        <DollarSign className="w-5 h-5 text-cyan-600" />
+                        <span>Event Pricing</span>
+                      </h3>
+                      <div className="flex items-center space-x-6 mb-6">
+                        <label className="inline-flex items-center cursor-pointer">
                           <input
-                            id="free"
                             type="radio"
                             value="false"
-                            checked={isPaidEvent === false}
-                            onClick={(e) => setisPaidEvent(false)}
-                            className="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                            checked={!isPaidEvent}
+                            onChange={() => setisPaidEvent(false)}
+                            className="h-5 w-5 text-cyan-600 border-gray-300 focus:ring-cyan-500"
                           />
-                          <span className="text-sm text-gray-800 font-medium">Free</span>
+                          <span className="ml-2 text-gray-800 font-medium">
+                            Free Event
+                          </span>
                         </label>
-
-                        <label className="inline-flex items-center space-x-2 cursor-pointer">
+                        <label className="inline-flex items-center cursor-pointer">
                           <input
-                            id="paid"
                             type="radio"
                             value="true"
-                            checked={isPaidEvent === true}
-                            onClick={(e) => setisPaidEvent(true)}
-                            className="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                            checked={isPaidEvent}
+                            onChange={() => setisPaidEvent(true)}
+                            className="h-5 w-5 text-cyan-600 border-gray-300 focus:ring-cyan-500"
                           />
-                          <span className="text-sm text-gray-800 font-medium">Paid</span>
+                          <span className="ml-2 text-gray-800 font-medium">
+                            Paid Event
+                          </span>
                         </label>
-                      </div> */}
-
-                      {/* Amount Input for Paid Option */}
-                      {/* {isPaidEvent === true && (
-                        <div className="sm:ml-6 w-full sm:w-1/3">
-                          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-                            Amount (Rupees)
-                          </label>
-                          <input
-                            type="number"
-                            id="amount"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            placeholder="Enter amount"
-                            required
-                          />
-                        </div>
-                      )} */}
-                    </div>
-                    {/* Paid vs Free */}
-                    <div className="flex items-center space-x-6">
-                      <label className="inline-flex items-center">
-                        <input
-                          type="radio"
-                          value="false"
-                          checked={!isPaidEvent}
-                          onChange={() => setisPaidEvent(false)}
-                          className="h-5 w-5 text-indigo-600"
-                        />
-                        <span className="ml-2">Free</span>
-                      </label>
-                      <label className="inline-flex items-center">
-                        <input
-                          type="radio"
-                          value="true"
-                          checked={isPaidEvent}
-                          onChange={() => setisPaidEvent(true)}
-                          className="h-5 w-5 text-indigo-600"
-                        />
-                        <span className="ml-2">Paid</span>
-                      </label>
-                    </div>
-
-                    {/* Pricing columns for paid events */}
-                    {isPaidEvent && (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Indian column */}
-                        <div>
-                          <h3 className="font-semibold mb-2">Indian Pricing (INR)</h3>
-                          <div className="flex space-x-2 mb-2">
-                            <input
-                              type="text"
-                              placeholder="Category Name"
-                              value={currentIndianTicketName}
-                              onChange={e => setCurrentIndianTicketName(e.target.value)}
-                              className="w-1/2 px-4 py-2 border rounded-md"
-                            />
-                            <input
-                              type="number"
-                              placeholder="Price (INR)"
-                              value={currentIndianTicketPrice}
-                              onChange={e => setCurrentIndianTicketPrice(e.target.value)}
-                              className="w-1/2 px-4 py-2 border rounded-md"
-                            />
-                            <button onClick={addIndianTicketCategory} className="px-4 bg-black text-white rounded-md">Add</button>
-                          </div>
-                          <ul className="list-disc pl-5">
-                            {indianTicketCategories.map((tc, i) => (
-                              <li key={i} className="flex justify-between">
-                                <span>{tc.name} – ₹{tc.price}</span>
-                                <button onClick={() => removeIndianTicketCategory(i)} className="text-red-600">Remove</button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* International column */}
-                        <div>
-                          <h3 className="font-semibold mb-2">International Pricing (USD)</h3>
-                          <div className="flex space-x-2 mb-2">
-                            <input
-                              type="text"
-                              placeholder="Category Name"
-                              value={currentInternationalTicketName}
-                              onChange={e => setCurrentInternationalTicketName(e.target.value)}
-                              className="w-1/2 px-4 py-2 border rounded-md"
-                            />
-                            <input
-                              type="number"
-                              placeholder="Price (USD)"
-                              value={currentInternationalTicketPrice}
-                              onChange={e => setCurrentInternationalTicketPrice(e.target.value)}
-                              className="w-1/2 px-4 py-2 border rounded-md"
-                            />
-                            <button onClick={addInternationalTicketCategory} className="px-4 bg-black text-white rounded-md">Add</button>
-                          </div>
-                          <ul className="list-disc pl-5">
-                            {internationalTicketCategories.map((tc, i) => (
-                              <li key={i} className="flex justify-between">
-                                <span>{tc.name} – ${tc.price}</span>
-                                <button onClick={() => removeInternationalTicketCategory(i)} className="text-red-600">Remove</button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
                       </div>
-                    )}
 
+                      {isPaidEvent && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                          {/* Indian Pricing */}
+                          <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
+                            <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+                              <Ticket className="w-4 h-4 text-green-600" />
+                              <span>Indian Pricing (₹)</span>
+                            </h4>
+                            <div className="flex space-x-2 mb-3">
+                              <input
+                                type="text"
+                                placeholder="Category Name"
+                                value={currentIndianTicketName}
+                                onChange={(e) =>
+                                  setCurrentIndianTicketName(e.target.value)
+                                }
+                                className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Price (₹)"
+                                value={currentIndianTicketPrice}
+                                onChange={(e) =>
+                                  setCurrentIndianTicketPrice(e.target.value)
+                                }
+                                className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              />
+                              <button
+                                onClick={addIndianTicketCategory}
+                                className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300"
+                              >
+                                Add
+                              </button>
+                            </div>
+                            <div className="space-y-2 max-h-32 overflow-y-auto">
+                              {indianTicketCategories.map((tc, i) => (
+                                <div
+                                  key={i}
+                                  className="flex justify-between items-center bg-green-50 p-2 rounded-lg border border-green-200/60"
+                                >
+                                  <span className="text-gray-700 font-medium">
+                                    {tc.name} – ₹{tc.price}
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      removeIndianTicketCategory(i)
+                                    }
+                                    className="p-1 text-red-600 hover:bg-red-100 rounded-md transition-all duration-300"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
 
-                    <div className="flex  items-center justify-between  pt-5 gap-10">
-                      <button
-                        type="button"
-                        onClick={toggleModal}
-                        className="inline-flex  w-full items-center justify-center whitespace-nowrap text-sm font-medium bg-gray-200 text-gray-800 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                        disabled={isCreating} // Disable button when loading
-                      >
-                        {isCreating ? (
-                          <>
-                            <svg
-                              className="animate-spin h-5 w-5 mr-3 text-white"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
-                              ></path>
-                            </svg>
-                            Creating...
-                          </>
-                        ) : (
-                          "Create"
-                        )}
-                      </button>
+                          {/* International Pricing */}
+                          <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
+                            <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+                              <Ticket className="w-4 h-4 text-blue-600" />
+                              <span>International Pricing ($)</span>
+                            </h4>
+                            <div className="flex space-x-2 mb-3">
+                              <input
+                                type="text"
+                                placeholder="Category Name"
+                                value={currentInternationalTicketName}
+                                onChange={(e) =>
+                                  setCurrentInternationalTicketName(
+                                    e.target.value
+                                  )
+                                }
+                                className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Price ($)"
+                                value={currentInternationalTicketPrice}
+                                onChange={(e) =>
+                                  setCurrentInternationalTicketPrice(
+                                    e.target.value
+                                  )
+                                }
+                                className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              />
+                              <button
+                                onClick={addInternationalTicketCategory}
+                                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-400 hover:to-indigo-500 transition-all duration-300"
+                              >
+                                Add
+                              </button>
+                            </div>
+                            <div className="space-y-2 max-h-32 overflow-y-auto">
+                              {internationalTicketCategories.map((tc, i) => (
+                                <div
+                                  key={i}
+                                  className="flex justify-between items-center bg-blue-50 p-2 rounded-lg border border-blue-200/60"
+                                >
+                                  <span className="text-gray-700 font-medium">
+                                    {tc.name} – ${tc.price}
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      removeInternationalTicketCategory(i)
+                                    }
+                                    className="p-1 text-red-600 hover:bg-red-100 rounded-md transition-all duration-300"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </form>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="bg-gradient-to-r from-gray-50/90 via-white/90 to-slate-50/90 backdrop-blur-sm px-8 py-6 border-t border-gray-200/50 rounded-b-3xl">
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={toggleModal}
+                    className="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-slate-500 hover:from-gray-300 hover:to-slate-400 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-gray-400/20 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1"
+                  >
+                    <div className="flex items-center justify-center space-x-2 relative z-10">
+                      <X className="w-4 h-4" />
+                      <span>Cancel</span>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  </button>
+
+                  <button
+                    type="submit"
+                    onClick={handleSubmit}
+                    className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-blue-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    disabled={isCreating}
+                  >
+                    <div className="flex items-center justify-center space-x-2 relative z-10">
+                      {isCreating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Creating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4" />
+                          <span>Create Event</span>
+                        </>
+                      )}
+                    </div>
+                    {!isCreating && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">Events</h1>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-[60vh]">
-            <span className="loader"></span>
+      {/* Main Content */}
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-blue-50">
+        {showEditModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50 p-4">
+            <EditEvents
+              event={events.find((event) => event._id === showEditModal)}
+              onClose={() => setActiveEventId(null)}
+              fetchEvents={fetchEvents}
+            />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {Array.isArray(events) &&
-              events
-                .slice()
-                .reverse()
-                .map((event) => (
+        )}
+        <div className="container mx-auto px-4 py-8">
+          {/* Search and Controls Bar */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-10">
+            <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+              <div className="relative w-full lg:w-auto lg:flex-1 max-w-md">
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors duration-300" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search events..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full h-12 pl-12 pr-6 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`p-2 rounded-md transition-all duration-300 ${
+                      viewMode === "grid"
+                        ? "bg-white shadow-sm text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-2 rounded-md transition-all duration-300 ${
+                      viewMode === "list"
+                        ? "bg-white shadow-sm text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    <List className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setFilterOpen(!filterOpen)}
+                  className="group flex items-center space-x-2 bg-gradient-to-r from-gray-100 to-slate-200 hover:from-gray-200 hover:to-slate-300 px-4 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                >
+                  <Filter className="h-5 w-5 text-gray-700" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Filter
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {filterOpen && (
+              <div className="mt-6 pt-6 border-t border-gray-200 animate-in slide-in-from-top-2 duration-300">
+                <div className="flex flex-wrap gap-4 items-center">
+                  <span className="text-sm font-medium text-gray-700">
+                    Sort by:
+                  </span>
+                  {[
+                    { value: "newest", label: "Newest First" },
+                    { value: "oldest", label: "Oldest First" },
+                    { value: "name", label: "Event Name" },
+                    { value: "participants", label: "Participants" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setSortBy(option.value)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                        sortBy === option.value
+                          ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Events Count and Stats */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Calendar className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {filteredEvents.length} Event
+                  {filteredEvents.length !== 1 ? "s" : ""}
+                </h2>
+                <p className="text-gray-600">
+                  {events.reduce(
+                    (sum, event) => sum + event.participantCount,
+                    0
+                  )}{" "}
+                  total participants
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <TrendingUp className="h-4 w-4 text-green-500" />
+              <span>Active events dashboard</span>
+            </div>
+          </div>
+
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-6">
+                <Loader2 className="h-8 w-8 text-white animate-spin" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Loading your events...
+              </h3>
+              <p className="text-gray-500">
+                Please wait while we fetch your data
+              </p>
+            </div>
+          ) : filteredEvents.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="w-20 h-20 bg-gradient-to-br from-gray-300 to-slate-400 rounded-2xl flex items-center justify-center shadow-lg mb-6">
+                <Calendar className="h-10 w-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-700 mb-2">
+                No Events Found
+              </h3>
+              <p className="text-gray-500 text-center max-w-md">
+                {searchTerm
+                  ? `No events matching "${searchTerm}" found.`
+                  : "You haven't created any events yet. Create your first event to get started!"}
+              </p>
+            </div>
+          ) : (
+            <div
+              className={`grid gap-8 ${
+                viewMode === "grid"
+                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1 max-w-4xl mx-auto"
+              }`}
+            >
+              {sortedEvents.map((event, index) => {
+                const eventStatus = getEventStatus(
+                  event.startDate,
+                  event.endDate
+                );
+
+                return (
                   <div
                     key={event._id}
-                    className="relative h-64 cursor-pointer overflow-hidden rounded-lg"
+                    className={`event-card group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] bg-white ${
+                      animateCards ? "opacity-100" : "opacity-0 translate-y-8"
+                    } ${viewMode === "list" ? "flex" : ""}`}
+                    style={{ transitionDelay: `${index * 100}ms` }}
                   >
-                    <img
-                      src={
-                        event.photoUrl ||
-                        "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                      }
-                      alt={event.eventName}
-                      className="w-full h-full object-cover"
-                      width="600"
-                      height="400"
-                      style={{ aspectRatio: "600/400", objectFit: "cover" }}
-                    />
+                    {/* Event Image */}
+                    <div
+                      className={`relative overflow-hidden ${
+                        viewMode === "list" ? "w-80 h-48" : "h-64"
+                      }`}
+                    >
+                      <img
+                        src={
+                          event.photoUrl ||
+                          "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" ||
+                          "/placeholder.svg" ||
+                          "/placeholder.svg"
+                        }
+                        alt={event.eventName}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        width="600"
+                        height="400"
+                        style={{ aspectRatio: "600/400", objectFit: "cover" }}
+                      />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                      <div className="flex gap-4 justify-between">
-                        <button className="bg-orange-600 text-white py-4  p-3 h-6 shadow-full flex items-center rounded-full font-bold">
-                          {event.participantCount}
-                        </button>
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => toggleEditModal(event._id)}
-                            className=" text-white p-3 bg-orange-600 rounded-full hover:bg-gray-400"
+                      {/* Overlay Gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent transition-opacity duration-300 group-hover:opacity-90">
+                        {/* Status Badge */}
+                        <div className="absolute top-4 left-4 z-20">
+                          <div
+                            className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg shadow-lg backdrop-blur-sm text-white font-medium text-sm ${
+                              eventStatus.status === "upcoming"
+                                ? "bg-blue-500/90"
+                                : eventStatus.status === "ongoing"
+                                ? "bg-green-500/90"
+                                : "bg-gray-500/90"
+                            }`}
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20"
-                              height="20"
-                              fill="currentColor"
-                              class="bi bi-pencil-square"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                              <path
-                                fill-rule="evenodd"
-                                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
-                              />
-                            </svg>
-                          </button>
-
-                          <button
-                            onClick={() => handleDelete(event._id)}
-                            className="text-white p-3 bg-orange-600 rounded-full hover:bg-gray-400"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20"
-                              height="20"
-                              fill="currentColor"
-                              class="bi bi-trash3"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleTaskView(event._id, event.eventName)
-                            }
-                            className=" p-3 bg-orange-600 font-bold text-white rounded  hover:bg-gray-400"
-                          >
-                            View 
-                          </button>
-                        </div>
-                        {showEditModal === event._id && (
-                          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                            <EditEvents
-                              event={event}
-                              onClose={() => setActiveEventId(null)}
-                              fetchEvents={fetchEvents}
-                            />
+                            <Clock className="h-3 w-3" />
+                            <span>{eventStatus.label}</span>
                           </div>
-                        )}
-                      </div>
-                      <div className="flex h-full flex-col justify-end">
-                        <h3 className="text-3xl mb-1 font-bold text-white">
-                          {event.eventName}
-                        </h3>
-                        <div className=" items-center gap-2 mb-8 shadow-full text-sm text-white">
-                          <div className="font-semibold flex  border p-1 items-center gap-2  rounded-sm bg-slate-200 text-black">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="h-4 w-4"
-                            >
-                              <path d="M8 2v4"></path>
-                              <path d="M16 2v4"></path>
-                              <rect
-                                width="18"
-                                height="18"
-                                x="3"
-                                y="4"
-                                rx="2"
-                              ></rect>
-                              <path d="M3 10h18"></path>
-                            </svg>
+                        </div>
 
-                            <span className="">
-                              {new Date(event.startDate).toDateString()}{" "}
-                              <strong>To</strong>{" "}
-                              {new Date(event.endDate).toDateString()}
+                        {/* Participant Count */}
+                        <div className="absolute top-4 right-4 z-20">
+                          <div className="flex items-center space-x-2 bg-orange-500/90 text-white px-3 py-1.5 rounded-lg shadow-lg backdrop-blur-sm">
+                            <Users className="h-4 w-4" />
+                            <span className="font-bold text-sm">
+                              {event.participantCount}
                             </span>
                           </div>
-                          <div className="font-semibold border my-2 p-1 gap-2 flex  items-center px-2 rounded-sm bg-slate-200 text-black">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="h-4 w-4"
+                        </div>
+
+                        {/* Action Buttons - Fixed z-index issue */}
+                        <div className="absolute top-16 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 space-y-2 z-30">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleEditModal(event._id);
+                            }}
+                            className="group w-10 h-10 bg-blue-500/90 hover:bg-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(event._id);
+                            }}
+                            className="group w-10 h-10 bg-red-500/90 hover:bg-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTaskView(event._id, event.eventName);
+                            }}
+                            className="group w-10 h-10 bg-green-500/90 hover:bg-green-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        {/* Event Details - Fixed z-index to not overlap buttons */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+                          <h3 className="text-2xl font-bold text-white mb-3 line-clamp-2">
+                            {event.eventName}
+                          </h3>
+
+                          {/* Event Meta Info - Reduced right padding to avoid button overlap */}
+                          <div className="space-y-2 mb-4 pr-16">
+                            <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 max-w-fit">
+                              <Calendar className="h-4 w-4 text-white flex-shrink-0" />
+                              <span className="text-sm font-medium text-white">
+                                {formatDateRange(
+                                  event.startDate,
+                                  event.endDate
+                                )}
+                              </span>
+                            </div>
+
+                            {event.address && (
+                              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 max-w-fit">
+                                <MapPin className="h-4 w-4 text-white flex-shrink-0" />
+                                <span className="text-sm font-medium text-white truncate">
+                                  {event.address}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Quick Actions */}
+                          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 pr-16">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTaskView(event._id, event.eventName);
+                              }}
+                              className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-2 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
                             >
-                              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-                              <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                            <span>{event.address}</span>
+                              <Sparkles className="h-4 w-4" />
+                              <span>View Details</span>
+                            </button>
                           </div>
                         </div>
                       </div>
                     </div>
+
+                    {/* List View Content */}
+                    {viewMode === "list" && (
+                      <div className="flex-1 p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">
+                              {event.eventName}
+                            </h3>
+                            <div className="flex items-center space-x-4 text-sm text-gray-600">
+                              <div className="flex items-center space-x-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>
+                                  {formatDateRange(
+                                    event.startDate,
+                                    event.endDate
+                                  )}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Users className="h-4 w-4" />
+                                <span>
+                                  {event.participantCount} participants
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => toggleEditModal(event._id)}
+                              className="p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-all duration-300"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(event._id)}
+                              className="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-all duration-300"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleTaskView(event._id, event.eventName)
+                              }
+                              className="p-2 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-all duration-300"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {event.address && (
+                          <div className="flex items-center space-x-2 text-gray-600 mb-4">
+                            <MapPin className="h-4 w-4" />
+                            <span className="text-sm">{event.address}</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between">
+                          <div
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              eventStatus.status === "upcoming"
+                                ? "bg-blue-100 text-blue-700"
+                                : eventStatus.status === "ongoing"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-700"
+                            }`}
+                          >
+                            {eventStatus.label}
+                          </div>
+
+                          <button
+                            onClick={() =>
+                              handleTaskView(event._id, event.eventName)
+                            }
+                            className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors duration-300"
+                          >
+                            View Details →
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Edit Modal */}
                   </div>
-                ))}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Custom Animation Styles */}
+        <style jsx>{`
+          @keyframes blob {
+            0% {
+              transform: translate(0px, 0px) scale(1);
+            }
+            33% {
+              transform: translate(30px, -50px) scale(1.1);
+            }
+            66% {
+              transform: translate(-20px, 20px) scale(0.9);
+            }
+            100% {
+              transform: translate(0px, 0px) scale(1);
+            }
+          }
+          .animate-blob {
+            animation: blob 7s infinite;
+          }
+          .animation-delay-2000 {
+            animation-delay: 2s;
+          }
+          .animation-delay-4000 {
+            animation-delay: 4s;
+          }
+          .event-card {
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+          .event-card.animate-in {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+          }
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(229, 231, 235, 0.5);
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #2563eb, #7c3aed);
+          }
+        `}</style>
       </div>
     </div>
   );

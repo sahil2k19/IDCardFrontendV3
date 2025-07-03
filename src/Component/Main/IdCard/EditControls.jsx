@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import IdCard from "./IdCard"
-import { useState, useEffect } from "react"
+import IdCard from "./IdCard";
+import { useState, useEffect } from "react";
 import {
   Minus,
   Plus,
@@ -16,9 +16,9 @@ import {
   Hash,
   X,
   Save,
-} from "lucide-react"
+} from "lucide-react";
 
-const colorOptions = ["white", "black"]
+const colorOptions = ["white", "black"];
 
 const EditControls = ({
   previewCard,
@@ -40,34 +40,41 @@ const EditControls = ({
     setElementStyles((prev) => ({
       ...prev,
       [element]: { ...prev[element], [property]: value },
-    }))
-    if (previewCard) setPreviewCard({ ...previewCard })
-  }
+    }));
+    if (previewCard) setPreviewCard({ ...previewCard });
+  };
 
-  const NumberInputWithButtons = ({ value, min, max, onChange, step = 1, label }) => {
-    const [localValue, setLocalValue] = useState(value)
+  const NumberInputWithButtons = ({
+    value,
+    min,
+    max,
+    onChange,
+    step = 1,
+    label,
+  }) => {
+    const [localValue, setLocalValue] = useState(value);
 
     useEffect(() => {
-      setLocalValue(value)
-    }, [value])
+      setLocalValue(value);
+    }, [value]);
 
     const handleChange = (e) => {
-      const raw = e.target.value
-      setLocalValue(raw)
-      const num = Number(raw)
+      const raw = e.target.value;
+      setLocalValue(raw);
+      const num = Number(raw);
       if (!isNaN(num)) {
-        const clamped = Math.min(max, Math.max(min, num))
-        onChange(clamped)
+        const clamped = Math.min(max, Math.max(min, num));
+        onChange(clamped);
       }
-    }
+    };
 
     return (
       <div className="flex items-center space-x-2">
         <button
           type="button"
           onClick={() => {
-            const next = Math.max(min, value - step)
-            onChange(next)
+            const next = Math.max(min, value - step);
+            onChange(next);
           }}
           className="group w-8 h-8 bg-gradient-to-r from-slate-500 to-gray-600 hover:from-slate-400 hover:to-gray-500 text-white rounded-lg font-bold flex items-center justify-center shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           aria-label={`Decrease ${label}`}
@@ -87,8 +94,8 @@ const EditControls = ({
         <button
           type="button"
           onClick={() => {
-            const next = Math.min(max, value + step)
-            onChange(next)
+            const next = Math.min(max, value + step);
+            onChange(next);
           }}
           className="group w-8 h-8 bg-gradient-to-r from-slate-500 to-gray-600 hover:from-slate-400 hover:to-gray-500 text-white rounded-lg font-bold flex items-center justify-center shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           aria-label={`Increase ${label}`}
@@ -96,8 +103,8 @@ const EditControls = ({
           <Plus className="w-4 h-4" />
         </button>
       </div>
-    )
-  }
+    );
+  };
 
   const getElementIcon = (element) => {
     const iconMap = {
@@ -107,10 +114,10 @@ const EditControls = ({
       institute: Building,
       participantId: Hash,
       qrCode: QrCode,
-    }
-    const IconComponent = iconMap[element] || Type
-    return <IconComponent className="w-5 h-5" />
-  }
+    };
+    const IconComponent = iconMap[element] || Type;
+    return <IconComponent className="w-5 h-5" />;
+  };
 
   const renderStyleControls = (
     element,
@@ -118,7 +125,7 @@ const EditControls = ({
     minValue = 0,
     maxValue = 580,
     sizeControl = false,
-    colorControl = false,
+    colorControl = false
   ) => (
     <div className="bg-gradient-to-br from-white via-gray-50 to-slate-50 rounded-2xl p-6 shadow-lg border border-gray-200/60 hover:shadow-xl transition-all duration-300">
       {/* Header */}
@@ -133,7 +140,9 @@ const EditControls = ({
       <div className="space-y-3 mb-6">
         <div className="flex items-center space-x-2">
           <Move className="w-4 h-4 text-gray-600" />
-          <label className="text-sm font-semibold text-gray-700">Y Position</label>
+          <label className="text-sm font-semibold text-gray-700">
+            Y Position
+          </label>
         </div>
         <div className="relative">
           <input
@@ -142,7 +151,11 @@ const EditControls = ({
             max={maxValue}
             value={elementStyles[element].top || elementStyles[element].bottom}
             onChange={(e) =>
-              updateElementStyle(element, element === "name" ? "top" : "bottom", Number.parseInt(e.target.value))
+              updateElementStyle(
+                element,
+                element === "name" ? "top" : "bottom",
+                Number.parseInt(e.target.value)
+              )
             }
             className="w-full h-2 bg-gradient-to-r from-blue-200 to-purple-200 rounded-lg appearance-none cursor-pointer slider"
           />
@@ -158,7 +171,9 @@ const EditControls = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Move className="w-4 h-4 text-gray-600 rotate-90" />
-            <label className="text-sm font-semibold text-gray-700">X Position</label>
+            <label className="text-sm font-semibold text-gray-700">
+              X Position
+            </label>
           </div>
           <button
             onClick={() => updateElementStyle(element, "left", "50%")}
@@ -174,7 +189,13 @@ const EditControls = ({
             min={minValue}
             max={maxValue}
             value={elementStyles[element].left}
-            onChange={(e) => updateElementStyle(element, "left", Number.parseInt(e.target.value))}
+            onChange={(e) =>
+              updateElementStyle(
+                element,
+                "left",
+                Number.parseInt(e.target.value)
+              )
+            }
             className="w-full h-2 bg-gradient-to-r from-blue-200 to-purple-200 rounded-lg appearance-none cursor-pointer slider"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -193,10 +214,16 @@ const EditControls = ({
           </label>
         </div>
         <NumberInputWithButtons
-          value={sizeControl ? elementStyles[element].size : elementStyles[element].fontSize}
+          value={
+            sizeControl
+              ? elementStyles[element].size
+              : elementStyles[element].fontSize
+          }
           min={sizeControl ? 50 : 8}
           max={sizeControl ? 250 : 40}
-          onChange={(val) => updateElementStyle(element, sizeControl ? "size" : "fontSize", val)}
+          onChange={(val) =>
+            updateElementStyle(element, sizeControl ? "size" : "fontSize", val)
+          }
           label={sizeControl ? "Size" : "Font Size"}
         />
       </div>
@@ -206,7 +233,9 @@ const EditControls = ({
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
             <Palette className="w-4 h-4 text-gray-600" />
-            <label className="text-sm font-semibold text-gray-700">{label} Color</label>
+            <label className="text-sm font-semibold text-gray-700">
+              {label} Color
+            </label>
           </div>
           <div className="flex space-x-3 items-center">
             {colorOptions.map((color) => (
@@ -214,41 +243,50 @@ const EditControls = ({
                 key={color}
                 onClick={() => updateElementStyle(element, "color", color)}
                 className={`w-10 h-10 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200 ${
-                  color === "white" ? "bg-white border-2 border-gray-300" : "bg-black border-2 border-gray-700"
-                } ${elementStyles[element].color === color ? "ring-4 ring-blue-500 ring-offset-2" : ""}`}
+                  color === "white"
+                    ? "bg-white border-2 border-gray-300"
+                    : "bg-black border-2 border-gray-700"
+                } ${
+                  elementStyles[element].color === color
+                    ? "ring-4 ring-blue-500 ring-offset-2"
+                    : ""
+                }`}
                 aria-label={`Set ${label} color to ${color}`}
               />
             ))}
 
             {/* Custom Color Picker */}
-            <div className="relative">
+            <div className="relative inline-block">
               <input
                 type="color"
                 id={`color-picker-${element}`}
                 value={
-                  elementStyles[element].color && !colorOptions.includes(elementStyles[element].color)
+                  elementStyles[element].color &&
+                  !colorOptions.includes(elementStyles[element].color)
                     ? elementStyles[element].color
                     : "#ffa500"
                 }
-                onChange={(e) => updateElementStyle(element, "color", e.target.value)}
-                className="w-10 h-10 border-2 border-gray-300 rounded-xl cursor-pointer shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200"
+                onChange={(e) =>
+                  updateElementStyle(element, "color", e.target.value)
+                }
+                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
                 aria-label={`Pick custom color for ${label}`}
               />
-            </div>
 
-            <button
-              className="group bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-2 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
-              onClick={() => document.getElementById(`color-picker-${element}`).click()}
-            >
-              <Palette className="w-4 h-4" />
-              <span className="text-sm">Custom</span>
-            </button>
+              <button
+                type="button"
+                className="w-28 group bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-2 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <Palette className="w-4 h-4" />
+                <span className="text-sm">Custom</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
-  )
-
+  );
+  const [scale, setScale] = useState(0.5);
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-gradient-to-br from-white via-gray-50 to-slate-100 rounded-3xl w-[1200px] h-[95vh] flex shadow-2xl border border-gray-200/50 overflow-hidden">
@@ -260,8 +298,12 @@ const EditControls = ({
                 <Type className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">ID Card Designer</h2>
-                <p className="text-gray-600 text-sm">Customize your ID card elements</p>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  ID Card Designer
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Customize your ID card elements
+                </p>
               </div>
             </div>
           </div>
@@ -271,36 +313,87 @@ const EditControls = ({
             <div className="w-1/2 overflow-y-auto custom-scrollbar pr-4">
               <div className="grid grid-cols-1 gap-6">
                 {renderStyleControls("name", "Name", 0, 580, false, true)}
-                {renderStyleControls("designation", "Designation", 0, 580, false, true)}
-                {renderStyleControls("profilePicture", "Profile Picture", 0, 580, true)}
-                {renderStyleControls("institute", "Institute", 0, 580, false, true)}
-                {renderStyleControls("participantId", "Participant ID", 0, 580, false, true)}
+                {renderStyleControls(
+                  "designation",
+                  "Designation",
+                  0,
+                  580,
+                  false,
+                  true
+                )}
+                {renderStyleControls(
+                  "profilePicture",
+                  "Profile Picture",
+                  0,
+                  580,
+                  true
+                )}
+                {renderStyleControls(
+                  "institute",
+                  "Institute",
+                  0,
+                  580,
+                  false,
+                  true
+                )}
+                {renderStyleControls(
+                  "participantId",
+                  "Participant ID",
+                  0,
+                  580,
+                  false,
+                  true
+                )}
                 {renderStyleControls("qrCode", "QR Code", 0, 580, true)}
               </div>
             </div>
 
             {/* Preview Panel */}
-            <div className="w-1/2 flex justify-center items-center bg-gradient-to-br from-gray-100 to-slate-200 rounded-2xl p-4 shadow-inner overflow-hidden">
-              <div className="bg-white rounded-2xl p-4 shadow-2xl max-w-full overflow-hidden">
-                <div className="transform scale-75 origin-center">
-                  {previewCard && (
-                    <IdCard
-                      card={previewCard}
-                      index={0}
-                      fetchData={fetchData}
-                      isLoading={isLoading}
-                      fetchDesignations={fetchDesignations}
-                      elementStyles={elementStyles}
-                      eventId={eventId}
-                      reversedData={reversedData}
-                      globalVisibility={globalVisibility}
-                      isPreview={true}
-                      checkedInParticipants={checkedInParticipants}
-                      handleCheckin={handleCheckin}
-                    />
-                  )}
-                </div>
+            <div className="w-1/2 flex flex-col justify-center items-center gap-4 bg-gradient-to-br from-gray-100 to-slate-200 rounded-2xl p-4 shadow-inner overflow-hidden">
+              {/* Scale Buttons */}
+
+              {/* Card Preview */}
+              <div
+                className="transform shadow-2xl rounded-2xl max-w-full  bg-white origin-center transition-transform duration-300"
+                style={{ transform: `scale(${scale})` }}
+              >
+                {previewCard && (
+                  <IdCard
+                    card={previewCard}
+                    index={0}
+                    fetchData={fetchData}
+                    isLoading={isLoading}
+                    fetchDesignations={fetchDesignations}
+                    elementStyles={elementStyles}
+                    eventId={eventId}
+                    reversedData={reversedData}
+                    globalVisibility={globalVisibility}
+                    isPreview={true}
+                    checkedInParticipants={checkedInParticipants}
+                    handleCheckin={handleCheckin}
+                  />
+                )}
               </div>
+            </div>
+            <div className="flex flex-col gap-4 mb-2">
+              <button
+                onClick={() => setScale(0.4)}
+                className="bg-gradient-to-br px-2  from-blue-600 to-purple-700 rounded py-1 font-bold text-white"
+              >
+                50%
+              </button>
+              <button
+                onClick={() => setScale(0.67)}
+                className="bg-gradient-to-br px-2 from-blue-600 to-purple-700 rounded py-1 font-bold text-white"
+              >
+                75%
+              </button>
+              <button
+                onClick={() => setScale(1)}
+                className="bg-gradient-to-br px-2 from-blue-600 to-purple-700 rounded py-1 font-bold text-white"
+              >
+                100%
+              </button>
             </div>
           </div>
 
@@ -317,8 +410,8 @@ const EditControls = ({
 
             <button
               onClick={() => {
-                saveDesignSettings()
-                toggleModalOpenedit()
+                saveDesignSettings();
+                toggleModalOpenedit();
               }}
               className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-emerald-500/30 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
             >
@@ -331,6 +424,7 @@ const EditControls = ({
       </div>
 
       {/* Custom Scrollbar Styles */}
+
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
@@ -346,7 +440,7 @@ const EditControls = ({
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(to bottom, #2563eb, #7c3aed);
         }
-        
+
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 20px;
@@ -354,17 +448,17 @@ const EditControls = ({
           border-radius: 50%;
           background: linear-gradient(45deg, #3b82f6, #8b5cf6);
           cursor: pointer;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
           transition: all 0.2s ease;
         }
-        
+
         .slider::-webkit-slider-thumb:hover {
           transform: scale(1.1);
-          box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default EditControls
+export default EditControls;

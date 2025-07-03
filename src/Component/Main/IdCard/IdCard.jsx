@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -8,7 +7,16 @@ import { saveAs } from "file-saver";
 import { toPng } from "html-to-image";
 import EditParticipent from "../Edit/EditParticipent";
 import * as XLSX from "xlsx";
-
+import {
+  Edit,
+  Trash2,
+  Download,
+  FileImage,
+  UserCheck,
+  Printer,
+  FileText,
+  Loader2,
+} from "lucide-react";
 const IdCard = ({
   card,
   index,
@@ -31,11 +39,11 @@ const IdCard = ({
 
   const printRef = useRef();
 
-const handlePrint = () => {
-  const content = printRef.current.innerHTML;
-  const printWindow = window.open('', '', '');
+  const handlePrint = () => {
+    const content = printRef.current.innerHTML;
+    const printWindow = window.open("", "", "");
 
-  printWindow.document.write(`
+    printWindow.document.write(`
     <html>
       <head>
         <title>Print</title>
@@ -72,24 +80,24 @@ const handlePrint = () => {
     </html>
   `);
 
-  printWindow.document.close(); // This triggers the DOM to load
+    printWindow.document.close(); // This triggers the DOM to load
 
-  // Wait for print window to finish rendering before calling print
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+    // Wait for print window to finish rendering before calling print
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    };
   };
-};
 
-const handlePrint2 = () => {
+  const handlePrint2 = () => {
     if (printRef.current) {
       printScaled(printRef.current);
     }
   };
 
-function printScaled(node) {
-  const html = `
+  function printScaled(node) {
+    const html = `
     <html>
       <head>
         <style>
@@ -128,21 +136,21 @@ function printScaled(node) {
     </html>
   `;
 
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    return alert("Please allow pop-ups for printing.");
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      return alert("Please allow pop-ups for printing.");
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
   }
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-}
 
-function printAsSVG(node) {
-  // Serialize your node’s HTML
-  const html = node.outerHTML;
+  function printAsSVG(node) {
+    // Serialize your node’s HTML
+    const html = node.outerHTML;
 
-  // Build an SVG that fills the page and embeds your HTML via foreignObject
-  const svg = `
+    // Build an SVG that fills the page and embeds your HTML via foreignObject
+    const svg = `
     <svg xmlns="http://www.w3.org/2000/svg"
          width="100%" height="100%"
          preserveAspectRatio="none">
@@ -159,8 +167,8 @@ function printAsSVG(node) {
     </svg>
   `;
 
-  // Wrap it in an HTML page that forces no margins and auto-prints
-  const page = `
+    // Wrap it in an HTML page that forces no margins and auto-prints
+    const page = `
     <html>
       <head>
         <style>
@@ -178,14 +186,14 @@ function printAsSVG(node) {
     </html>
   `;
 
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    return alert("Please enable pop-ups to print.");
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      return alert("Please enable pop-ups to print.");
+    }
+    printWindow.document.open();
+    printWindow.document.write(page);
+    printWindow.document.close();
   }
-  printWindow.document.open();
-  printWindow.document.write(page);
-  printWindow.document.close();
-}
 
   const handlePrintSVG = () => {
     if (printRef.current) {
@@ -193,13 +201,11 @@ function printAsSVG(node) {
     }
   };
 
-
   const toggleModal = () => {
     setModal(!modal);
     fetchDesignations(eventId);
   };
 
-  
   const defaultElementStyles = {
     profilePicture: { left: 215, bottom: 160, size: 170 },
     name: { left: 215, top: 200, fontSize: 20, color: "black" },
@@ -395,10 +401,12 @@ function printAsSVG(node) {
 
   // Handle case when Dataid is not an array or is empty
 
-
-
   return (
-    <div className={`relative ${isPreview ? "" : "mb-20"} border border-gray-300 rounded-lg w-[430px]`}>
+    <div
+      className={`relative ${
+        isPreview ? "" : "mb-20"
+      } border border-gray-300 rounded-lg w-[430px]`}
+    >
       <div
         ref={idCardRef}
         id={`id-card-${index}`}
@@ -449,12 +457,10 @@ function printAsSVG(node) {
                   color: styles.name.color,
                 }}
                 className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-bold text-center text-white mt-1 px-10 truncate"
-
               >
                 {card.firstName}
               </p>
             )}
-
 
             {globalVisibility.institute && card.institute && (
               <p
@@ -467,7 +473,6 @@ function printAsSVG(node) {
                   color: styles.institute.color,
                 }}
                 className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1 px-10 truncate"
-
                 dangerouslySetInnerHTML={{
                   __html: card.institute.toUpperCase(),
                 }}
@@ -498,7 +503,11 @@ function printAsSVG(node) {
                 }}
                 className="absolute bottom-[15px]  transform -translate-x-1/2"
               >
-                <QRCode value={participantUrl} size={styles.qrCode.size} level="H" />
+                <QRCode
+                  value={participantUrl}
+                  size={styles.qrCode.size}
+                  level="H"
+                />
               </div>
             )}
 
@@ -526,15 +535,23 @@ function printAsSVG(node) {
 
       <div className="">
         {/* Content to Print */}
-        <div ref={printRef} className="text-center hidden border rounded-lg shadow">
-          <h1 style={{fontSize: `15px`}} className="text-xl font-semibold">{card.firstName}</h1>
+        <div
+          ref={printRef}
+          className="text-center hidden border rounded-lg shadow"
+        >
+          <h1 style={{ fontSize: `15px` }} className="text-xl font-semibold">
+            {card.firstName}
+          </h1>
           {/* <p style={{fontSize: `12px`}} className="text-lg font-semibold">{card.designation}</p> */}
-          <p style={{fontSize: `12px`,  fontWeight: "500"}} className="text-base font-semibold">{card.institute}</p>
+          <p
+            style={{ fontSize: `12px`, fontWeight: "500" }}
+            className="text-base font-semibold"
+          >
+            {card.institute}
+          </p>
         </div>
-
-       
       </div>
-       {/* <button onClick={handlePrint2} className="mt-4 btn">
+      {/* <button onClick={handlePrint2} className="mt-4 btn">
         Print
       </button>
 
@@ -543,226 +560,136 @@ function printAsSVG(node) {
       </button> */}
 
       {!isPreview && (
-        <div>
-          <div className="flex gap-4 mt-3 justify-center">
+        <div className="my-2 space-y-3">
+          {/* First Row - Icon Buttons */}
+          <div className="flex gap-2 justify-center">
+            {/* Edit Button */}
             <button
               onClick={toggleModal}
-              className="border text-black p-3 bg-gray-300 rounded-full hover:bg-gray-400"
+              className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                fill="currentColor"
-                className="bi bi-pencil-square"
-                viewBox="0 0 16 16"
-              >
-                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                <path
-                  fillRule="evenodd"
-                  d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
-                />
-              </svg>
+              <Edit className="w-4 h-4" />
             </button>
-            {modal && (
-              <EditParticipent
-                fetchData={fetchData}
-                eventId={eventId}
-                fetchDesignations={fetchDesignations}
-                toggleModal={toggleModal}
-                id={card._id}
-                data={card}
-              />
-            )}
+
+            {/* Delete Button */}
             <button
               onClick={() => handleDelete(card._id)}
-              className="border text-black p-3 bg-gray-300 rounded-full hover:bg-gray-400"
+              className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                fill="currentColor"
-                className="bi bi-trash-fill"
-                viewBox="0 0 16 16"
-              >
-                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-              </svg>
+              <Trash2 className="w-4 h-4" />
             </button>
+
+            {/* Download Button */}
             <button
               onClick={downloadImage}
-              className="border text-black p-3 bg-gray-300 hover:bg-gray-400 rounded-full"
+              className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+              disabled={isDownloading}
             >
               {isDownloading ? (
-                <svg
-                  className="animate-spin h-5 w-5 text-black"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.963 7.963 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="bi bi-download"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                  <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
-                </svg>
+                <Download className="w-4 h-4" />
               )}
             </button>
+
+            {/* Download Without Background Button */}
             <button
               onClick={downloadImageWithoutBackground}
-              className="border text-black p-3 bg-gray-300 hover:bg-gray-500 font-semibold rounded"
+              className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+              disabled={isDownloading}
             >
               {isDownloading ? (
-                <svg
-                  className="animate-spin h-5 w-5 text-black"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.963 7.963 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <div className="flex gap-2">
-                  NoBg
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    className="bi bi-download"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
-                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
-                  </svg>
-                </div>
+                <FileImage className="w-4 h-4" />
               )}
             </button>
           </div>
 
-          <div className="mt-3 flex mb-4 gap-4 items-center justify-center">
+          {/* Second Row - Text Buttons */}
+          <div className="flex gap-2 justify-center">
+            {/* Check-in Button */}
             <button
               onClick={onCheckin}
               disabled={isCheckingIn || card.checkin}
-              className={`flex items-center justify-between gap-2 text-white font-semibold py-2 px-4 rounded ${card.checkin
-                ? "bg-green-500 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600"
-                }`}
+              className={`px-4 py-2 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 font-medium text-sm whitespace-nowrap ${
+                card.checkin
+                  ? "bg-gradient-to-br from-emerald-500 to-teal-700 text-white cursor-not-allowed"
+                  : "bg-gradient-to-br from-indigo-500 to-fuchsia-600 text-white"
+              }`}
             >
               {isCheckingIn ? (
                 <>
-                  <svg
-                    className="animate-spin h-5 w-5 mr-2"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.963 7.963 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Processing...
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Processing</span>
                 </>
               ) : card.checkin ? (
-                <>Checked In</>
+                <>
+                  <UserCheck className="w-4 h-4" />
+                  <span>Checked In</span>
+                </>
               ) : (
-                <>Check In</>
+                <>
+                  <UserCheck className="w-4 h-4" />
+                  <span>Check In</span>
+                </>
               )}
             </button>
 
-            {isPrinting && (
-              <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-                <div className="loader border-t-4 border-b-4 border-gray-200 rounded-full w-12 h-12 animate-spin"></div>
-              </div>
-            )}
+            {/* Print Button */}
             <button
               onClick={() => printIdCard(true)}
-              className="bg-gray-300  flex items-center justify-between gap-2 text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
+              className="px-4 py-2 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center font-medium text-sm whitespace-nowrap"
             >
-              
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                className="bi bi-printer"
-                viewBox="0 0 16 16"
-              >
-                <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
-                <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1" />
-              </svg>
+              <Printer className="w-4 h-4" />
             </button>
+
+            {/* Print No Background Button */}
             <button
               onClick={() => printIdCard(false)}
-              className="bg-gray-300 flex items-center justify-between gap-2  text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
+              className="px-4 py-2 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 font-medium text-sm whitespace-nowrap"
             >
-               No Bg
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                className="bi bi-printer"
-                viewBox="0 0 16 16"
-              >
-                <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
-                <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1" />
-              </svg>
+              <span>No Bg</span>
+              <Printer className="w-4 h-4" />
             </button>
-             <button
-            onClick={handlePrintSVG}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Print_no_BG
-          </button>
-            
+
+            {/* Print SVG Button */}
+            <button
+              onClick={handlePrintSVG}
+              className="px-4 py-2 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 font-medium text-sm whitespace-nowrap"
+            >
+              <span>Print SVG</span>
+              <FileText className="w-4 h-4" />
+            </button>
           </div>
+
+          {/* Modal */}
+          {modal && (
+            <EditParticipent
+              fetchData={fetchData}
+              eventId={eventId}
+              fetchDesignations={fetchDesignations}
+              toggleModal={toggleModal}
+              id={card._id}
+              data={card}
+            />
+          )}
+
+          {/* Loading Overlay */}
+          {isPrinting && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+              <div className="bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center space-y-4">
+                <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+                <p className="text-gray-700 font-semibold">
+                  Preparing print...
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 };
 
-export default IdCard
+export default IdCard;

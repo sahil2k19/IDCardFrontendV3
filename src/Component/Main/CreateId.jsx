@@ -12,8 +12,18 @@ import { toPng } from "html-to-image";
 import JsBarcode from "jsbarcode";
 import RazorpayButton from "../Service/RazorpayButton";
 import Swal from "sweetalert2";
-import { Loader2 } from "lucide-react";
-
+import {
+  Building,
+  CreditCard,
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
+  Tag,
+  User,
+} from "lucide-react";
+import { Calendar, Link, Plus, Users, Archive, Shield } from "lucide-react";
+import { Globe, Copy, X, Sparkles, Check } from "lucide-react";
 function CreateId() {
   const location = useLocation();
   // console.log("(new URLSearchParams(location.search))", new URLSearchParams(location.search).get("eventid"));
@@ -47,12 +57,14 @@ function CreateId() {
   // Ticket selection state
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-
+  const [copiedSecure, setCopiedSecure] = useState(false);
+  const [copiedPublic, setCopiedPublic] = useState(false);
 
   // Derive dropdown options
-  const regionOptions = eventData?.regionPricings?.map(r => r.region) || [];
+  const regionOptions = eventData?.regionPricings?.map((r) => r.region) || [];
   const categoryOptions = selectedRegion
-    ? eventData.regionPricings.find(r => r.region === selectedRegion)?.categories || []
+    ? eventData.regionPricings.find((r) => r.region === selectedRegion)
+        ?.categories || []
     : [];
 
   const handleGenerateSecureLink = async () => {
@@ -184,8 +196,6 @@ function CreateId() {
       formData.append("ticketRegion", selectedRegion);
       formData.append("ticketCategory", selectedCategory);
 
-
-
       const amenitiesObject = typeof amenities === "object" ? amenities : {};
       formData.append("amenities", JSON.stringify(amenitiesObject));
 
@@ -226,10 +236,7 @@ function CreateId() {
     } catch (error) {
       console.error("Error creating participant:", error);
       // toast.error("Failed to create participant");
-      Swal.fire(
-        "Error", "Please check your internet connection."
-
-      );
+      Swal.fire("Error", "Please check your internet connection.");
     } finally {
       setIsCreating(false);
     }
@@ -547,7 +554,6 @@ function CreateId() {
     }
   }, [location, navigate]);
 
-
   const isFormFilled = () =>
     !!firstName.trim() &&
     !!designation.trim() &&
@@ -573,8 +579,10 @@ function CreateId() {
       newErrors.phone = "Phone must be 10 digits.";
 
     if (eventData?.isPaidEvent) {
-      if (!selectedRegion) newErrors.ticketRegion = "Ticket Region is required.";
-      if (!selectedCategory) newErrors.ticketCategory = "Ticket Category is required.";
+      if (!selectedRegion)
+        newErrors.ticketRegion = "Ticket Region is required.";
+      if (!selectedCategory)
+        newErrors.ticketCategory = "Ticket Category is required.";
     }
 
     // only write into state when you really want errors shown
@@ -584,469 +592,769 @@ function CreateId() {
 
     return Object.keys(newErrors).length === 0;
   };
+  const handleCopySecure = () => {
+    if (generatedSecureLink) {
+      navigator.clipboard
+        .writeText(generatedSecureLink)
+        .then(() => {
+          toast.success("Secure link copied");
+          setCopiedSecure(true);
+          setTimeout(() => setCopiedSecure(false), 2000);
+        })
+        .catch(() => toast.error("Failed to copy link"));
+    }
+  };
+
+  const handleCopyPublic = () => {
+    if (generatedPublicCreateLink) {
+      navigator.clipboard
+        .writeText(generatedPublicCreateLink)
+        .then(() => {
+          toast.success("Public Create link copied");
+          setCopiedPublic(true);
+          setTimeout(() => setCopiedPublic(false), 2000);
+        })
+        .catch(() => toast.error("Failed to copy link"));
+    }
+  };
+
+  // only render this component if linkmodal is a boolean and true
+  // if (typeof linkmodal !== "boolean" || !linkmodal) return null;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-50 w-full bg-gray-200 shadow-sm">
+      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-white via-gray-50 to-slate-100 backdrop-blur-md border-b border-gray-200/50 shadow-lg">
         <div className="flex h-16 mx-auto items-center justify-between px-4 lg:px-[80px]">
+          {/* Logo Section */}
           <div className="hidden lg:block">
-            <a className="flex items-center gap-2" href="/event" rel="ugc">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-6 w-6"
-              >
-                <path d="M8 2v4"></path>
-                <path d="M16 2v4"></path>
-                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-                <path d="M3 10h18"></path>
-              </svg>
-              <span className="font-bold tracking-tight">
-                Event ID Card Generator App
-              </span>
+            <a
+              className="group flex items-center gap-3 hover:scale-105 transition-all duration-300"
+              href="/event"
+              rel="ugc"
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+                <Calendar className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg bg-gradient-to-r from-gray-800 to-slate-700 bg-clip-text text-transparent">
+                  Event ID Card Generator
+                </span>
+                <span className="text-xs text-gray-500 font-medium">
+                  Professional ID Management
+                </span>
+              </div>
             </a>
           </div>
-          <div className="flex flex-wrap lg:flex-nowrap lg:gap-10 gap-2 justify-end">
+
+          {/* Mobile Logo */}
+          <div className="lg:hidden">
+            <a href="/event" rel="ugc" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex items-center justify-center">
+                <Calendar className="h-4 w-4 text-white" />
+              </div>
+              <span className="font-bold text-sm">ID Generator</span>
+            </a>
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="flex flex-wrap lg:flex-nowrap lg:gap-3 gap-2 justify-end">
             {!isSecureForm && (
               <>
+                {/* Embed Form Button */}
                 <button
                   onClick={() => toggleLinkModal()}
-                  className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
+                  className="group relative overflow-hidden bg-gradient-to-r from-slate-600 to-gray-700 hover:from-slate-500 hover:to-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-lg hover:shadow-slate-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
                 >
-                  Embed Form
+                  <Link className="w-4 h-4" />
+                  <span className="text-sm whitespace-nowrap">Embed Form</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                 </button>
+
+                {/* Create ID Button */}
                 <button
                   onClick={toggleModal}
-                  className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
+                  className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-lg hover:shadow-blue-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
                 >
-                  Create ID
+                  <Plus className="w-4 h-4" />
+                  <span className="text-sm whitespace-nowrap">Create ID</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                 </button>
+
+                {/* Bulk Create Button */}
                 <button
                   onClick={handleNavigate}
-                  className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
+                  className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-500 hover:to-green-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-lg hover:shadow-emerald-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
                 >
-                  Bulk Create
+                  <Users className="w-4 h-4" />
+                  <span className="text-sm whitespace-nowrap">Bulk Create</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                 </button>
+
+                {/* Archive Button */}
                 <button
                   onClick={handleNavigatearchive}
-                  className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-black text-white transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
+                  className="group relative overflow-hidden bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-500 hover:to-violet-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-lg hover:shadow-purple-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
                 >
-                  Archive ID Card
+                  <Archive className="w-4 h-4" />
+                  <span className="text-sm whitespace-nowrap">Archive</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                 </button>
               </>
             )}
+
+            {/* Secure Form Indicator */}
             {isSecureForm && (
-              <div className="px-4 py-2 bg-green-100 text-green-800 rounded-md">
-                Secure Form - Create your ID card
+              <div className="group bg-gradient-to-r from-emerald-100 via-green-50 to-teal-100 border border-emerald-200 text-emerald-800 px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center space-x-2">
+                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center">
+                  <Shield className="w-3 h-3 text-white" />
+                </div>
+                <span className="font-semibold text-sm whitespace-nowrap">
+                  Secure Form - Create your ID card
+                </span>
+                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
               </div>
             )}
           </div>
         </div>
+
+        {/* Subtle animated background pattern */}
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, rgb(59 130 246) 1px, transparent 0)`,
+              backgroundSize: "24px 24px",
+            }}
+          ></div>
+        </div>
+
+        {/* Floating accent dots */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-2 left-1/4 w-1 h-1 bg-blue-400 rounded-full opacity-20 animate-pulse delay-0"></div>
+          <div className="absolute top-4 right-1/3 w-0.5 h-0.5 bg-purple-400 rounded-full opacity-30 animate-pulse delay-1000"></div>
+          <div className="absolute bottom-2 left-2/3 w-1 h-1 bg-emerald-400 rounded-full opacity-15 animate-pulse delay-2000"></div>
+        </div>
       </header>
 
       {linkmodal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full overflow-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b">
-              <h2 className="text-2xl font-semibold">Embed Form Links</h2>
-              <button
-                onClick={toggleLinkModal}
-                className="text-gray-500 hover:text-gray-800"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-              {/* Secure Token‑Based Link */}
-              <div className="border rounded-lg p-4">
-                <h3 className="text-lg font-medium mb-2">🔐 Secure Link</h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  One-time use link. Expires after an ID card is created.
-                </p>
-                <button
-                  onClick={handleGenerateSecureLink}
-                  className="w-full mb-3 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
-                >
-                  Generate Secure Link
-                </button>
-                {generatedSecureLink && (
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={generatedSecureLink}
-                      className="w-full p-2 border rounded text-sm"
-                    />
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(generatedSecureLink);
-                        toast.success("Secure link copied");
-                      }}
-                      className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded"
-                    >
-                      Copy Secure Link
-                    </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <div className="bg-gradient-to-br from-white via-gray-50 to-slate-100 rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden border border-gray-200/50">
+            {/* Header */}
+            <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 px-8 py-6">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-indigo-700/10 backdrop-blur-sm"></div>
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                    <Link className="w-6 h-6 text-white" />
                   </div>
-                )}
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">
+                      Embed Form Links
+                    </h2>
+                    <p className="text-white/90 text-sm mt-1">
+                      Generate and share your form links
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={toggleLinkModal}
+                  className="group w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-105"
+                >
+                  <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-300" />
+                </button>
               </div>
 
-              {/* Public Create‑ID Link */}
-              <div className="border rounded-lg p-4">
-                <h3 className="text-lg font-medium mb-2">
-                  🏷️ Public Create Form
-                </h3>
-                <p className="text-sm mb-4 text-gray-600">
-                  No token needed. Anyone can create an ID using this link.
-                </p>
-                <button
-                  onClick={() =>
-                    setGeneratedPublicCreateLink(
-                      `${window.location.origin
-                      }/public-create-id?eventid=${eventId}&eventName=${encodeURIComponent(
-                        eventName
-                      )}`
-                    )
-                  }
-                  className="w-full mb-3 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded"
-                >
-                  Generate Public Create Link
-                </button>
-                {generatedPublicCreateLink && (
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={generatedPublicCreateLink}
-                      className="w-full p-2 border rounded text-sm"
-                    />
+              {/* Animated background particles */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-4 left-12 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+                <div className="absolute top-8 right-16 w-0.5 h-0.5 bg-white/50 rounded-full animate-pulse delay-300"></div>
+                <div className="absolute bottom-6 left-20 w-1.5 h-1.5 bg-white/30 rounded-full animate-pulse delay-700"></div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Secure Token-Based Link */}
+                <div className="group relative bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg border border-blue-200/50 hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                  <div className="relative z-10">
+                    {/* Header */}
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <Shield className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800">
+                          Secure Link
+                        </h3>
+                        <div className="flex items-center space-x-1">
+                          <Sparkles className="w-3 h-3 text-blue-500" />
+                          <span className="text-xs text-blue-600 font-medium">
+                            One-time use
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                      Generate a secure, one-time use link that expires after an
+                      ID card is created. Perfect for controlled access.
+                    </p>
+
+                    {/* Generate Button */}
                     <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          generatedPublicCreateLink
-                        );
-                        toast.success("Public Create link copied");
-                      }}
-                      className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded"
+                      onClick={handleGenerateSecureLink}
+                      className="group w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-blue-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 mb-4"
                     >
-                      Copy Public Link
+                      <div className="flex items-center justify-center space-x-2 relative z-10">
+                        <Shield className="w-4 h-4" />
+                        <span>Generate Secure Link</span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                     </button>
+
+                    {/* Generated Link Section */}
+                    {generatedSecureLink && (
+                      <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            readOnly
+                            value={generatedSecureLink}
+                            className="w-full p-3 bg-white border-2 border-blue-200 rounded-xl text-sm font-mono text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-12"
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                              <Shield className="w-3 h-3 text-blue-600" />
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleCopySecure}
+                          className="group w-full relative overflow-hidden bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-emerald-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                        >
+                          <div className="flex items-center justify-center space-x-2 relative z-10">
+                            {copiedSecure ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                <span>Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                <span>Copy Secure Link</span>
+                              </>
+                            )}
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+
+                {/* Public Create-ID Link */}
+                <div className="group relative bg-gradient-to-br from-white via-purple-50 to-pink-50 rounded-2xl p-6 shadow-lg border border-purple-200/50 hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-rose-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                  <div className="relative z-10">
+                    {/* Header */}
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <Globe className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800">
+                          Public Create Form
+                        </h3>
+                        <div className="flex items-center space-x-1">
+                          <Globe className="w-3 h-3 text-purple-500" />
+                          <span className="text-xs text-purple-600 font-medium">
+                            Open access
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                      Create a public form link that anyone can use to generate
+                      an ID card.
+                    </p>
+
+                    {/* Generate Button */}
+                    <button
+                      onClick={() =>
+                        setGeneratedPublicCreateLink(
+                          `${
+                            window.location.origin
+                          }/public-create-id?eventid=${eventId}&eventName=${encodeURIComponent(
+                            eventName
+                          )}`
+                        )
+                      }
+                      className="group w-full relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-700 hover:from-purple-500 hover:to-pink-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-purple-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 mb-4"
+                    >
+                      <div className="flex items-center justify-center space-x-2 relative z-10">
+                        <Globe className="w-4 h-4" />
+                        <span>Generate Public Link</span>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                    </button>
+
+                    {/* Generated Link Section */}
+                    {generatedPublicCreateLink && (
+                      <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            readOnly
+                            value={generatedPublicCreateLink}
+                            className="w-full p-3 bg-white border-2 border-purple-200 rounded-xl text-sm font-mono text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 pr-12"
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                              <Globe className="w-3 h-3 text-purple-600" />
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleCopyPublic}
+                          className="group w-full relative overflow-hidden bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-emerald-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                        >
+                          <div className="flex items-center justify-center space-x-2 relative z-10">
+                            {copiedPublic ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                <span>Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                <span>Copy Public Link</span>
+                              </>
+                            )}
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gradient-to-r from-gray-50/90 via-white/90 to-slate-50/90 backdrop-blur-sm px-8 py-4 border-t border-gray-200/50">
+              <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                <Sparkles className="w-4 h-4 text-blue-500" />
+                <span>Links are generated instantly and ready to share</span>
               </div>
             </div>
           </div>
         </div>
       )}
 
-
-
       {modal && (
-        <div>
-          <div
-            id="default-modal"
-            tabIndex="-1"
-            aria-hidden="true"
-            className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50"
-          >
-            <div className="relative p-4 w-full max-w-2xl max-h-full">
-              <div className="relative bg-white rounded-lg shadow">
-                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                      {` Create ID`}
-                    </h1>
-                    <span className="text-gray-500">{` ${eventData?.isPaidEvent ? " (Paid Event)" : ""}`}</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-3xl max-h-[95vh] overflow-hidden">
+            <div className="relative bg-gradient-to-br from-white via-gray-50 to-slate-100 rounded-3xl shadow-2xl border border-gray-200/50">
+              {/* Header */}
+              <div className="relative bg-gradient-to-r  from-blue-600 via-purple-600 to-indigo-700 px-8 py-6 rounded-t-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 rounded-t-3xl via-purple-600/10 to-indigo-700/10 backdrop-blur-sm"></div>
+                <div className="relative z-10 flex items-center rounded-t-3xl justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                      <Plus className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-white">
+                        Create ID
+                      </h1>
+                      {eventData?.isPaidEvent && (
+                        <div className="flex items-center space-x-2 mt-1">
+                          <CreditCard className="w-4 h-4 text-yellow-300" />
+                          <span className="text-yellow-200 text-sm font-medium">
+                            Paid Event
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <button
                     type="button"
-                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center"
                     onClick={toggleModal}
+                    className="group w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-105"
                   >
-                    <svg
-                      className="w-3 h-3"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 14 14"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7l-6 6"
-                      />
-                    </svg>
-                    <span className="sr-only">Close modal</span>
+                    <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-300" />
                   </button>
                 </div>
-                <div className=" max-w-2xl mx-auto py-5 px-4 sm:px-6 lg:px-8 overflow-y-auto  max-h-[70vh]">
-                  <div className="space-y-6">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                      {isCreating && <LoaderOverlay />}
-                      <div className="">
-                        <div>
-                          <label
-                            htmlFor="startname"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Name
-                          </label>
-                          <div className="mt-1">
-                            <input
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                              id="startname"
-                              placeholder="Enter your Name"
-                              required
-                              value={firstName}
-                              onChange={(e) => setFirstName(e.target.value)}
-                            />
-                            {errors.firstName && (
-                              <p className="text-red-500">
-                                {errors.firstName}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="grid-cols-2 grid gap-6">
-                          <div className="mt-4">
-                            <label
-                              htmlFor="institute"
-                              className="block text-sm font-medium text-gray-700"
-                            >
-                              Institute
-                            </label>
-                            <div className="mt-1">
-                              <input
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                id="institute"
-                                placeholder="Enter your Company/Institute"
-                                value={institute}
-                                onChange={(e) => setInstitute(e.target.value)}
-                              />
-                              {errors.institute && (
-                                <p className="text-red-500">
-                                  {errors.institute}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="mt-4">
-                            <label
-                              htmlFor="designation"
-                              className="block text-sm font-medium text-gray-700"
-                            >
-                              Designation
-                            </label>
-                            <div className="mt-1">
-                              <input
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                id="designation"
-                                placeholder="Enter your Designation"
-                                value={designation}
-                                onChange={(e) => setDesignation(e.target.value)}
-                              />
-                              {errors.designation && (
-                                <p className="text-red-500">
-                                  {errors.designation}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        {/* <div>
-                          <label
-                            htmlFor="lastname"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Last name
-                          </label>
-                          <div className="mt-1">
-                            <input
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                              id="lastname"
-                              placeholder="Enter your Last name"
-                              required
-                              value={lastName}
-                              onChange={(e) => setLastName(e.target.value)}
-                            />
-                          </div>
-                        </div> */}
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="phone"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Phone
-                        </label>
-                        <div className="mt-1">
-                          <input
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            id="phone"
-                            placeholder="Enter your Phone"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                          />
-                          {errors.phone && (
-                            <p className="text-red-500">{errors.phone}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="email"
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Email
-                        </label>
-                        <div className="mt-1">
-                          <input
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            id="email"
-                            placeholder="Enter your Email"
-                            value={email}
-                            onChange={(e) => setemail(e.target.value)}
-                          />
-                          {errors.email && (
-                            <p className="text-red-500">{errors.email}</p>
-                          )}
-                        </div>
-                      </div>
-                      {/* Ticket Selection */}
-                   {eventData.regionPricings.length > 0 &&   <div>
-                        <label className="block text-sm font-medium text-gray-700">Region</label>
-                        <select
-                          value={selectedRegion}
-                          onChange={e => { setSelectedRegion(e.target.value); setSelectedCategory(""); }}
-                          className="mt-1 block w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+
+                {/* Animated background particles */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <div className="absolute top-4 left-12 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+                  <div className="absolute top-8 right-16 w-0.5 h-0.5 bg-white/50 rounded-full animate-pulse delay-300"></div>
+                  <div className="absolute bottom-6 left-20 w-1.5 h-1.5 bg-white/30 rounded-full animate-pulse delay-700"></div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="p-8">
+                  <form className="space-y-6" onSubmit={handleSubmit}>
+                    {isCreating && <LoaderOverlay />}
+
+                    {/* Name Field */}
+                    <div className="group">
+                      <label
+                        htmlFor="startname"
+                        className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        <User className="w-4 h-4 text-blue-600" />
+                        <span>Full Name</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500 font-medium hover:border-gray-300 hover:shadow-md"
+                          id="startname"
+                          placeholder="Enter your full name"
                           required
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                        />
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600/5 to-purple-600/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      </div>
+                      {errors.firstName && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                          <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                          <span>{errors.firstName}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Institute and Designation Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Institute Field */}
+                      <div className="group">
+                        <label
+                          htmlFor="institute"
+                          className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3"
                         >
-                          <option value="">Select Region</option>
-                          {regionOptions.map(region => (
-                            <option key={region} value={region}>
-                              {region.charAt(0).toUpperCase() + region.slice(1)}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.ticketRegion && (
-                          <p className="text-red-500">{errors.ticketRegion}</p>
+                          <Building className="w-4 h-4 text-purple-600" />
+                          <span>Institute</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-purple-50 focus:via-white focus:to-slate-50 focus:border-purple-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500 font-medium hover:border-gray-300 hover:shadow-md"
+                            id="institute"
+                            placeholder="Company/Institute"
+                            value={institute}
+                            onChange={(e) => setInstitute(e.target.value)}
+                          />
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600/5 to-pink-600/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                        </div>
+                        {errors.institute && (
+                          <p className="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                            <span>{errors.institute}</span>
+                          </p>
                         )}
-                      </div>}
-                      {selectedRegion && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">Category</label>
+                      </div>
+
+                      {/* Designation Field */}
+                      <div className="group">
+                        <label
+                          htmlFor="designation"
+                          className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3"
+                        >
+                          <Tag className="w-4 h-4 text-indigo-600" />
+                          <span>Designation</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-indigo-50 focus:via-white focus:to-slate-50 focus:border-indigo-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500 font-medium hover:border-gray-300 hover:shadow-md"
+                            id="designation"
+                            placeholder="Your designation"
+                            value={designation}
+                            onChange={(e) => setDesignation(e.target.value)}
+                          />
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-600/5 to-blue-600/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                        </div>
+                        {errors.designation && (
+                          <p className="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                            <span>{errors.designation}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Phone Field */}
+                    <div className="group">
+                      <label
+                        htmlFor="phone"
+                        className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        <Phone className="w-4 h-4 text-green-600" />
+                        <span>Phone Number</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-green-50 focus:via-white focus:to-slate-50 focus:border-green-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500 font-medium hover:border-gray-300 hover:shadow-md"
+                          id="phone"
+                          placeholder="Enter your phone number"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                        />
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-green-600/5 to-emerald-600/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      </div>
+                      {errors.phone && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                          <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                          <span>{errors.phone}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Email Field */}
+                    <div className="group">
+                      <label
+                        htmlFor="email"
+                        className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        <Mail className="w-4 h-4 text-orange-600" />
+                        <span>Email Address</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-orange-50 focus:via-white focus:to-slate-50 focus:border-orange-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500 font-medium hover:border-gray-300 hover:shadow-md"
+                          id="email"
+                          placeholder="Enter your email address"
+                          value={email}
+                          onChange={(e) => setemail(e.target.value)}
+                        />
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-600/5 to-red-600/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      </div>
+                      {errors.email && (
+                        <p className="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                          <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                          <span>{errors.email}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Region Selection */}
+                    {eventData.regionPricings.length > 0 && (
+                      <div className="group">
+                        <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                          <MapPin className="w-4 h-4 text-teal-600" />
+                          <span>Region</span>
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={selectedRegion}
+                            onChange={(e) => {
+                              setSelectedRegion(e.target.value);
+                              setSelectedCategory("");
+                            }}
+                            className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-teal-50 focus:via-white focus:to-slate-50 focus:border-teal-500 focus:outline-none transition-all duration-300 text-gray-800 font-medium hover:border-gray-300 hover:shadow-md appearance-none cursor-pointer"
+                            required
+                          >
+                            <option value="">Select Region</option>
+                            {regionOptions.map((region) => (
+                              <option key={region} value={region}>
+                                {region.charAt(0).toUpperCase() +
+                                  region.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <svg
+                              className="w-4 h-4 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </div>
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-teal-600/5 to-cyan-600/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                        </div>
+                        {errors.ticketRegion && (
+                          <p className="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                            <span>{errors.ticketRegion}</span>
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Category Selection */}
+                    {selectedRegion && (
+                      <div className="group animate-in slide-in-from-top-2 duration-300">
+                        <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                          <Tag className="w-4 h-4 text-pink-600" />
+                          <span>Category</span>
+                        </label>
+                        <div className="relative">
                           <select
                             value={selectedCategory}
-                            onChange={e => setSelectedCategory(e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                            onChange={(e) =>
+                              setSelectedCategory(e.target.value)
+                            }
+                            className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-pink-50 focus:via-white focus:to-slate-50 focus:border-pink-500 focus:outline-none transition-all duration-300 text-gray-800 font-medium hover:border-gray-300 hover:shadow-md appearance-none cursor-pointer"
                             required
                           >
                             <option value="">Select Category</option>
                             {categoryOptions.map(({ name, price }) => (
                               <option key={name} value={name}>
-                                {`${name} – ${selectedRegion === 'indian' ? '₹' : '$'}${price}`}
+                                {`${name} – ${
+                                  selectedRegion === "indian" ? "₹" : "$"
+                                }${price}`}
                               </option>
                             ))}
                           </select>
-                          {errors.ticketCategory && (
-                            <p className="text-red-500">{errors.ticketCategory}</p>
-                          )}
+                          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <svg
+                              className="w-4 h-4 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </div>
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-600/5 to-rose-600/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         </div>
-                      )}
-
-
-
-                    </form>
-                  </div>
-                 
+                        {errors.ticketCategory && (
+                          <p className="text-red-500 text-sm mt-2 flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                            <span>{errors.ticketCategory}</span>
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </form>
                 </div>
-                 <div className="flex justify-between gap-5 p-4">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-black bg-gray-400 border border-transparent rounded-md hover:bg-gray-500 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      onClick={toggleModal}
-                    >
-                      Cancel
-                    </button>
-                    {
-                      eventData?.isPaidEvent ?
-                        <RazorpayButton
-                          styleClass={`w-full  px-4 py-3 text-sm disabled:cursor-not-allowed font-medium text-white  rounded-md ${isFormFilled() ? "bg-black hover:bg-gray-700 " : "bg-gray-400 cursor-not-allowed"}`}
-                          onSuccess={createIdAfterPayment}
-                          buttonText={
-                            selectedCategory
-                              ? `Pay & Create (${selectedRegion === 'indian' ? '₹' : '$'}${eventData.regionPricings
-                                .find(r => r.region === selectedRegion)
-                                .categories.find(c => c.name === selectedCategory).price
+              </div>
+
+              {/* Footer */}
+              <div className="bg-gradient-to-r from-gray-50/90 via-white/90 to-slate-50/90 backdrop-blur-sm px-8 py-6 border-t border-gray-200/50 rounded-b-3xl">
+                <div className="flex gap-4">
+                  {/* Cancel Button */}
+                  <button
+                    type="button"
+                    onClick={toggleModal}
+                    className="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-slate-500 hover:from-gray-300 hover:to-slate-400 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-gray-400/20 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1"
+                  >
+                    <div className="flex items-center justify-center space-x-2 relative z-10">
+                      <X className="w-4 h-4" />
+                      <span>Cancel</span>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  </button>
+
+                  {/* Create/Pay Button */}
+                  {eventData?.isPaidEvent ? (
+                    <div className="flex-1">
+                      <RazorpayButton
+                        styleClass={`group relative overflow-hidden w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 ${
+                          isFormFilled()
+                            ? "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white"
+                            : "bg-gradient-to-r from-gray-300 to-slate-400 text-gray-600 cursor-not-allowed"
+                        }`}
+                        onSuccess={createIdAfterPayment}
+                        buttonText={
+                          selectedCategory
+                            ? `Pay & Create (${
+                                selectedRegion === "indian" ? "₹" : "$"
+                              }${
+                                eventData.regionPricings
+                                  .find((r) => r.region === selectedRegion)
+                                  .categories.find(
+                                    (c) => c.name === selectedCategory
+                                  ).price
                               })`
-                              : 'Select ticket first'
-                          }
-                          amount={
-                            (eventData.regionPricings.find(r => r.region === selectedRegion)?.categories
-                              .find(c => c.name === selectedCategory)?.price || 0)
-                          }
-                          user={
-                            {
-                              firstName,
-                              lastName,
-                              email,
-                              phone
-                            }
-                          }
-                          currency={selectedRegion === 'indian' ? 'INR' : 'USD'}
-                          loading={isCreating}
-                          onBeforePay={() => isValid()} // New prop, returns true if valid and sets errors
-
-
-                        />
-                        :
-                        <button
-                          onClick={handleSubmit}
-                          className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                          disabled={isCreating}
-                        >
-                          {isCreating ? (
-                            <>
-                              <svg
-                                className="animate-spin h-5 w-5 mr-3 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                ></circle>
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
-                                ></path>
-                              </svg>
-                              Creating...
-                            </>
-                          ) : (
-                            ` Create`
-                          )}
-                        </button>
-                    }
-                  </div>
+                            : "Select ticket first"
+                        }
+                        amount={
+                          eventData.regionPricings
+                            .find((r) => r.region === selectedRegion)
+                            ?.categories.find(
+                              (c) => c.name === selectedCategory
+                            )?.price || 0
+                        }
+                        user={{
+                          firstName,
+                          email,
+                          phone,
+                        }}
+                        currency={selectedRegion === "indian" ? "INR" : "USD"}
+                        loading={isCreating}
+                        onBeforePay={() => isValid()}
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleSubmit}
+                      className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-blue-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                      disabled={isCreating}
+                    >
+                      <div className="flex items-center justify-center space-x-2 relative z-10">
+                        {isCreating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Creating...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-4 h-4" />
+                            <span>Create ID</span>
+                          </>
+                        )}
+                      </div>
+                      {!isCreating && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Custom Scrollbar Styles */}
+          <style jsx>{`
+            .custom-scrollbar::-webkit-scrollbar {
+              width: 6px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+              background: rgba(229, 231, 235, 0.5);
+              border-radius: 10px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+              background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+              border-radius: 10px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+              background: linear-gradient(to bottom, #2563eb, #7c3aed);
+            }
+          `}</style>
         </div>
       )}
 
@@ -1076,240 +1384,3 @@ function CreateId() {
 }
 
 export default CreateId;
-
-
-// commented code of form 
-
-{/* <div className="grid lg:grid-cols-2 gap-6">
-                        <input
-                          className="border p-2 rounded"
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) =>
-                            handleFileChange(e, setBackgroundImage)
-                          }
-                          disabled={isWebcamEnabled}
-                        />
-                        <WebcamCapture onCapture={handleCapture} />
-                        {profilePicture && (
-                          <div className="text-center">
-                            <img
-                              src={
-                                URL.createObjectURL(profilePicture) ||
-                                "/placeholder.svg"
-                              }
-                              alt="Profile"
-                              className="mx-auto w-32 h-32 object-cover rounded-full"
-                            />
-                            <button
-                              type="button"
-                              className="border bg-red-700 font-bold text-white px-2 mt-1 rounded"
-                              onClick={handleRemovePicture}
-                            >
-                              Remove Picture
-                            </button>
-                          </div>
-                        )}
-                      </div> */}
-
-
-
-
-
-/*
-
-      // {isSecureForm && (
-      //   <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      //     <div className="bg-white shadow rounded-lg p-6">
-      //       <h1 className="text-2xl font-bold text-gray-900 mb-6">
-      //         Create Your ID Card
-      //       </h1>
-      //       <form className="space-y-6" onSubmit={handleSubmit}>
-      //         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      //           <div>
-      //             <label
-      //               htmlFor="startname"
-      //               className="block text-sm font-medium text-gray-700"
-      //             >
-      //               First Name
-      //             </label>
-      //             <div className="mt-1">
-      //               <input
-      //                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      //                 id="startname"
-      //                 placeholder="Enter your First Name"
-      //                 required
-      //                 value={firstName}
-      //                 onChange={(e) => setFirstName(e.target.value)}
-      //               />
-      //             </div>
-      //           </div>
-
-      //           <div>
-      //             <label
-      //               htmlFor="lastname"
-      //               className="block text-sm font-medium text-gray-700"
-      //             >
-      //               Last name
-      //             </label>
-      //             <div className="mt-1">
-      //               <input
-      //                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      //                 id="lastname"
-      //                 placeholder="Enter your Last name"
-      //                 required
-      //                 value={lastName}
-      //                 onChange={(e) => setLastName(e.target.value)}
-      //               />
-      //             </div>
-      //           </div>
-      //         </div>
-      //         <div>
-      //           <label
-      //             htmlFor="email"
-      //             className="block text-sm font-medium text-gray-700"
-      //           >
-      //             Email
-      //           </label>
-      //           <div className="mt-1">
-      //             <input
-      //               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      //               id="email"
-      //               type="email"
-      //               placeholder="Enter your Email"
-      //               value={email}
-      //               onChange={(e) => setemail(e.target.value)}
-      //             />
-      //           </div>
-      //         </div>
-      //         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      //           <div>
-      //             <label
-      //               htmlFor="institute"
-      //               className="block text-sm font-medium text-gray-700"
-      //             >
-      //               Institute
-      //             </label>
-      //             <div className="mt-1">
-      //               <input
-      //                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      //                 id="institute"
-      //                 placeholder="Enter your Institute"
-      //                 value={institute}
-      //                 onChange={(e) => setInstitute(e.target.value)}
-      //               />
-      //             </div>
-      //           </div>
-      //           <div>
-      //             <label
-      //               htmlFor="designation"
-      //               className="block text-sm font-medium text-gray-700"
-      //             >
-      //               Designation
-      //             </label>
-      //             <div className="mt-1">
-      //               <select
-      //                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      //                 id="designation"
-      //                 placeholder="Enter your Designation"
-      //                 value={designation}
-      //                 onChange={(e) => setDesignation(e.target.value)}
-      //               >
-      //                 <option value="">Select Designation</option>
-      //                 {designations.map((designation) =>
-      //                   designation.categories.map((category, index) => (
-      //                     <option key={index} value={category}>
-      //                       {category}
-      //                     </option>
-      //                   ))
-      //                 )}
-      //               </select>
-      //             </div>
-      //           </div>
-      //         </div>
-
-      //         <div className="space-y-4">
-      //           <label className="block text-sm font-medium text-gray-700">
-      //             Profile Picture
-      //           </label>
-      //           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      //             <div>
-      //               <input
-      //                 className="w-full border p-2 rounded"
-      //                 type="file"
-      //                 accept="image/*"
-      //                 onChange={handleFileChange}
-      //                 disabled={isWebcamEnabled}
-      //               />
-      //             </div>
-      //             <WebcamCapture onCapture={handleCapture} />
-      //           </div>
-      //           {profilePicture && (
-      //             <div className="flex flex-col items-center mt-4">
-      //               <img
-      //                 src={
-      //                   URL.createObjectURL(profilePicture) ||
-      //                   "/placeholder.svg"
-      //                 }
-      //                 alt="Profile"
-      //                 className="w-32 h-32 object-cover rounded-full"
-      //               />
-      //               <button
-      //                 type="button"
-      //                 className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-      //                 onClick={handleRemovePicture}
-      //               >
-      //                 Remove Picture
-      //               </button>
-      //             </div>
-      //           )}
-      //         </div>
-
-      //         <div className="flex justify-between gap-5 pt-4">
-      //           <button
-      //             type="button"
-      //             className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-black bg-gray-200 border border-transparent rounded-md hover:bg-gray-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      //             onClick={() => window.history.back()}
-      //           >
-      //             Cancel
-      //           </button>
-      //           <button
-      //             type="submit"
-      //             className="ml-2 inline-flex bg-black w-full justify-center px-4 py-2 text-sm font-medium text-white rounded-md hover:bg-gray-800 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-      //             disabled={isCreating}
-      //           >
-      //             {isCreating ? (
-      //               <>
-      //                 <svg
-      //                   className="animate-spin h-5 w-5 mr-3 text-white"
-      //                   xmlns="http://www.w3.org/2000/svg"
-      //                   fill="none"
-      //                   viewBox="0 0 24 24"
-      //                 >
-      //                   <circle
-      //                     className="opacity-25"
-      //                     cx="12"
-      //                     cy="12"
-      //                     r="10"
-      //                     stroke="currentColor"
-      //                     strokeWidth="4"
-      //                   ></circle>
-      //                   <path
-      //                     className="opacity-75"
-      //                     fill="currentColor"
-      //                     d="M4 12a8 8 0 018-8V0C6.477 0 2 4.477 2 10h2zm2 5.291A7.97 7.97 0 014 12H2c0 2.21.896 4.21 2.343 5.657l1.414-1.366z"
-      //                   ></path>
-      //                 </svg>
-      //                 Creating...
-      //               </>
-      //             ) : (
-      //               "Create ID Card"
-      //             )}
-      //           </button>
-      //         </div>
-      //       </form>
-      //     </div>
-      //   </div>
-      // )}
-
-*/

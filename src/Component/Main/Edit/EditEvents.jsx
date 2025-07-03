@@ -1,462 +1,647 @@
-import React, { useState, useEffect } from "react";
+"\"use client";
 
-function EditEvents({ toggleEditModal, event, fetchEvents, id, onClose }) {
-  const [eventName, setEventName] = useState(event.eventName || "");
-  const [address, setAddress] = useState(event.address || "");
-  const [startDate, setStartDate] = useState(event.startDate || "");
-  const [endDate, setEndDate] = useState(event.endDate || "");
-  const [categories, setCategories] = useState(event.categories || []);
-  const [amenities, setAmenities] = useState(event.amenities || {});
+import { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import {
+  X,
+  Calendar,
+  Upload,
+  Tag,
+  Building,
+  DollarSign,
+  Ticket,
+  Edit,
+  Save,
+  Loader2,
+} from "lucide-react";
+
+const EditEvents = ({ event, onClose, fetchEvents }) => {
+  const [eventName, setEventName] = useState(event?.eventName || "");
+  const [address, setAddress] = useState(event?.address || "");
+  const [startDate, setStartDate] = useState(
+    event?.startDate?.split("T")[0] || ""
+  );
+  const [endDate, setEndDate] = useState(event?.endDate?.split("T")[0] || "");
+  const [photo, setPhoto] = useState(null);
+  const [idcardimage, setIdcardimage] = useState(null);
+  const [categories, setCategories] = useState(event?.categories || []);
+  const [amenities, setAmenities] = useState(
+    event?.amenities ? Object.keys(event.amenities) : []
+  );
+  const [isPaidEvent, setIsPaidEvent] = useState(event?.isPaidEvent || false);
+  const [indianTicketCategories, setIndianTicketCategories] = useState(
+    event?.regionPricings?.find((r) => r.region === "indian")?.categories || []
+  );
+  const [internationalTicketCategories, setInternationalTicketCategories] =
+    useState(
+      event?.regionPricings?.find((r) => r.region === "international")
+        ?.categories || []
+    );
+
   const [currentCategory, setCurrentCategory] = useState("");
   const [currentAmenity, setCurrentAmenity] = useState("");
-  const [eventImage, setEventImage] = useState(null);
-  const [idCardImage, setIdCardImage] = useState(null);
-  const [isCreating, setIsCreating] = useState();
-  const [amount, setAmount] = useState(event.amount || 0);
-
-  const [isPaidEvent, setisPaidEvent] = useState(event.isPaidEvent || false);
-
-  // New: ticket pricing
-  const [indianTicketCategories, setIndianTicketCategories] = useState([]);
-  const [intlTicketCategories, setIntlTicketCategories] = useState([]);
-  const [currIndianName, setCurrIndianName] = useState("");
-  const [currIndianPrice, setCurrIndianPrice] = useState("");
-  const [currIntlName, setCurrIntlName] = useState("");
-  const [currIntlPrice, setCurrIntlPrice] = useState("");
-
-  useEffect(() => {
-    // Prefill pricing from event.regionPricings
-    const rp = event.regionPricings || [];
-    const ind = rp.find(r => r.region === 'indian');
-    const intl = rp.find(r => r.region === 'international');
-    if (ind) setIndianTicketCategories(ind.categories);
-    if (intl) setIntlTicketCategories(intl.categories);
-  }, [event.regionPricings]);
-  useEffect(() => {
-    setAmenities(event.amenities || {});
-  }, [event.amenities]);
-
-  // Ticket handlers
-  const addIndianTicket = e => { e.preventDefault(); if (currIndianName && currIndianPrice) { setIndianTicketCategories([...indianTicketCategories, { name: currIndianName, price: Number(currIndianPrice) }]); setCurrIndianName(""); setCurrIndianPrice(""); } };
-  const removeIndianTicket = i => setIndianTicketCategories(indianTicketCategories.filter((_, idx) => idx !== i));
-  const addIntlTicket = e => { e.preventDefault(); if (currIntlName && currIntlPrice) { setIntlTicketCategories([...intlTicketCategories, { name: currIntlName, price: Number(currIntlPrice) }]); setCurrIntlName(""); setCurrIntlPrice(""); } };
-  const removeIntlTicket = i => setIntlTicketCategories(intlTicketCategories.filter((_, idx) => idx !== i));
-
+  const [currentIndianTicketName, setCurrentIndianTicketName] = useState("");
+  const [currentIndianTicketPrice, setCurrentIndianTicketPrice] = useState("");
+  const [currentInternationalTicketName, setCurrentInternationalTicketName] =
+    useState("");
+  const [currentInternationalTicketPrice, setCurrentInternationalTicketPrice] =
+    useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const addCategory = (e) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
     if (currentCategory.trim()) {
-      setCategories((prevCategories) => [
-        ...prevCategories,
-        currentCategory.trim(),
-      ]);
+      setCategories([...categories, currentCategory.trim()]);
       setCurrentCategory("");
     }
   };
 
   const addAmenity = (e) => {
-    e.preventDefault(); // Prevent form submission
-    if (currentAmenity.trim() !== "" && !amenities[currentAmenity]) {
-      setAmenities((prevAmenities) => ({
-        ...prevAmenities,
-        [currentAmenity]: true,
-      }));
+    e.preventDefault();
+    if (currentAmenity.trim()) {
+      setAmenities([...amenities, currentAmenity.trim()]);
       setCurrentAmenity("");
     }
   };
 
   const removeCategory = (index) => {
-    const newCategories = categories.filter((_, i) => i !== index);
-    setCategories(newCategories);
+    setCategories(categories.filter((_, i) => i !== index));
   };
 
-  const removeAmenity = (key) => {
-    setAmenities((prevAmenities) => {
-      const updatedAmenities = { ...prevAmenities };
-      delete updatedAmenities[key];
-      return updatedAmenities;
-    });
+  const removeAmenity = (index) => {
+    setAmenities(amenities.filter((_, i) => i !== index));
+  };
+
+  const addIndianTicketCategory = (e) => {
+    e.preventDefault();
+    if (currentIndianTicketName.trim() && currentIndianTicketPrice) {
+      setIndianTicketCategories([
+        ...indianTicketCategories,
+        {
+          name: currentIndianTicketName.trim(),
+          price: currentIndianTicketPrice,
+        },
+      ]);
+      setCurrentIndianTicketName("");
+      setCurrentIndianTicketPrice("");
+    }
+  };
+
+  const removeIndianTicketCategory = (index) => {
+    setIndianTicketCategories(
+      indianTicketCategories.filter((_, i) => i !== index)
+    );
+  };
+
+  const addInternationalTicketCategory = (e) => {
+    e.preventDefault();
+    if (
+      currentInternationalTicketName.trim() &&
+      currentInternationalTicketPrice
+    ) {
+      setInternationalTicketCategories([
+        ...internationalTicketCategories,
+        {
+          name: currentInternationalTicketName.trim(),
+          price: currentInternationalTicketPrice,
+        },
+      ]);
+      setCurrentInternationalTicketName("");
+      setCurrentInternationalTicketPrice("");
+    }
+  };
+
+  const removeInternationalTicketCategory = (index) => {
+    setInternationalTicketCategories(
+      internationalTicketCategories.filter((_, i) => i !== index)
+    );
+  };
+
+  const handleFileChange = (e) => {
+    const { id, files } = e.target;
+    if (files.length > 0) {
+      if (id === "event-image") {
+        setPhoto(files[0]);
+      } else if (id === "idcard-image") {
+        setIdcardimage(files[0]);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsCreating(true);
-    console.log("isPaidEvent:", isPaidEvent);
-    const formData = new FormData();
-    formData.append("eventName", eventName);
-    formData.append("address", address);
-    formData.append("startDate", startDate);
-    formData.append("endDate", endDate);
-    formData.append("categories", JSON.stringify(categories));
-    formData.append("amenities", JSON.stringify(amenities));
-    formData.append("isPaidEvent", isPaidEvent ? "true" : "false");// Add isPaidEvent field with false value
-    formData.append("amount", amount);
-    if (eventImage) formData.append("photo", eventImage);
-    if (idCardImage) formData.append("idcardimage", idCardImage);
-    // Region pricings
-    const regionPricings = [];
-    if (indianTicketCategories.length) regionPricings.push({ region: 'indian', categories: indianTicketCategories });
-    if (intlTicketCategories.length) regionPricings.push({ region: 'international', categories: intlTicketCategories });
-    formData.append("regionPricings", JSON.stringify(regionPricings));
+    setIsUpdating(true);
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/events/edit/${event._id}`,
+      const formData = new FormData();
+      formData.append("eventName", eventName);
+      formData.append("address", address);
+      formData.append("startDate", startDate);
+      formData.append("endDate", endDate);
+      if (photo) formData.append("photo", photo);
+      if (idcardimage) formData.append("idcardimage", idcardimage);
+      formData.append("categories", JSON.stringify(categories));
+      formData.append("isPaidEvent", JSON.stringify(isPaidEvent));
+
+      const regionPricings = [];
+      if (indianTicketCategories.length) {
+        regionPricings.push({
+          region: "indian",
+          categories: indianTicketCategories,
+        });
+      }
+      if (internationalTicketCategories.length) {
+        regionPricings.push({
+          region: "international",
+          categories: internationalTicketCategories,
+        });
+      }
+      formData.append("regionPricings", JSON.stringify(regionPricings));
+
+      const amenitiesObject = amenities.reduce((acc, amenity) => {
+        acc[amenity] = false;
+        return acc;
+      }, {});
+      formData.append("amenities", JSON.stringify(amenitiesObject));
+
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/events/${event._id}`,
+        formData,
         {
-          method: "PATCH",
-          body: formData,
-          headers: {
-            Accept: "application/json",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      if (response.ok) {
-        console.log("Event updated successfully");
-        onClose();
-        fetchEvents();
-      } else {
-        console.error("Error updating event:", await response.text());
-      }
+      console.log("Event updated:", response.data);
+      toast.success("Event updated successfully!");
+      fetchEvents();
+      onClose();
     } catch (error) {
       console.error("Error updating event:", error);
-      setIsCreating(false);
-
+      toast.error("Failed to update event");
     } finally {
-      setIsCreating(false);
+      setIsUpdating(false);
     }
   };
 
   return (
-    <div>
-      <div
-        id="default-modal"
-        tabIndex="-1"
-        aria-hidden="true"
-        className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50"
-      >
-        <div className="relative p-4 w-full max-w-4xl max-h-full">
-          <div className="relative bg-white rounded-lg shadow">
-            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Update Event
-                </h1>
+    <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-md p-4">
+      <div className="relative w-full max-w-5xl max-h-[95vh] overflow-hidden">
+        <div className="relative bg-gradient-to-br from-white via-gray-50 to-slate-100 rounded-3xl shadow-2xl border border-gray-200/50">
+          {/* Modal Header */}
+          <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 px-8 py-6 rounded-t-3xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-indigo-700/10 backdrop-blur-sm"></div>
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                  <Edit className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">Edit Event</h1>
+                  <p className="text-white/90 text-sm mt-1">
+                    Update your event details and preferences
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
-                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center"
                 onClick={onClose}
+                className="group w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-105"
               >
-                <svg
-                  className="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M1 1l6 6m0 0l6 6M7 7l6-6M7 7l-6 6"
-                  />
-                </svg>
-                <span className="sr-only">Close modal</span>
+                <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-300" />
               </button>
             </div>
-            <div className="w-full max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8 overflow-y-auto h-[450px] sm:max-h-screen">
-              <div className="space-y-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
+
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-4 left-12 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+              <div className="absolute top-8 right-16 w-0.5 h-0.5 bg-white/50 rounded-full animate-pulse delay-300"></div>
+              <div className="absolute bottom-6 left-20 w-1.5 h-1.5 bg-white/30 rounded-full animate-pulse delay-700"></div>
+            </div>
+          </div>
+
+          {/* Modal Content */}
+          <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <div className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Basic Info Section */}
+                <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 border border-blue-200/50">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                    <Calendar className="w-5 h-5 text-blue-600" />
+                    <span>Basic Information</span>
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
+                    <div className="group">
                       <label
                         htmlFor="eventName"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
                       >
                         Event Name
                       </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          id="eventName"
-                          value={eventName}
-                          onChange={(e) => setEventName(e.target.value)}
-                          className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          placeholder="Enter Event Name"
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        id="eventName"
+                        className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500"
+                        placeholder="Enter Event Name"
+                        value={eventName}
+                        onChange={(e) => setEventName(e.target.value)}
+                        required
+                      />
                     </div>
-
-                    <div>
+                    <div className="group">
                       <label
                         htmlFor="address"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
                       >
                         Address
                       </label>
-                      <div className="mt-1">
-                        <input
-                          type="text"
-                          id="address"
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                          className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          placeholder="Enter Address"
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        id="address"
+                        className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500"
+                        placeholder="Enter Address"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        required
+                      />
                     </div>
                   </div>
+                </div>
+
+                {/* Categories and Amenities */}
+                <div className="grid lg:grid-cols-2 gap-8">
+                  <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-2xl p-6 border border-green-200/50">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                      <Tag className="w-5 h-5 text-green-600" />
+                      <span>Categories</span>
+                    </h3>
+                    <div className="flex items-center space-x-3 mb-4">
+                      <input
+                        type="text"
+                        value={currentCategory}
+                        onChange={(e) => setCurrentCategory(e.target.value)}
+                        className="flex-1 h-10 px-4 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300"
+                        placeholder="Add Category"
+                      />
+                      <button
+                        onClick={addCategory}
+                        className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {categories.map((category, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between bg-white p-3 rounded-lg border border-green-200/60 shadow-sm"
+                        >
+                          <span className="text-gray-700 font-medium">
+                            {category}
+                          </span>
+                          <button
+                            onClick={() => removeCategory(index)}
+                            className="p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-all duration-300"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-purple-50 via-violet-50 to-indigo-50 rounded-2xl p-6 border border-purple-200/50">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                      <Building className="w-5 h-5 text-purple-600" />
+                      <span>Amenities</span>
+                    </h3>
+                    <div className="flex items-center space-x-3 mb-4">
+                      <input
+                        type="text"
+                        value={currentAmenity}
+                        onChange={(e) => setCurrentAmenity(e.target.value)}
+                        className="flex-1 h-10 px-4 bg-white border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
+                        placeholder="Add Amenity"
+                      />
+                      <button
+                        onClick={addAmenity}
+                        className="group relative overflow-hidden bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-400 hover:to-violet-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {amenities.map((amenity, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between bg-white p-3 rounded-lg border border-purple-200/60 shadow-sm"
+                        >
+                          <span className="text-gray-700 font-medium">
+                            {amenity}
+                          </span>
+                          <button
+                            onClick={() => removeAmenity(index)}
+                            className="p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-all duration-300"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dates */}
+                <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 rounded-2xl p-6 border border-orange-200/50">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                    <Calendar className="w-5 h-5 text-orange-600" />
+                    <span>Event Dates</span>
+                  </h3>
                   <div className="grid lg:grid-cols-2 gap-6">
-                    <div>
-                      <label
-                        htmlFor="Category"
-                        className="block mb-1 text-sm font-medium text-gray-700"
-                      >
-                        Category
-                      </label>
-                      <div className="flex items-center space-x-4">
-                        <input
-                          type="text"
-                          value={currentCategory}
-                          onChange={(e) => setCurrentCategory(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Add Category"
-                        />
-                        <button
-                          type="button" // Prevent form submission
-                          onClick={addCategory}
-                          className="px-4 w-20 bg-black h-8 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          Add
-                        </button>
-                      </div>
-                      <div className="mt-4">
-                        {categories.length > 0 && (
-                          <ul className="list-disc list-inside space-y-2">
-                            {categories.map((category, index) => (
-                              <li
-                                key={index}
-                                className="flex items-center justify-between text-gray-700"
-                              >
-                                <span>{category}</span>
-                                <button
-                                  type="button" // Prevent form submission
-                                  onClick={() => removeCategory(index)}
-                                  className="px-2 py-1 bg-red-500 text-white rounded-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                >
-                                  Remove
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="Amenity"
-                        className="block mb-1 text-sm font-medium text-gray-700"
-                      >
-                        Amenity
-                      </label>
-                      <div className="flex items-center space-x-4">
-                        <input
-                          type="text"
-                          value={currentAmenity}
-                          onChange={(e) => setCurrentAmenity(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Add Amenity"
-                        />
-                        <button
-                          type="button" // Prevent form submission
-                          onClick={addAmenity}
-                          className="px-4 w-20 bg-black h-8 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          Add
-                        </button>
-                      </div>
-                      <div className="mt-4">
-                        {Object.keys(amenities).length > 0 && (
-                          <ul className="list-disc list-inside space-y-2">
-                            {Object.keys(amenities).map((key) => (
-                              <li
-                                key={key}
-                                className="flex items-center justify-between text-gray-700"
-                              >
-                                <span>{key}</span>
-                                <button
-                                  type="button" // Prevent form submission
-                                  onClick={() => removeAmenity(key)}
-                                  className="px-2 py-1 bg-red-500 text-white rounded-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                >
-                                  Remove
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
+                    <div className="group">
                       <label
                         htmlFor="startDate"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
                       >
                         Start Date
                       </label>
                       <input
                         type="date"
                         id="startDate"
+                        className="w-full h-12 px-4 bg-white border-2 border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
                       />
                     </div>
-
-                    <div>
+                    <div className="group">
                       <label
                         htmlFor="endDate"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
                       >
                         End Date
                       </label>
                       <input
                         type="date"
                         id="endDate"
+                        className="w-full h-12 px-4 bg-white border-2 border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
                       />
                     </div>
                   </div>
+                </div>
 
-                  <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-                    <div>
+                {/* Images */}
+                <div className="bg-gradient-to-r from-pink-50 via-rose-50 to-red-50 rounded-2xl p-6 border border-pink-200/50">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                    <Upload className="w-5 h-5 text-pink-600" />
+                    <span>Images</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="group">
                       <label
-                        htmlFor="eventImage"
-                        className="block text-sm font-medium text-gray-700"
+                        htmlFor="event-image"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
                       >
                         Event Image
                       </label>
                       <input
                         type="file"
-                        id="eventImage"
-                        onChange={(e) => setEventImage(e.target.files[0])}
-                        className="mt-1"
+                        id="event-image"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="w-full h-12 px-4 bg-white border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                       />
                     </div>
-
-                    <div>
+                    <div className="group">
                       <label
-                        htmlFor="idCardImage"
-                        className="block text-sm font-medium text-gray-700"
+                        htmlFor="idcard-image"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
                       >
-                        ID Card Image
+                        ID Card Background
                       </label>
                       <input
                         type="file"
-                        id="idCardImage"
-                        onChange={(e) => setIdCardImage(e.target.files[0])}
-                        className="mt-1"
+                        id="idcard-image"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="w-full h-12 px-4 bg-white border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                       />
                     </div>
-                    {/* is paid event */}
-                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
-                      {/* Radio Buttons */}
-                      <div className="flex items-center space-x-6">
-                        <label className="inline-flex items-center space-x-2 cursor-pointer">
-                          <input
-                            id="free"
-                            type="radio"
-                            value="false"
-                            checked={isPaidEvent === false}
-                            onClick={(e) => setisPaidEvent(false)}
-                            className="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                          />
-                          <span className="text-sm text-gray-800 font-medium">Free</span>
-                        </label>
+                  </div>
+                </div>
 
-                        <label className="inline-flex items-center space-x-2 cursor-pointer">
-                          <input
-                            id="paid"
-                            type="radio"
-                            value="true"
-                            checked={isPaidEvent === true}
-                            onClick={(e) => setisPaidEvent(true)}
-                            className="h-5 w-5 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                          />
-                          <span className="text-sm text-gray-800 font-medium">Paid</span>
-                        </label>
-                      </div>
-
-                 
-                    </div>
-
-
-
+                {/* Pricing */}
+                <div className="bg-gradient-to-r from-cyan-50 via-blue-50 to-indigo-50 rounded-2xl p-6 border border-cyan-200/50">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                    <DollarSign className="w-5 h-5 text-cyan-600" />
+                    <span>Event Pricing</span>
+                  </h3>
+                  <div className="flex items-center space-x-6 mb-6">
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        value="false"
+                        checked={!isPaidEvent}
+                        onChange={() => setIsPaidEvent(false)}
+                        className="h-5 w-5 text-cyan-600 border-gray-300 focus:ring-cyan-500"
+                      />
+                      <span className="ml-2 text-gray-800 font-medium">
+                        Free Event
+                      </span>
+                    </label>
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        value="true"
+                        checked={isPaidEvent}
+                        onChange={() => setIsPaidEvent(true)}
+                        className="h-5 w-5 text-cyan-600 border-gray-300 focus:ring-cyan-500"
+                      />
+                      <span className="ml-2 text-gray-800 font-medium">
+                        Paid Event
+                      </span>
+                    </label>
                   </div>
 
-                  {/* Pricing columns */}
                   {isPaidEvent && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                      <div>
-                        <h4 className="font-semibold">Indian (INR)</h4>
-                        <div className="flex space-x-2 mb-2">
-                          <input value={currIndianName} onChange={e => setCurrIndianName(e.target.value)} placeholder="Name" className="border p-1 flex-1" />
-                          <input value={currIndianPrice} onChange={e => setCurrIndianPrice(e.target.value)} placeholder="Price" type="number" className="border p-1 w-24" />
-                          <button onClick={addIndianTicket} className="bg-black text-white px-2">Add</button>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Indian Pricing */}
+                      <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+                          <Ticket className="w-4 h-4 text-green-600" />
+                          <span>Indian Pricing (₹)</span>
+                        </h4>
+                        <div className="flex space-x-2 mb-3">
+                          <input
+                            type="text"
+                            placeholder="Category Name"
+                            value={currentIndianTicketName}
+                            onChange={(e) =>
+                              setCurrentIndianTicketName(e.target.value)
+                            }
+                            className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          />
+                          <input
+                            type="number"
+                            placeholder="Price (₹)"
+                            value={currentIndianTicketPrice}
+                            onChange={(e) =>
+                              setCurrentIndianTicketPrice(e.target.value)
+                            }
+                            className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          />
+                          <button
+                            onClick={addIndianTicketCategory}
+                            className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300"
+                          >
+                            Add
+                          </button>
                         </div>
-                        <ul className="list-disc pl-5">
-                          {indianTicketCategories.map((t, i) => (
-                            <li key={i} className="flex justify-between items-center">
-                              {t.name} – ₹{t.price}
-                              <button onClick={() => removeIndianTicket(i)} className="text-red-600">Remove</button>
-                            </li>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {indianTicketCategories.map((tc, i) => (
+                            <div
+                              key={i}
+                              className="flex justify-between items-center bg-green-50 p-2 rounded-lg border border-green-200/60"
+                            >
+                              <span className="text-gray-700 font-medium">
+                                {tc.name} – ₹{tc.price}
+                              </span>
+                              <button
+                                onClick={() => removeIndianTicketCategory(i)}
+                                className="p-1 text-red-600 hover:bg-red-100 rounded-md transition-all duration-300"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
                           ))}
-                        </ul>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold">International (USD)</h4>
-                        <div className="flex space-x-2 mb-2">
-                          <input value={currIntlName} onChange={e => setCurrIntlName(e.target.value)} placeholder="Name" className="border p-1 flex-1" />
-                          <input value={currIntlPrice} onChange={e => setCurrIntlPrice(e.target.value)} placeholder="Price" type="number" className="border p-1 w-24" />
-                          <button onClick={addIntlTicket} className="bg-black text-white px-2">Add</button>
+
+                      {/* International Pricing */}
+                      <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+                          <Ticket className="w-4 h-4 text-blue-600" />
+                          <span>International Pricing ($)</span>
+                        </h4>
+                        <div className="flex space-x-2 mb-3">
+                          <input
+                            type="text"
+                            placeholder="Category Name"
+                            value={currentInternationalTicketName}
+                            onChange={(e) =>
+                              setCurrentInternationalTicketName(e.target.value)
+                            }
+                            className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                          <input
+                            type="number"
+                            placeholder="Price ($)"
+                            value={currentInternationalTicketPrice}
+                            onChange={(e) =>
+                              setCurrentInternationalTicketPrice(e.target.value)
+                            }
+                            className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                          <button
+                            onClick={addInternationalTicketCategory}
+                            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-400 hover:to-indigo-500 transition-all duration-300"
+                          >
+                            Add
+                          </button>
                         </div>
-                        <ul className="list-disc pl-5">
-                          {intlTicketCategories.map((t, i) => (
-                            <li key={i} className="flex justify-between items-center">
-                              {t.name} – ${t.price}
-                              <button onClick={() => removeIntlTicket(i)} className="text-red-600">Remove</button>
-                            </li>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {internationalTicketCategories.map((tc, i) => (
+                            <div
+                              key={i}
+                              className="flex justify-between items-center bg-blue-50 p-2 rounded-lg border border-blue-200/60"
+                            >
+                              <span className="text-gray-700 font-medium">
+                                {tc.name} – ${tc.price}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  removeInternationalTicketCategory(i)
+                                }
+                                className="p-1 text-red-600 hover:bg-red-100 rounded-md transition-all duration-300"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
                           ))}
-                        </ul>
+                        </div>
                       </div>
                     </div>
                   )}
+                </div>
+              </form>
+            </div>
+          </div>
 
-                  <div className="flex justify-end mt-6">
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                      disabled={isCreating}
-                    >
-                      {isCreating ? "Updating..." : "Update Event"}
-                    </button>
-                  </div>
-                </form>
-              </div>
+          {/* Modal Footer */}
+          <div className="bg-gradient-to-r from-gray-50/90 via-white/90 to-slate-50/90 backdrop-blur-sm px-8 py-6 border-t border-gray-200/50 rounded-b-3xl">
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-slate-500 hover:from-gray-300 hover:to-slate-400 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-gray-400/20 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1"
+              >
+                <div className="flex items-center justify-center space-x-2 relative z-10">
+                  <X className="w-4 h-4" />
+                  <span>Cancel</span>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+              </button>
+
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-emerald-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                disabled={isUpdating}
+              >
+                <div className="flex items-center justify-center space-x-2 relative z-10">
+                  {isUpdating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Updating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Update Event</span>
+                    </>
+                  )}
+                </div>
+                {!isUpdating && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                )}
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Custom Scrollbar Styles */}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(229, 231, 235, 0.5);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #2563eb, #7c3aed);
+        }
+      `}</style>
     </div>
   );
-}
+};
 
 export default EditEvents;
