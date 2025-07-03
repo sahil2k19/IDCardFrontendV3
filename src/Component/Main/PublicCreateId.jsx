@@ -57,7 +57,11 @@ export default function PublicCreateId() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+if (!isValid) {
+      toast.dismiss();
+      toast.error("Please fill all the fields");
+      return
+    }
     try {
       const formData = new FormData();
       formData.append("firstName", firstName);
@@ -175,8 +179,8 @@ export default function PublicCreateId() {
     const phoneRegex = /^\d{10}$/;
 
     if (!firstName.trim()) newErrors.firstName = "Name is required.";
-    if (!designation.trim()) newErrors.designation = "Designation is required.";
-    if (!institute.trim()) newErrors.institute = "Institute is required.";
+    // if (!designation.trim()) newErrors.designation = "Designation is required.";
+    // if (!institute.trim()) newErrors.institute = "Institute is required.";
 
     if (!email.trim()) newErrors.email = "Email is required.";
     else if (!emailRegex.test(email.trim()))
@@ -292,7 +296,7 @@ const isFormFilled = () =>
           )}
           <div>
             <input
-              required
+              
               placeholder="Designation"
               value={designation}
               onChange={(e) => {
@@ -308,7 +312,9 @@ const isFormFilled = () =>
 
           {/* Phone */}
           <input
-            type="phone"
+            type="number"
+            inputMode="numeric"
+            pattern="[0-9]*"
             required
             placeholder="Phone"
             value={phone}
