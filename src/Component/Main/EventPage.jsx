@@ -1174,20 +1174,6 @@ function EventPage() {
                       {/* Overlay Gradient */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent transition-opacity duration-300 group-hover:opacity-90">
                         {/* Status Badge */}
-                        <div className="absolute top-4 left-4 z-20">
-                          <div
-                            className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg shadow-lg backdrop-blur-sm text-white font-medium text-sm ${
-                              eventStatus.status === "upcoming"
-                                ? "bg-blue-500/90"
-                                : eventStatus.status === "ongoing"
-                                ? "bg-green-500/90"
-                                : "bg-gray-500/90"
-                            }`}
-                          >
-                            <Clock className="h-3 w-3" />
-                            <span>{eventStatus.label}</span>
-                          </div>
-                        </div>
 
                         {/* Participant Count */}
                         <div className="absolute top-4 right-4 z-20">
@@ -1206,7 +1192,7 @@ function EventPage() {
                               e.stopPropagation();
                               toggleEditModal(event._id);
                             }}
-                            className="group w-10 h-10 bg-blue-500/90 hover:bg-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
+                            className="group w-8 h-8 bg-blue-500/90 hover:bg-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
@@ -1216,7 +1202,7 @@ function EventPage() {
                               e.stopPropagation();
                               handleDelete(event._id);
                             }}
-                            className="group w-10 h-10 bg-red-500/90 hover:bg-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
+                            className="group w-8 h-8 bg-red-500/90 hover:bg-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -1226,7 +1212,7 @@ function EventPage() {
                               e.stopPropagation();
                               handleTaskView(event._id, event.eventName);
                             }}
-                            className="group w-10 h-10 bg-green-500/90 hover:bg-green-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
+                            className="group w-8 h-8 bg-green-500/90 hover:bg-green-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
@@ -1309,7 +1295,7 @@ function EventPage() {
                               onClick={() => toggleEditModal(event._id)}
                               className="p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-all duration-300"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-3 w-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(event._id)}
@@ -1336,18 +1322,6 @@ function EventPage() {
                         )}
 
                         <div className="flex items-center justify-between">
-                          <div
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              eventStatus.status === "upcoming"
-                                ? "bg-blue-100 text-blue-700"
-                                : eventStatus.status === "ongoing"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {eventStatus.label}
-                          </div>
-
                           <button
                             onClick={() =>
                               handleTaskView(event._id, event.eventName)
