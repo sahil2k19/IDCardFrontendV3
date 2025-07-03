@@ -10,7 +10,7 @@ import EditControls from "./EditControls";
 import VisibilityModal from "./VisibilityModal";
 import DownloadButtons from "./DownloadButtons";
 import SearchBar from "./SearchBar";
-import { RefreshCw } from "lucide-react";
+import { Search, RefreshCw,  Calendar, Users  } from "lucide-react"
 function IdCardrender({
   Dataid,
   fetchData,
@@ -271,19 +271,112 @@ function IdCardrender({
 
   return (
     <div className="container mx-auto px-10">
-      <div className="flex justify-center ">
-        <h1 className="text-2xl border text-center px-5  p-1 rounded-md pb-2 bg-gray-200 mb-6 font-bold">
-          {eventName} All ID Cards
-        </h1>
-      </div>
-     
-      {/* Search */}
-    <div className="flex gap-6 justify-center ">
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />  <div className="flex items-center justify-center">
-        <button className="ml-4  flex text-white py-3 px-3 font-semibold text-lg gap-3  rounded-lg   bg-blue-700 hover:bg-blue-800  text-center" onClick={fetchData} ><RefreshCw />Reload</button>
+     <div className="w-full max-w-4xl mx-auto pt-3">
+    <div className="flex justify-center">
+      <div className="relative group">
+        {/* Main Header Container */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white px-8 py-2 rounded-2xl shadow-2xl border border-gray-700 hover:border-gray-500 transition-all duration-300 ease-out hover:shadow-3xl transform hover:scale-[1.02]">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-gray-800 to-transparent opacity-20"></div>
 
+          {/* Content */}
+          <div className="relative z-10 flex items-center justify-center space-x-4">
+            {/* Calendar Icon */}
+            <div className="hidden sm:flex items-center justify-center w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Calendar className="w-4 h-4 text-gray-900" />
+            </div>
+
+            {/* Title Text */}
+            <div className="text-center">
+              <h1 className="text-2xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent leading-tight">
+                <span className="block sm:inline">{eventName}</span>
+                <span className="block sm:inline sm:ml-2 text-gray-300 font-semibold">All ID Cards</span>
+              </h1>
+            </div>
+
+            {/* Users Icon */}
+            <div className="hidden sm:flex items-center justify-center w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Users className="w-4 h-4 text-gray-900" />
+            </div>
+          </div>
+
+          {/* Shine Effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transform -translate-x-full group-hover:translate-x-full transition-all duration-1000 ease-out"></div>
+        </div>
+
+        {/* Decorative Elements */}
+        <div className="absolute -top-2 -left-2 w-4 h-4 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full opacity-60 animate-pulse"></div>
+        <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full opacity-40 animate-pulse delay-300"></div>
+
+        {/* Glow Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-black rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 -z-10 scale-110"></div>
       </div>
     </div>
+
+    {/* Subtitle or Additional Info */}
+    <div className="flex justify-center mt-4">
+      <div className="flex items-center space-x-2 text-gray-600 text-sm font-medium">
+        <div className="w-8 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
+        <span>Event Management System</span>
+        <div className="w-8 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
+      </div>
+    </div>
+  </div>
+
+      {/* Search */}
+      <div className="w-full max-w-4xl mx-auto pt-3">
+    <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+      {/* Search Input Container */}
+      <div className="relative w-full sm:w-auto flex-1 max-w-2xl">
+        <div className="relative group">
+          {/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-gray-600 transition-colors duration-300" />
+          </div>
+
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search by name, email, ID or designation…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full h-14 pl-12 pr-6 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-300 rounded-xl shadow-lg focus:shadow-2xl focus:from-gray-50 focus:to-white focus:border-gray-500 focus:outline-none transition-all duration-300 ease-out text-gray-900 placeholder-gray-500 font-medium hover:border-gray-400 hover:shadow-xl"
+          />
+
+          {/* Input Glow Effect */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-900 to-black opacity-0 group-focus-within:opacity-5 transition-opacity duration-300 pointer-events-none"></div>
+        </div>
+
+        {/* Search Results Count or Status */}
+        {searchTerm && (
+          <div className="absolute -bottom-6 left-4 text-xs text-gray-500 font-medium">
+            Searching for "{searchTerm}"
+          </div>
+        )}
+      </div>
+
+      {/* Reload Button */}
+      <div className="flex-shrink-0">
+        <button
+          className="group relative overflow-hidden bg-gradient-to-r from-black to-gray-900 hover:from-gray-900 hover:to-black text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-out border border-gray-700 hover:border-gray-500 min-w-[140px]"
+          onClick={fetchData}
+        >
+          <div className="flex items-center justify-center space-x-3">
+            <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500 ease-in-out" />
+            <span className="text-sm font-medium">Reload</span>
+          </div>
+
+          {/* Button Glow Effect */}
+          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+
+          {/* Ripple Effect */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-active:opacity-20 transform -translate-x-full group-active:translate-x-full transition-all duration-500"></div>
+        </button>
+      </div>
+    </div>
+
+   
+  </div>
       {/* Download/Edit/Visibility */}
       <DownloadButtons
         loading={loading}

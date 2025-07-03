@@ -1,3 +1,7 @@
+"use client"
+
+import { Edit, Eye, Download, FileImage, FileSpreadsheet, Loader2 } from "lucide-react"
+
 const DownloadButtons = ({
   loading,
   downloadAllImagesAsZip,
@@ -6,72 +10,104 @@ const DownloadButtons = ({
   toggleModalOpenedit,
   toggleModalOpen,
 }) => (
-  <div className="grid grid-cols-3 md:grid-cols-5 gap-4 my-5 justify-center">
-    <button
-      className="bg-green-500 hover:bg-green-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded"
-      onClick={toggleModalOpenedit}
-    >
-      Edit All ID Cards
-    </button>
-    <button
-      className="bg-orange-500 hover:bg-orange-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded"
-      onClick={toggleModalOpen}
-    >
-      Show & Hide
-    </button>
-    <button
-      className="bg-blue-500 hover:bg-blue-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded flex items-center"
-      onClick={downloadAllImagesAsZip}
-      disabled={loading}
-    >
-      {loading ? (
-        <>
-          Wait...
-          <svg className="animate-spin h-5 w-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.963 7.963 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-        </>
-      ) : (
-        "Download All as ZIP"
-      )}
-    </button>
-    <button
-      className="bg-blue-500 hover:bg-blue-700 whitespace-nowrap text-sm h-10 text-white font-bold py-2 px-4 rounded flex items-center"
-      onClick={downloadAllImagesWithoutBackgroundAsZip}
-      disabled={loading}
-    >
-      {loading ? (
-        <>
-          Wait...
-          <svg className="animate-spin h-5 w-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.963 7.963 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-        </>
-      ) : (
-        "Download Without Background ZIP"
-      )}
-    </button>
-    <button
-      className="bg-yellow-500 flex gap-2 items-center whitespace-nowrap text-sm h-10 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
-      onClick={downloadAllEntries}
-      disabled={loading}
-    >
-      {loading ? "Preparing Excel..." : "Download All Entries"}
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
-        className="bi bi-cloud-arrow-down mt-1" viewBox="0 0 16 16">
-        <path fillRule="evenodd"
-          d="M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708z" />
-        <path
-          d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383m.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z" />
-      </svg>
-    </button>
-  </div>
-);
+  <div className="w-full max-w-6xl mx-auto p-6">
+    <div className="grid h-[50px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      {/* Edit All ID Cards Button */}
+      <button
+        className="group h-full relative overflow-hidden bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-800 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-out border border-gray-700 hover:border-gray-500"
+        onClick={toggleModalOpenedit}
+      >
+        <div className="flex items-center justify-center space-x-2">
+          <Edit className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+          <span className="text-sm font-medium">Edit All ID Cards</span>
+        </div>
+        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+      </button>
 
-export default DownloadButtons;
+      {/* Show & Hide Button */}
+      <button
+        className="group relative overflow-hidden bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-out border border-gray-600 hover:border-gray-400"
+        onClick={toggleModalOpen}
+      >
+        <div className="flex items-center justify-center space-x-2">
+          <Eye className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+          <span className="text-sm font-medium">Show & Hide</span>
+        </div>
+        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+      </button>
+
+      {/* Download All as ZIP Button */}
+      <button
+        className="group relative overflow-hidden bg-gradient-to-r from-white to-gray-100 hover:from-gray-50 hover:to-white text-gray-900 font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-out border-2 border-gray-300 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        onClick={downloadAllImagesAsZip}
+        disabled={loading}
+      >
+        <div className="flex items-center justify-center space-x-2">
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm font-medium">Wait...</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-5 h-5 group-hover:translate-y-1 transition-transform duration-300" />
+              <span className="text-sm font-medium">Download All as ZIP</span>
+            </>
+          )}
+        </div>
+        <div className="absolute inset-0 bg-gray-900 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+      </button>
+
+      {/* Download Without Background ZIP Button */}
+      <button
+        className="group relative overflow-hidden bg-gradient-to-r from-gray-100 to-white hover:from-white hover:to-gray-50 text-gray-900 font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-out border-2 border-gray-300 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        onClick={downloadAllImagesWithoutBackgroundAsZip}
+        disabled={loading}
+      >
+        <div className="flex items-center justify-center space-x-2">
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm font-medium">Wait...</span>
+            </>
+          ) : (
+            <>
+              <FileImage className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              <span className="text-sm font-medium whitespace-nowrap">Download Without BG ZIP</span>
+            </>
+          )}
+        </div>
+        <div className="absolute inset-0 bg-gray-900 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+      </button>
+
+      {/* Download All Entries Button */}
+      <button
+        className="group relative overflow-hidden bg-gradient-to-r from-black to-gray-900 hover:from-gray-900 hover:to-black text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-out border border-gray-700 hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        onClick={downloadAllEntries}
+        disabled={loading}
+      >
+        <div className="flex items-center justify-center space-x-2">
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm font-medium">Preparing Excel...</span>
+            </>
+          ) : (
+            <>
+              <FileSpreadsheet className="w-5 h-5 group-hover:translate-y-1 transition-transform duration-300" />
+              <span className="text-sm font-medium text-nowrap">Download All Entries</span>
+            </>
+          )}
+        </div>
+        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+      </button>
+    </div>
+
+    {/* Optional: Add a subtle background pattern */}
+    <div className="absolute inset-0 opacity-5 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-transparent to-gray-900"></div>
+    </div>
+  </div>
+)
+
+export default DownloadButtons

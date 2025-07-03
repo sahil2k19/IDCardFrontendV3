@@ -1055,7 +1055,7 @@ function CreateId() {
           <span className="loader"></span>
         </div>
       ) : (
-        <div className="my-10">
+        <div className="">
           {!isSecureForm && (
             <IdCardrender
               fetchData={fetchData}
