@@ -41,7 +41,10 @@ function IdCardrender({
   const [previewCard, setPreviewCard] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [checkedInParticipants, setCheckedInParticipants] = useState({});
-
+  // Add these state variables at the top of your component
+  const [loadingZip, setLoadingZip] = useState(false);
+  const [loadingZipNoBg, setLoadingZipNoBg] = useState(false);
+  const [loadingExcel, setLoadingExcel] = useState(false);
   useEffect(() => {
     fetchDesignSettings();
     fetchCheckinStatus();
@@ -165,7 +168,7 @@ function IdCardrender({
   const reversedData = filteredData;
 
   const downloadAllImagesAsZip = () => {
-    setLoading(true);
+    setLoadingZip(true);
     const zip = new JSZip();
     const images = reversedData.map((_, index) => {
       return new Promise((resolve) => {
@@ -185,13 +188,13 @@ function IdCardrender({
     Promise.all(images).then(() => {
       zip.generateAsync({ type: "blob" }).then((content) => {
         saveAs(content, "id-cards.zip");
-        setLoading(false);
+        setLoadingZip(false);
       });
     });
   };
 
   const downloadAllImagesWithoutBackgroundAsZip = () => {
-    setLoading(true);
+    setLoadingZipNoBg(true);
     const zip = new JSZip();
     const images = reversedData.map((_, index) => {
       return new Promise((resolve) => {
@@ -227,13 +230,13 @@ function IdCardrender({
     Promise.all(images).then(() => {
       zip.generateAsync({ type: "blob" }).then((content) => {
         saveAs(content, "id-cards-no-background.zip");
-        setLoading(false);
+        setLoadingZipNoBg(false);
       });
     });
   };
 
   const downloadAllEntries = () => {
-    setLoading(true);
+    setLoadingExcel(true);
     const formattedData = reversedData.map((card, index) => ({
       "S.No": index + 1,
       EventName: card.eventName,
@@ -257,7 +260,7 @@ function IdCardrender({
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, `${eventName}_ID_Cards.xlsx`);
-    setLoading(false);
+    setLoadingExcel(false);
   };
 
   if (!Array.isArray(Dataid) || Dataid.length === 0) {
@@ -287,9 +290,7 @@ function IdCardrender({
               <span className="bg-gradient-to-r from-slate-700 via-slate-800 to-blue-800 bg-clip-text text-transparent font-bold">
                 {eventName}
               </span>
-              <span className="text-slate-600 font-medium ml-2">
-                All ID's
-              </span>
+              <span className="text-slate-600 font-medium ml-2">All ID's</span>
 
               {/* Subtle shine effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 rounded-lg pointer-events-none"></div>
@@ -384,7 +385,9 @@ function IdCardrender({
       </div>
       {/* Download/Edit/Visibility */}
       <DownloadButtons
-        loading={loading}
+        loadingZip={loadingZip}
+        loadingZipNoBg={loadingZipNoBg}
+        loadingExcel={loadingExcel}
         downloadAllImagesAsZip={downloadAllImagesAsZip}
         downloadAllImagesWithoutBackgroundAsZip={
           downloadAllImagesWithoutBackgroundAsZip

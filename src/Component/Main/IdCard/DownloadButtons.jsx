@@ -3,7 +3,9 @@
 import { Edit, Eye, Download, FileImage, FileSpreadsheet, Loader2 } from 'lucide-react'
 
 const DownloadButtons = ({
-  loading,
+  loadingZip,
+  loadingZipNoBg,
+  loadingExcel,
   downloadAllImagesAsZip,
   downloadAllImagesWithoutBackgroundAsZip,
   downloadAllEntries,
@@ -43,10 +45,10 @@ const DownloadButtons = ({
       <button
         className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 via-green-700 to-teal-700 hover:from-emerald-500 hover:via-green-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-lg shadow-lg hover:shadow-emerald-500/20 hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out border border-emerald-500/30 hover:border-emerald-400/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-lg"
         onClick={downloadAllImagesAsZip}
-        disabled={loading}
+        disabled={loadingZip}
       >
         <div className="flex items-center justify-center space-x-2 relative z-10">
-          {loading ? (
+          {loadingZip ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm font-medium">Processing...</span>
@@ -58,7 +60,7 @@ const DownloadButtons = ({
             </>
           )}
         </div>
-        {!loading && (
+        {!loadingZip && (
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
         )}
       </button>
@@ -67,10 +69,10 @@ const DownloadButtons = ({
       <button
         className="group relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-700 to-violet-700 hover:from-indigo-500 hover:via-purple-600 hover:to-violet-600 text-white font-semibold py-4 px-6 rounded-lg shadow-lg hover:shadow-indigo-500/20 hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out border border-indigo-500/30 hover:border-indigo-400/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-lg"
         onClick={downloadAllImagesWithoutBackgroundAsZip}
-        disabled={loading}
+        disabled={loadingZipNoBg}
       >
         <div className="flex items-center justify-center space-x-2 relative z-10">
-          {loading ? (
+          {loadingZipNoBg ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm font-medium">Processing...</span>
@@ -82,7 +84,7 @@ const DownloadButtons = ({
             </>
           )}
         </div>
-        {!loading && (
+        {!loadingZipNoBg && (
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
         )}
       </button>
@@ -91,10 +93,10 @@ const DownloadButtons = ({
       <button
         className="group relative overflow-hidden bg-gradient-to-r from-amber-600 via-orange-700 to-red-700 hover:from-amber-500 hover:via-orange-600 hover:to-red-600 text-white font-semibold py-4 px-6 rounded-lg shadow-lg hover:shadow-amber-500/20 hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out border border-amber-500/30 hover:border-amber-400/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-lg"
         onClick={downloadAllEntries}
-        disabled={loading}
+        disabled={loadingExcel}
       >
         <div className="flex items-center justify-center space-x-2 relative z-10">
-          {loading ? (
+          {loadingExcel ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm font-medium">Preparing Excel...</span>
@@ -106,7 +108,7 @@ const DownloadButtons = ({
             </>
           )}
         </div>
-        {!loading && (
+        {!loadingExcel && (
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
         )}
       </button>
