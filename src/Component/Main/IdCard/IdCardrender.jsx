@@ -10,7 +10,7 @@ import EditControls from "./EditControls";
 import VisibilityModal from "./VisibilityModal";
 import DownloadButtons from "./DownloadButtons";
 import SearchBar from "./SearchBar";
-import { Search, RefreshCw,  Calendar, Users  } from "lucide-react"
+import { Search, RefreshCw, Calendar, Users } from "lucide-react";
 function IdCardrender({
   Dataid,
   fetchData,
@@ -27,7 +27,7 @@ function IdCardrender({
     name: { top: 200, left: 200, fontSize: 20, color: "black" },
     institute: { bottom: 130, left: 200, fontSize: 18, color: "black" },
     designation: { bottom: 107, left: 200, fontSize: 16, color: "black" },
-    qrCode: { bottom: 15, left: 200, },
+    qrCode: { bottom: 15, left: 200 },
     participantId: { bottom: 1, fontSize: 12, left: 200, color: "black" },
   });
   const [globalVisibility, setGlobalVisibility] = useState({
@@ -153,14 +153,14 @@ function IdCardrender({
   // Download helpers
   const filteredData = Array.isArray(Dataid)
     ? [...Dataid].reverse().filter((card) => {
-      const term = searchTerm.toLowerCase();
-      return (
-        `${card.firstName} ${card.lastName}`.toLowerCase().includes(term) ||
-        card.email?.toLowerCase().includes(term) ||
-        card.participantId?.toLowerCase().includes(term) ||
-        card.designation?.toLowerCase().includes(term)
-      );
-    })
+        const term = searchTerm.toLowerCase();
+        return (
+          `${card.firstName} ${card.lastName}`.toLowerCase().includes(term) ||
+          card.email?.toLowerCase().includes(term) ||
+          card.participantId?.toLowerCase().includes(term) ||
+          card.designation?.toLowerCase().includes(term)
+        );
+      })
     : [];
   const reversedData = filteredData;
 
@@ -218,7 +218,8 @@ function IdCardrender({
             })
             .catch(() => resolve())
             .finally(() => {
-              if (backgroundImage) backgroundImage.style.display = originalDisplay;
+              if (backgroundImage)
+                backgroundImage.style.display = originalDisplay;
             });
         });
       });
@@ -271,112 +272,116 @@ function IdCardrender({
 
   return (
     <div className="container mx-auto px-10">
-     <div className="w-full max-w-4xl mx-auto pt-3">
-    <div className="flex justify-center">
-      <div className="relative group">
-        {/* Main Header Container */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white px-8 py-2 rounded-2xl shadow-2xl border border-gray-700 hover:border-gray-500 transition-all duration-300 ease-out hover:shadow-3xl transform hover:scale-[1.02]">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-gray-800 to-transparent opacity-20"></div>
+      <div className="w-full max-w-4xl mx-auto pt-3 relative">
+        {/* Professional background accent */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-blue-100 to-gray-50 rounded-2xl opacity-20 -m-4"></div>
 
-          {/* Content */}
-          <div className="relative z-10 flex items-center justify-center space-x-4">
-            {/* Calendar Icon */}
-            <div className="hidden sm:flex items-center justify-center w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <Calendar className="w-4 h-4 text-gray-900" />
-            </div>
+        {/* Subtitle or Additional Info */}
+        <div className="flex justify-center relative">
+          <div className="flex text-2xl items-center space-x-4 text-slate-700 font-semibold relative group">
+            {/* Left decorative line with professional gradient */}
+            <div className="w-12 h-px bg-gradient-to-r from-transparent via-slate-400 to-blue-500 opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
 
-            {/* Title Text */}
-            <div className="text-center">
-              <h1 className="text-2xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent leading-tight">
-                <span className="block sm:inline">{eventName}</span>
-                <span className="block sm:inline sm:ml-2 text-gray-300 font-semibold">All ID Cards</span>
-              </h1>
-            </div>
+            {/* Main title with professional styling */}
+            <span className="relative px-4 py-2 bg-gradient-to-r from-gray-200 via-slate-300 to-blue-100 rounded-lg shadow-sm border border-slate-200/50 group-hover:shadow-md group-hover:border-slate-300/60 transition-all duration-300">
+              <span className="bg-gradient-to-r from-slate-700 via-slate-800 to-blue-800 bg-clip-text text-transparent font-bold">
+                {eventName}
+              </span>
+              <span className="text-slate-600 font-medium ml-2">
+                All ID's
+              </span>
 
-            {/* Users Icon */}
-            <div className="hidden sm:flex items-center justify-center w-8 h-8 bg-gradient-to-br from-white to-gray-200 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <Users className="w-4 h-4 text-gray-900" />
-            </div>
+              {/* Subtle shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 rounded-lg pointer-events-none"></div>
+            </span>
+
+            {/* Right decorative line with professional gradient */}
+            <div className="w-12 h-px bg-gradient-to-l from-transparent via-slate-400 to-blue-500 opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
           </div>
-
-          {/* Shine Effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transform -translate-x-full group-hover:translate-x-full transition-all duration-1000 ease-out"></div>
         </div>
 
-        {/* Decorative Elements */}
-        <div className="absolute -top-2 -left-2 w-4 h-4 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full opacity-60 animate-pulse"></div>
-        <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full opacity-40 animate-pulse delay-300"></div>
+        {/* Professional accent dots */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-4 left-1/4 w-1 h-1 bg-blue-400 rounded-full opacity-20 animate-pulse delay-0"></div>
+          <div className="absolute top-6 right-1/4 w-0.5 h-0.5 bg-slate-400 rounded-full opacity-30 animate-pulse delay-1000"></div>
+        </div>
 
-        {/* Glow Effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-black rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 -z-10 scale-110"></div>
+        {/* Subtle professional grid pattern */}
+        <div className="absolute inset-0 opacity-[0.01] pointer-events-none">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, rgb(51 65 85) 1px, transparent 0)`,
+              backgroundSize: "16px 16px",
+            }}
+          ></div>
+        </div>
       </div>
-    </div>
-
-    {/* Subtitle or Additional Info */}
-    <div className="flex justify-center mt-4">
-      <div className="flex items-center space-x-2 text-gray-600 text-sm font-medium">
-        <div className="w-8 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
-        <span>Event Management System</span>
-        <div className="w-8 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
-      </div>
-    </div>
-  </div>
 
       {/* Search */}
-      <div className="w-full max-w-4xl mx-auto pt-3">
-    <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-      {/* Search Input Container */}
-      <div className="relative w-full sm:w-auto flex-1 max-w-2xl">
-        <div className="relative group">
-          {/* Search Icon */}
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-gray-600 transition-colors duration-300" />
+      <div className="w-full max-w-4xl mx-auto py-3 relative">
+        {/* Professional background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 rounded-2xl opacity-30 -m-2"></div>
+
+        <div className="relative flex flex-col sm:flex-row gap-4 items-center justify-center">
+          {/* Search Input Container */}
+          <div className="relative w-full sm:w-auto flex-1 max-w-2xl">
+            <div className="relative group">
+              {/* Search Icon */}
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
+              </div>
+
+              {/* Search Input */}
+              <input
+                type="text"
+                placeholder="Search by name, email, ID or designation…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-14 pl-12 pr-6 bg-gradient-to-r from-white via-slate-50 to-gray-50 border-2 border-slate-300 rounded-lg shadow-lg focus:shadow-xl focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 ease-out text-slate-900 placeholder-slate-500 font-medium hover:border-slate-400 hover:shadow-lg hover:from-slate-50 hover:to-white"
+              />
+
+              {/* Input Professional Glow Effect */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-focus-within:opacity-5 transition-opacity duration-300 pointer-events-none"></div>
+
+              {/* Subtle shimmer effect */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-focus-within:translate-x-[100%] transition-transform duration-1000 pointer-events-none"></div>
+            </div>
+
+            {/* Search Results Count or Status */}
+            {searchTerm && (
+              <div className="absolute -bottom-6 left-4 text-xs  text-slate-600 font-medium   px-2 py-1 rounded-md shadow-sm">
+                Searching for "{searchTerm}"
+              </div>
+            )}
           </div>
 
-          {/* Search Input */}
-          <input
-            type="text"
-            placeholder="Search by name, email, ID or designation…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-14 pl-12 pr-6 bg-gradient-to-r from-white to-gray-50 border-2 border-gray-300 rounded-xl shadow-lg focus:shadow-2xl focus:from-gray-50 focus:to-white focus:border-gray-500 focus:outline-none transition-all duration-300 ease-out text-gray-900 placeholder-gray-500 font-medium hover:border-gray-400 hover:shadow-xl"
-          />
+          {/* Professional Reload Button */}
+          <div className="flex-shrink-0">
+            <button
+              className="group relative overflow-hidden bg-gradient-to-r from-slate-700 via-slate-800 to-gray-800 hover:from-slate-600 hover:via-slate-700 hover:to-gray-700 text-white font-semibold py-4 px-6 rounded-lg shadow-lg hover:shadow-slate-500/20 hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out border border-slate-600/30 hover:border-slate-500/50 min-w-[140px]"
+              onClick={fetchData}
+            >
+              <div className="flex items-center justify-center space-x-3 relative z-10">
+                <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500 ease-in-out" />
+                <span className="text-sm font-medium">Reload</span>
+              </div>
 
-          {/* Input Glow Effect */}
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-900 to-black opacity-0 group-focus-within:opacity-5 transition-opacity duration-300 pointer-events-none"></div>
+              {/* Professional Button Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+
+              {/* Professional Ripple Effect */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-active:opacity-100 transform -translate-x-full group-active:translate-x-full transition-all duration-300"></div>
+            </button>
+          </div>
         </div>
 
-        {/* Search Results Count or Status */}
-        {searchTerm && (
-          <div className="absolute -bottom-6 left-4 text-xs text-gray-500 font-medium">
-            Searching for "{searchTerm}"
-          </div>
-        )}
+        {/* Professional subtle accents */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-2 left-8 w-1 h-1 bg-blue-400 rounded-full opacity-20 animate-pulse delay-0"></div>
+          <div className="absolute bottom-2 right-8 w-0.5 h-0.5 bg-slate-400 rounded-full opacity-30 animate-pulse delay-1000"></div>
+        </div>
       </div>
-
-      {/* Reload Button */}
-      <div className="flex-shrink-0">
-        <button
-          className="group relative overflow-hidden bg-gradient-to-r from-black to-gray-900 hover:from-gray-900 hover:to-black text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-out border border-gray-700 hover:border-gray-500 min-w-[140px]"
-          onClick={fetchData}
-        >
-          <div className="flex items-center justify-center space-x-3">
-            <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500 ease-in-out" />
-            <span className="text-sm font-medium">Reload</span>
-          </div>
-
-          {/* Button Glow Effect */}
-          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-
-          {/* Ripple Effect */}
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-active:opacity-20 transform -translate-x-full group-active:translate-x-full transition-all duration-500"></div>
-        </button>
-      </div>
-    </div>
-
-   
-  </div>
       {/* Download/Edit/Visibility */}
       <DownloadButtons
         loading={loading}
