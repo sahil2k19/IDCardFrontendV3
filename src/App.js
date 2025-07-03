@@ -4,11 +4,12 @@ import EventPage from './Component/Main/EventPage';
 import CreateId from './Component/Main/CreateId';
 import ArchiveEvent from './Component/Main/Archive/ArchiveEvent';
 import BulkUploadForm from './Component/Main/BulkUploadForm';
-import 'react-toastify/dist/ReactToastify.css';
+ 
 import Approved from './Component/Main/Approved';
 import Login from './Component/Auth/Login';
 import PrivateRoute from './PrivateRoute';
-import { ToastContainer } from 'react-toastify';
+
+import { Toaster } from 'react-hot-toast';
 import ArchiveIDCard from './Component/Main/Archive/ArchiveIDCard';
 import EmbedForm from './Component/Main/EmbedFOrm/EmbedForm';
 import Checkin from './Component/Main/Checkin';
@@ -19,7 +20,17 @@ import PublicRoute from './PublicRoute';
 function App() {
   return (
     <div className=" ">
-      <ToastContainer />
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            borderRadius: '10px',
+            background: 'white',
+            color: 'black',
+          },
+        }}
+      />
       <Router>
         <div className="flex-grow">
           <Routes>

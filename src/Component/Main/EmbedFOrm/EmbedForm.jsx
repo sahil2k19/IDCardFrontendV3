@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import Webcam from "react-webcam";
 import { Camera, Upload, User, Mail, Building, Award, ImageIcon, X, Sparkles, Shield, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 

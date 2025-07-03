@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import EditEvents from "./Edit/EditEvents";
 import {
   MapPin,

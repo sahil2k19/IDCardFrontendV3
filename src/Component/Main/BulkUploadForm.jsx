@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import {
   Upload,

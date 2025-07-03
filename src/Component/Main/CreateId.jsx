@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { toPng } from "html-to-image";
 import JsBarcode from "jsbarcode";
 import RazorpayButton from "../Service/RazorpayButton";
