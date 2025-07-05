@@ -946,7 +946,7 @@ function EventPage() {
                             }
                             className=" p-3 bg-orange-600 font-bold text-white rounded  hover:bg-gray-400"
                           >
-                            View Tasks
+                            View 
                           </button>
                         </div>
                         {showEditModal === event._id && (

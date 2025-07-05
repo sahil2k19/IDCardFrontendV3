@@ -29,18 +29,185 @@ const IdCard = ({
   const idCardRef = useRef(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const printRef = useRef();
+
+const handlePrint = () => {
+  const content = printRef.current.innerHTML;
+  const printWindow = window.open('', '', '');
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print</title>
+        <style>
+          @page {
+            size: 50mm 50mm;
+            margin: 0;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            width: 50mm;
+            height: 50mm;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+          }
+          h1, h2, h3 {
+            display: block;
+            margin: 0;
+            line-height: 1.4;
+          }
+          .print-container {
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div style="tetx-align: center;" class="print-container">
+          ${content}
+        </div>
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close(); // This triggers the DOM to load
+
+  // Wait for print window to finish rendering before calling print
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
+};
+
+const handlePrint2 = () => {
+    if (printRef.current) {
+      printScaled(printRef.current);
+    }
+  };
+
+function printScaled(node) {
+  const html = `
+    <html>
+      <head>
+        <style>
+          /* remove all margins and make our container fill the page */
+          @page { size: auto; margin: 0; }
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+          }
+
+          /* this wrapper will stretch your content to the full printable area */
+          #print-wrapper {
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div style="text-align: center;" id="print-wrapper">
+          ${node.outerHTML}
+        </div>
+        <script>
+          window.onload = () => {
+            window.focus();
+            window.print();
+          };
+          window.onafterprint = () => window.close();
+        </script>
+      </body>
+    </html>
+  `;
+
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    return alert("Please allow pop-ups for printing.");
+  }
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
+function printAsSVG(node) {
+  // Serialize your node’s HTML
+  const html = node.outerHTML;
+
+  // Build an SVG that fills the page and embeds your HTML via foreignObject
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="100%" height="100%"
+         preserveAspectRatio="none">
+      <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml"
+             style="box-sizing: border-box;
+                    width:100%; height:100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;">
+          ${html}
+        </div>
+      </foreignObject>
+    </svg>
+  `;
+
+  // Wrap it in an HTML page that forces no margins and auto-prints
+  const page = `
+    <html>
+      <head>
+        <style>
+          @page { margin: 0; size: auto; }
+          html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
+        </style>
+      </head>
+      <body  style="text-align: center; font-family: Arial, sans-serif;">
+        ${svg}
+        <script>
+          window.onload = () => { window.print(); };
+          window.onafterprint = () => { window.close(); };
+        </script>
+      </body>
+    </html>
+  `;
+
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    return alert("Please enable pop-ups to print.");
+  }
+  printWindow.document.open();
+  printWindow.document.write(page);
+  printWindow.document.close();
+}
+
+  const handlePrintSVG = () => {
+    if (printRef.current) {
+      printAsSVG(printRef.current);
+    }
+  };
+
+
   const toggleModal = () => {
     setModal(!modal);
     fetchDesignations(eventId);
   };
-const defaultElementStyles = {
-  profilePicture: { left: 215, bottom: 160, size: 170 },
-  name: { left: 215, top: 200, fontSize: 20, color: "black" },
-  institute: { left: 215, bottom: 130, fontSize: 18, color: "black" },
-  designation: { left: 215, bottom: 107, fontSize: 16, color: "black" },
-  qrCode: { left: 215, bottom: 15 }, // Add size if you want: size: 100
-  participantId: { left: 215, bottom: 1, fontSize: 12, color: "black" },
-};
+
+  
+  const defaultElementStyles = {
+    profilePicture: { left: 215, bottom: 160, size: 170 },
+    name: { left: 215, top: 200, fontSize: 20, color: "black" },
+    institute: { left: 215, bottom: 130, fontSize: 18, color: "black" },
+    designation: { left: 215, bottom: 107, fontSize: 16, color: "black" },
+    qrCode: { left: 215, bottom: 15 }, // Add size if you want: size: 100
+    participantId: { left: 215, bottom: 1, fontSize: 12, color: "black" },
+  };
 
   const styles = elementStyles || defaultElementStyles;
   const handleDelete = (id) => {
@@ -91,7 +258,7 @@ const defaultElementStyles = {
     card && card._id
       ? `http://idcard.insideoutprojects.in/checkin/${card._id}` // For Checkin
       : "#";
-//   console.log("card", card);
+  //   console.log("card", card);
   const downloadImage = () => {
     const element = idCardRef.current;
     if (!element) return;
@@ -228,8 +395,10 @@ const defaultElementStyles = {
 
   // Handle case when Dataid is not an array or is empty
 
+
+
   return (
-    <div className={`relative ${isPreview ? "" : "mb-20"} h-[610px] w-[430px]`}>
+    <div className={`relative ${isPreview ? "" : "mb-20"} border border-gray-300 rounded-lg w-[430px]`}>
       <div
         ref={idCardRef}
         id={`id-card-${index}`}
@@ -279,14 +448,14 @@ const defaultElementStyles = {
                   fontSize: `${styles.name.fontSize}px`,
                   color: styles.name.color,
                 }}
-                             className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-bold text-center text-white mt-1 px-10 truncate"
+                className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-bold text-center text-white mt-1 px-10 truncate"
 
               >
-                  {card.firstName}
+                {card.firstName}
               </p>
             )}
 
-            
+
             {globalVisibility.institute && card.institute && (
               <p
                 style={{
@@ -297,7 +466,7 @@ const defaultElementStyles = {
                   fontSize: `${styles.institute.fontSize}px`,
                   color: styles.institute.color,
                 }}
-              className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1 px-10 truncate"
+                className="absolute bottom-[130px] w-[420px] whitespace-nowrap overflow-hidden text-lg transform -translate-x-1/2 font-semibold text-center text-white mt-1 px-10 truncate"
 
                 dangerouslySetInnerHTML={{
                   __html: card.institute.toUpperCase(),
@@ -354,6 +523,24 @@ const defaultElementStyles = {
           </div>
         </div>
       </div>
+
+      <div className="">
+        {/* Content to Print */}
+        <div ref={printRef} className="text-center hidden border rounded-lg shadow">
+          <h1 style={{fontSize: `15px`}} className="text-xl font-semibold">{card.firstName}</h1>
+          {/* <p style={{fontSize: `12px`}} className="text-lg font-semibold">{card.designation}</p> */}
+          <p style={{fontSize: `12px`,  fontWeight: "500"}} className="text-base font-semibold">{card.institute}</p>
+        </div>
+
+       
+      </div>
+       {/* <button onClick={handlePrint2} className="mt-4 btn">
+        Print
+      </button>
+
+          <button onClick={handlePrintSVG} className="mt-4 btn">
+        Print as SVG
+      </button> */}
 
       {!isPreview && (
         <div>
@@ -468,7 +655,7 @@ const defaultElementStyles = {
                 </svg>
               ) : (
                 <div className="flex gap-2">
-                  WithoutBg
+                  NoBg
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -490,8 +677,8 @@ const defaultElementStyles = {
               onClick={onCheckin}
               disabled={isCheckingIn || card.checkin}
               className={`flex items-center justify-between gap-2 text-white font-semibold py-2 px-4 rounded ${card.checkin
-                  ? "bg-green-500 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
+                ? "bg-green-500 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
                 }`}
             >
               {isCheckingIn ? (
@@ -534,7 +721,7 @@ const defaultElementStyles = {
               onClick={() => printIdCard(true)}
               className="bg-gray-300  flex items-center justify-between gap-2 text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
             >
-              Print
+              
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -551,7 +738,7 @@ const defaultElementStyles = {
               onClick={() => printIdCard(false)}
               className="bg-gray-300 flex items-center justify-between gap-2  text-nowrap text-black font-semibold hover:bg-gray-400 py-2 px-4 rounded"
             >
-              Print without Bg
+               No Bg
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -564,6 +751,13 @@ const defaultElementStyles = {
                 <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1" />
               </svg>
             </button>
+             <button
+            onClick={handlePrintSVG}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Print_no_BG
+          </button>
+            
           </div>
         </div>
       )}

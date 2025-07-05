@@ -10,7 +10,7 @@ import EditControls from "./EditControls";
 import VisibilityModal from "./VisibilityModal";
 import DownloadButtons from "./DownloadButtons";
 import SearchBar from "./SearchBar";
-
+import { RefreshCw } from "lucide-react";
 function IdCardrender({
   Dataid,
   fetchData,
@@ -24,11 +24,11 @@ function IdCardrender({
   const [isModalOpenedit, setIsModalOpenedit] = useState(false);
   const [elementStyles, setElementStyles] = useState({
     profilePicture: { bottom: 160, size: 170 },
-    name: { top: 200,left: 200, fontSize: 20, color: "black" },
-    institute: { bottom: 130,left: 200, fontSize: 18, color: "black" },
-    designation: { bottom: 107,left: 200, fontSize: 16, color: "black" },
-    qrCode: { bottom: 15 ,left: 200,},
-    participantId: { bottom: 1, fontSize: 12,left: 200, color: "black" },
+    name: { top: 200, left: 200, fontSize: 20, color: "black" },
+    institute: { bottom: 130, left: 200, fontSize: 18, color: "black" },
+    designation: { bottom: 107, left: 200, fontSize: 16, color: "black" },
+    qrCode: { bottom: 15, left: 200, },
+    participantId: { bottom: 1, fontSize: 12, left: 200, color: "black" },
   });
   const [globalVisibility, setGlobalVisibility] = useState({
     name: true,
@@ -153,14 +153,14 @@ function IdCardrender({
   // Download helpers
   const filteredData = Array.isArray(Dataid)
     ? [...Dataid].reverse().filter((card) => {
-        const term = searchTerm.toLowerCase();
-        return (
-          `${card.firstName} ${card.lastName}`.toLowerCase().includes(term) ||
-          card.email?.toLowerCase().includes(term) ||
-          card.participantId?.toLowerCase().includes(term) ||
-          card.designation?.toLowerCase().includes(term)
-        );
-      })
+      const term = searchTerm.toLowerCase();
+      return (
+        `${card.firstName} ${card.lastName}`.toLowerCase().includes(term) ||
+        card.email?.toLowerCase().includes(term) ||
+        card.participantId?.toLowerCase().includes(term) ||
+        card.designation?.toLowerCase().includes(term)
+      );
+    })
     : [];
   const reversedData = filteredData;
 
@@ -276,8 +276,14 @@ function IdCardrender({
           {eventName} All ID Cards
         </h1>
       </div>
+     
       {/* Search */}
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+    <div className="flex gap-6 justify-center ">
+        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />  <div className="flex items-center justify-center">
+        <button className="ml-4  flex text-white py-3 px-3 font-semibold text-lg gap-3  rounded-lg   bg-blue-700 hover:bg-blue-800  text-center" onClick={fetchData} ><RefreshCw />Reload</button>
+
+      </div>
+    </div>
       {/* Download/Edit/Visibility */}
       <DownloadButtons
         loading={loading}

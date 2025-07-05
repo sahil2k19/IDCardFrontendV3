@@ -25,6 +25,7 @@ export default function PublicCreateId() {
   const [phone, setPhone] = useState("")
   const [showThanksPage, setShowThanksPage] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showIdcardLink, setShowIdcardLink] = useState("");
   useEffect(() => {
     if (!eventId || !eventName) {
       toast.dismiss();
@@ -57,7 +58,11 @@ export default function PublicCreateId() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+if (!isValid) {
+      toast.dismiss();
+      toast.error("Please fill all the fields");
+      return
+    }
     try {
       const formData = new FormData();
       formData.append("firstName", firstName);
@@ -77,7 +82,7 @@ export default function PublicCreateId() {
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
+      setShowIdcardLink(data.link);
       toast.success(`ID created`);
       setFirstName("");
       // setLastName("");
@@ -130,7 +135,7 @@ export default function PublicCreateId() {
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
+      setShowIdcardLink(data.link);
       toast.success(`ID created`);
       setFirstName("");
       // setLastName("");
@@ -233,6 +238,12 @@ export default function PublicCreateId() {
                   Register Another Person
                 </button>
 
+                <a
+                  href={showIdcardLink}
+                  className="w-full block py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-center"
+                >
+                  View Your ID Card
+                </a>
               </div>
             </div>
           </div>
@@ -245,8 +256,8 @@ export default function PublicCreateId() {
   if (showThanksPage) return <ThanksPage />
 const isFormFilled = () =>
   !!firstName.trim() &&
-  // !!designation.trim() &&
-  // !!institute.trim() &&
+  !!designation.trim() &&
+  !!institute.trim() &&
   !!email.trim() &&
   !!phone.trim();
 
@@ -273,7 +284,7 @@ const isFormFilled = () =>
           {errors.firstName && (
             <span className=" text-sm text-red-500">{errors.firstName}</span>
           )}
-          {/* <input
+          <input
             placeholder="Company/Institute"
             value={institute}
             onChange={(e) => {
@@ -284,10 +295,10 @@ const isFormFilled = () =>
           />
           {errors.institute && (
             <span className=" text-sm text-red-500">{errors.institute}</span>
-          )} */}
-          {/* <div>
+          )}
+          <div>
             <input
-              required
+              
               placeholder="Designation"
               value={designation}
               onChange={(e) => {
@@ -299,11 +310,13 @@ const isFormFilled = () =>
             {errors.designation && (
               <span className=" text-sm text-red-500">{errors.designation}</span>
             )}
-          </div> */}
+          </div>
 
           {/* Phone */}
           <input
-            type="phone"
+            type="number"
+            inputMode="numeric"
+            pattern="[0-9]*"
             required
             placeholder="Phone"
             value={phone}
