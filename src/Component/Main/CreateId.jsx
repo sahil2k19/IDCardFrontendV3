@@ -139,7 +139,14 @@ function CreateId() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+     if(!isValid()) {
+      toast.dismiss();
+      toast.error("Please fill all the fields");
+      return ;
+    }
+    console.log("isvalide", isValid());
     setIsCreating(true);
+   
 
     try {
       const formData = new FormData();
@@ -1041,7 +1048,7 @@ function CreateId() {
                  </div>
 
                     {/* Region Selection */}
-                    {eventData.regionPricings.length > 0 && (
+                    {(eventData.regionPricings.length > 0 && eventData?.isPaidEvent)&& (
                       <div className="group">
                         <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
                           <MapPin className="w-4 h-4 text-teal-600" />
