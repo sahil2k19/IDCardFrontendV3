@@ -199,62 +199,53 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-md p-4">
-      <div className="relative w-full max-w-5xl max-h-[95vh] overflow-hidden">
-        <div className="relative bg-gradient-to-br from-white via-gray-50 to-slate-100 rounded-3xl shadow-2xl border border-gray-200/50">
-          {/* Modal Header */}
-          <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 px-8 py-6 rounded-t-3xl">
+       <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-md p-4">
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="relative bg-gradient-to-br from-white via-gray-50 to-slate-100 rounded-2xl shadow-2xl border border-gray-200/50">
+          {/* Compact Modal Header */}
+          <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 px-6 py-4 rounded-t-2xl">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-indigo-700/10 backdrop-blur-sm"></div>
             <div className="relative z-10 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                  <Edit className="w-6 h-6 text-white" />
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                  <Edit className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white">Edit Event</h1>
-                  <p className="text-white/90 text-sm mt-1">
-                    Update your event details and preferences
+                  <h1 className="text-xl font-bold text-white">{`${newEvent ? "Create" : "Edit"} Event`}</h1>
+                  <p className="text-white/90 text-xs mt-0.5">
+                    {` ${newEvent ? "Add" : "Edit"} your event details here.`}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="group w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-105"
+                className="group w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center backdrop-blur-sm transition-all duration-300 hover:scale-105"
               >
-                <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-300" />
+                <X className="w-4 h-4 text-white group-hover:rotate-90 transition-transform duration-300" />
               </button>
-            </div>
-
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-4 left-12 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
-              <div className="absolute top-8 right-16 w-0.5 h-0.5 bg-white/50 rounded-full animate-pulse delay-300"></div>
-              <div className="absolute bottom-6 left-20 w-1.5 h-1.5 bg-white/30 rounded-full animate-pulse delay-700"></div>
             </div>
           </div>
 
-          {/* Modal Content */}
-          <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
-            <div className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Compact Modal Content */}
+          <div className="max-h-[65vh] overflow-y-auto custom-scrollbar">
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Basic Info Section */}
-                <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-6 border border-blue-200/50">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                    <Calendar className="w-5 h-5 text-blue-600" />
+                <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-xl p-4 border border-blue-200/50">
+                  <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                    <Calendar className="w-4 h-4 text-blue-600" />
                     <span>Basic Information</span>
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="group">
-                      <label
-                        htmlFor="eventName"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
+                      <label htmlFor="eventName" className="block text-xs font-semibold text-gray-700 mb-1">
                         Event Name
                       </label>
                       <input
                         type="text"
                         id="eventName"
-                        className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500"
+                        className="w-full h-10 px-3 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-lg shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500 text-sm"
                         placeholder="Enter Event Name"
                         value={eventName}
                         onChange={(e) => setEventName(e.target.value)}
@@ -262,16 +253,13 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                       />
                     </div>
                     <div className="group">
-                      <label
-                        htmlFor="address"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
+                      <label htmlFor="address" className="block text-xs font-semibold text-gray-700 mb-1">
                         Address
                       </label>
                       <input
                         type="text"
                         id="address"
-                        className="w-full h-12 px-4 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500"
+                        className="w-full h-10 px-3 bg-gradient-to-r from-white via-gray-50 to-slate-50 border-2 border-gray-200 rounded-lg shadow-sm focus:shadow-lg focus:from-blue-50 focus:via-white focus:to-slate-50 focus:border-blue-500 focus:outline-none transition-all duration-300 text-gray-800 placeholder-gray-500 text-sm"
                         placeholder="Enter Address"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
@@ -282,81 +270,77 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                 </div>
 
                 {/* Categories and Amenities */}
-                <div className="grid lg:grid-cols-2 gap-8">
-                  <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-2xl p-6 border border-green-200/50">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                      <Tag className="w-5 h-5 text-green-600" />
+                <div className="grid lg:grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-xl p-4 border border-green-200/50">
+                    <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                      <Tag className="w-4 h-4 text-green-600" />
                       <span>Categories</span>
                     </h3>
-                    <div className="flex items-center space-x-3 mb-4">
+                    <div className="flex items-center space-x-2 mb-3">
                       <input
                         type="text"
                         value={currentCategory}
                         onChange={(e) => setCurrentCategory(e.target.value)}
-                        className="flex-1 h-10 px-4 bg-white border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300"
+                        className="flex-1 h-8 px-3 bg-white border-2 border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 text-sm"
                         placeholder="Add Category"
                       />
                       <button
                         onClick={addCategory}
-                        className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                        className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold py-1.5 px-3 rounded-md shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm"
                       >
                         Add
                       </button>
                     </div>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                    <div className="space-y-1.5 max-h-24 overflow-y-auto">
                       {categories.map((category, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between bg-white p-3 rounded-lg border border-green-200/60 shadow-sm"
+                          className="flex items-center justify-between bg-white p-2 rounded-md border border-green-200/60 shadow-sm"
                         >
-                          <span className="text-gray-700 font-medium">
-                            {category}
-                          </span>
+                          <span className="text-gray-700 font-medium text-sm">{category}</span>
                           <button
                             onClick={() => removeCategory(index)}
-                            className="p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-all duration-300"
+                            className="p-0.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-sm transition-all duration-300"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-3 h-3" />
                           </button>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-r from-purple-50 via-violet-50 to-indigo-50 rounded-2xl p-6 border border-purple-200/50">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                      <Building className="w-5 h-5 text-purple-600" />
+                  <div className="bg-gradient-to-r from-purple-50 via-violet-50 to-indigo-50 rounded-xl p-4 border border-purple-200/50">
+                    <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                      <Building className="w-4 h-4 text-purple-600" />
                       <span>Amenities</span>
                     </h3>
-                    <div className="flex items-center space-x-3 mb-4">
+                    <div className="flex items-center space-x-2 mb-3">
                       <input
                         type="text"
                         value={currentAmenity}
                         onChange={(e) => setCurrentAmenity(e.target.value)}
-                        className="flex-1 h-10 px-4 bg-white border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
+                        className="flex-1 h-8 px-3 bg-white border-2 border-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-sm"
                         placeholder="Add Amenity"
                       />
                       <button
                         onClick={addAmenity}
-                        className="group relative overflow-hidden bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-400 hover:to-violet-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                        className="group relative overflow-hidden bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-400 hover:to-violet-500 text-white font-semibold py-1.5 px-3 rounded-md shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-sm"
                       >
                         Add
                       </button>
                     </div>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                    <div className="space-y-1.5 max-h-24 overflow-y-auto">
                       {amenities.map((amenity, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between bg-white p-3 rounded-lg border border-purple-200/60 shadow-sm"
+                          className="flex items-center justify-between bg-white p-2 rounded-md border border-purple-200/60 shadow-sm"
                         >
-                          <span className="text-gray-700 font-medium">
-                            {amenity}
-                          </span>
+                          <span className="text-gray-700 font-medium text-sm">{amenity}</span>
                           <button
                             onClick={() => removeAmenity(index)}
-                            className="p-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-md transition-all duration-300"
+                            className="p-0.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-sm transition-all duration-300"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-3 h-3" />
                           </button>
                         </div>
                       ))}
@@ -365,39 +349,33 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                 </div>
 
                 {/* Dates */}
-                <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 rounded-2xl p-6 border border-orange-200/50">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                    <Calendar className="w-5 h-5 text-orange-600" />
+                <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 rounded-xl p-4 border border-orange-200/50">
+                  <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                    <Calendar className="w-4 h-4 text-orange-600" />
                     <span>Event Dates</span>
                   </h3>
-                  <div className="grid lg:grid-cols-2 gap-6">
+                  <div className="grid lg:grid-cols-2 gap-4">
                     <div className="group">
-                      <label
-                        htmlFor="startDate"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
+                      <label htmlFor="startDate" className="block text-xs font-semibold text-gray-700 mb-1">
                         Start Date
                       </label>
                       <input
                         type="date"
                         id="startDate"
-                        className="w-full h-12 px-4 bg-white border-2 border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
+                        className="w-full h-10 px-3 bg-white border-2 border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         required
                       />
                     </div>
                     <div className="group">
-                      <label
-                        htmlFor="endDate"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
+                      <label htmlFor="endDate" className="block text-xs font-semibold text-gray-700 mb-1">
                         End Date
                       </label>
                       <input
                         type="date"
                         id="endDate"
-                        className="w-full h-12 px-4 bg-white border-2 border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
+                        className="w-full h-10 px-3 bg-white border-2 border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-sm"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
                         required
@@ -407,17 +385,14 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                 </div>
 
                 {/* Images */}
-                <div className="bg-gradient-to-r from-pink-50 via-rose-50 to-red-50 rounded-2xl p-6 border border-pink-200/50">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                    <Upload className="w-5 h-5 text-pink-600" />
+                <div className="bg-gradient-to-r from-pink-50 via-rose-50 to-red-50 rounded-xl p-4 border border-pink-200/50">
+                  <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                    <Upload className="w-4 h-4 text-pink-600" />
                     <span>Images</span>
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="group">
-                      <label
-                        htmlFor="event-image"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
+                      <label htmlFor="event-image" className="block text-xs font-semibold text-gray-700 mb-1">
                         Event Image
                       </label>
                       <input
@@ -425,14 +400,11 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                         id="event-image"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="w-full h-12 px-4 bg-white border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                        className="w-full h-10 px-3 bg-white border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 text-sm"
                       />
                     </div>
                     <div className="group">
-                      <label
-                        htmlFor="idcard-image"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
+                      <label htmlFor="idcard-image" className="block text-xs font-semibold text-gray-700 mb-1">
                         ID Card Background
                       </label>
                       <input
@@ -440,30 +412,28 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                         id="idcard-image"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="w-full h-12 px-4 bg-white border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                        className="w-full h-10 px-3 bg-white border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 text-sm"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Pricing */}
-                <div className="bg-gradient-to-r from-cyan-50 via-blue-50 to-indigo-50 rounded-2xl p-6 border border-cyan-200/50">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                    <DollarSign className="w-5 h-5 text-cyan-600" />
+                <div className="bg-gradient-to-r from-cyan-50 via-blue-50 to-indigo-50 rounded-xl p-4 border border-cyan-200/50">
+                  <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                    <DollarSign className="w-4 h-4 text-cyan-600" />
                     <span>Event Pricing</span>
                   </h3>
-                  <div className="flex items-center space-x-6 mb-6">
+                  <div className="flex items-center space-x-4 mb-4">
                     <label className="inline-flex items-center cursor-pointer">
                       <input
                         type="radio"
                         value="false"
                         checked={!isPaidEvent}
                         onChange={() => setIsPaidEvent(false)}
-                        className="h-5 w-5 text-cyan-600 border-gray-300 focus:ring-cyan-500"
+                        className="h-4 w-4 text-cyan-600 border-gray-300 focus:ring-cyan-500"
                       />
-                      <span className="ml-2 text-gray-800 font-medium">
-                        Free Event
-                      </span>
+                      <span className="ml-2 text-gray-800 font-medium text-sm">Free Event</span>
                     </label>
                     <label className="inline-flex items-center cursor-pointer">
                       <input
@@ -471,29 +441,22 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                         value="true"
                         checked={isPaidEvent}
                         onChange={() => setIsPaidEvent(true)}
-                        className="h-5 w-5 text-cyan-600 border-gray-300 focus:ring-cyan-500"
+                        className="h-4 w-4 text-cyan-600 border-gray-300 focus:ring-cyan-500"
                       />
-                      <span className="ml-2 text-gray-800 font-medium">
-                        Paid Event
-                      </span>
+                      <span className="ml-2 text-gray-800 font-medium text-sm">Paid Event</span>
                     </label>
                   </div>
-
                   {isPaidEvent && (
-                    <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-
+                    <div className="space-y-4">
                       {/* Razorpay API Keys */}
-                      <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
-                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-                          <Sparkles className="w-4 h-4 text-green-600" />
+                      <div className="bg-white rounded-lg p-3 border border-cyan-200/60 shadow-sm">
+                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center space-x-2 text-sm">
+                          <Sparkles className="w-3 h-3 text-green-600" />
                           <span>Razorpay API Keys</span>
                         </h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="flex flex-col space-y-2">
-                            <label
-                              htmlFor="razorpay-key"
-                              className="text-sm font-semibold text-gray-700"
-                            >
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex flex-col space-y-1">
+                            <label htmlFor="razorpay-key" className="text-xs font-semibold text-gray-700">
                               API Key
                             </label>
                             <input
@@ -502,14 +465,11 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                               placeholder="Enter API Key"
                               value={razorpayKey}
                               onChange={(e) => setRazorpayKey(e.target.value)}
-                              className="w-full h-12 px-4 bg-white border-2 border-cyan-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-300"
+                              className="w-full h-9 px-3 bg-white border-2 border-cyan-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-300 text-sm"
                             />
                           </div>
-                          <div className="flex flex-col space-y-2">
-                            <label
-                              htmlFor="razorpay-secret"
-                              className="text-sm font-semibold text-gray-700"
-                            >
+                          <div className="flex flex-col space-y-1">
+                            <label htmlFor="razorpay-secret" className="text-xs font-semibold text-gray-700">
                               API Secret
                             </label>
                             <input
@@ -518,57 +478,54 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                               placeholder="Enter API Secret"
                               value={razorpaySecret}
                               onChange={(e) => setRazorpaySecret(e.target.value)}
-                              className="w-full h-12 px-4 bg-white border-2 border-cyan-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-300"
+                              className="w-full h-9 px-3 bg-white border-2 border-cyan-200 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-300 text-sm"
                             />
                           </div>
                         </div>
                       </div>
+
                       {/* Indian Pricing */}
-                      <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
-                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-                          <Ticket className="w-4 h-4 text-green-600" />
+                      <div className="bg-white rounded-lg p-3 border border-cyan-200/60 shadow-sm">
+                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center space-x-2 text-sm">
+                          <Ticket className="w-3 h-3 text-green-600" />
                           <span>Indian Pricing (₹)</span>
                         </h4>
-                        <div className="flex space-x-2 mb-3">
+                        <div className="flex space-x-2 mb-2">
                           <input
                             type="text"
                             placeholder="Category Name"
                             value={currentIndianTicketName}
-                            onChange={(e) =>
-                              setCurrentIndianTicketName(e.target.value)
-                            }
-                            className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            onChange={(e) => setCurrentIndianTicketName(e.target.value)}
+                            className="flex-1 h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                           />
                           <input
                             type="number"
                             placeholder="Price (₹)"
                             value={currentIndianTicketPrice}
-                            onChange={(e) =>
-                              setCurrentIndianTicketPrice(e.target.value)
-                            }
-                            className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            onChange={(e) => setCurrentIndianTicketPrice(e.target.value)}
+                            className="flex-1 h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                           />
                           <button
                             onClick={addIndianTicketCategory}
-                            className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300"
+                            className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-md hover:from-green-400 hover:to-emerald-500 transition-all duration-300 text-sm"
                           >
                             Add
                           </button>
                         </div>
-                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                        <div className="space-y-1.5 max-h-20 overflow-y-auto">
                           {indianTicketCategories.map((tc, i) => (
                             <div
                               key={i}
-                              className="flex justify-between items-center bg-green-50 p-2 rounded-lg border border-green-200/60"
+                              className="flex justify-between items-center bg-green-50 p-2 rounded-md border border-green-200/60"
                             >
-                              <span className="text-gray-700 font-medium">
+                              <span className="text-gray-700 font-medium text-sm">
                                 {tc.name} – ₹{tc.price}
                               </span>
                               <button
                                 onClick={() => removeIndianTicketCategory(i)}
-                                className="p-1 text-red-600 hover:bg-red-100 rounded-md transition-all duration-300"
+                                className="p-0.5 text-red-600 hover:bg-red-100 rounded-sm transition-all duration-300"
                               >
-                                <X className="w-4 h-4" />
+                                <X className="w-3 h-3" />
                               </button>
                             </div>
                           ))}
@@ -576,53 +533,47 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                       </div>
 
                       {/* International Pricing */}
-                      <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
-                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-                          <Ticket className="w-4 h-4 text-blue-600" />
+                      <div className="bg-white rounded-lg p-3 border border-cyan-200/60 shadow-sm">
+                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center space-x-2 text-sm">
+                          <Ticket className="w-3 h-3 text-blue-600" />
                           <span>International Pricing ($)</span>
                         </h4>
-                        <div className="flex space-x-2 mb-3">
+                        <div className="flex space-x-2 mb-2">
                           <input
                             type="text"
                             placeholder="Category Name"
                             value={currentInternationalTicketName}
-                            onChange={(e) =>
-                              setCurrentInternationalTicketName(e.target.value)
-                            }
-                            className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            onChange={(e) => setCurrentInternationalTicketName(e.target.value)}
+                            className="flex-1 h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                           />
                           <input
                             type="number"
                             placeholder="Price ($)"
                             value={currentInternationalTicketPrice}
-                            onChange={(e) =>
-                              setCurrentInternationalTicketPrice(e.target.value)
-                            }
-                            className="flex-1 h-10 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            onChange={(e) => setCurrentInternationalTicketPrice(e.target.value)}
+                            className="flex-1 h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                           />
                           <button
                             onClick={addInternationalTicketCategory}
-                            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-400 hover:to-indigo-500 transition-all duration-300"
+                            className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-md hover:from-blue-400 hover:to-indigo-500 transition-all duration-300 text-sm"
                           >
                             Add
                           </button>
                         </div>
-                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                        <div className="space-y-1.5 max-h-20 overflow-y-auto">
                           {internationalTicketCategories.map((tc, i) => (
                             <div
                               key={i}
-                              className="flex justify-between items-center bg-blue-50 p-2 rounded-lg border border-blue-200/60"
+                              className="flex justify-between items-center bg-blue-50 p-2 rounded-md border border-blue-200/60"
                             >
-                              <span className="text-gray-700 font-medium">
+                              <span className="text-gray-700 font-medium text-sm">
                                 {tc.name} – ${tc.price}
                               </span>
                               <button
-                                onClick={() =>
-                                  removeInternationalTicketCategory(i)
-                                }
-                                className="p-1 text-red-600 hover:bg-red-100 rounded-md transition-all duration-300"
+                                onClick={() => removeInternationalTicketCategory(i)}
+                                className="p-0.5 text-red-600 hover:bg-red-100 rounded-sm transition-all duration-300"
                               >
-                                <X className="w-4 h-4" />
+                                <X className="w-3 h-3" />
                               </button>
                             </div>
                           ))}
@@ -635,13 +586,13 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
             </div>
           </div>
 
-          {/* Modal Footer */}
-          <div className="bg-gradient-to-r from-gray-50/90 via-white/90 to-slate-50/90 backdrop-blur-sm px-8 py-6 border-t border-gray-200/50 rounded-b-3xl">
-            <div className="flex gap-4">
+          {/* Compact Modal Footer */}
+          <div className="bg-gradient-to-r from-gray-50/90 via-white/90 to-slate-50/90 backdrop-blur-sm px-6 py-4 border-t border-gray-200/50 rounded-b-2xl">
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-slate-500 hover:from-gray-300 hover:to-slate-400 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-gray-400/20 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1"
+                className="group relative overflow-hidden bg-gradient-to-r from-gray-400 to-slate-500 hover:from-gray-300 hover:to-slate-400 text-white font-semibold py-2.5 px-5 rounded-lg shadow-lg hover:shadow-gray-400/20 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1"
               >
                 <div className="flex items-center justify-center space-x-2 relative z-10">
                   <X className="w-4 h-4" />
@@ -649,11 +600,10 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
               </button>
-
               <button
                 type="submit"
                 onClick={handleSubmit}
-                className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-emerald-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-semibold py-2.5 px-5 rounded-lg shadow-lg hover:shadow-emerald-500/25 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 disabled={isUpdating}
               >
                 <div className="flex items-center justify-center space-x-2 relative z-10">
@@ -681,7 +631,7 @@ const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
       {/* Custom Scrollbar Styles */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
+          width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: rgba(229, 231, 235, 0.5);
