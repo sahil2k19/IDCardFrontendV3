@@ -1165,6 +1165,7 @@ function CreateId() {
                   {eventData?.isPaidEvent ? (
                     <div className="flex-1">
                       <RazorpayButton
+                      RazorPaySecret={eventData?.razorpaySecret}
                         RazorpayApiKey ={eventData?.razorpayKey}
                         styleClass={`group relative overflow-hidden w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 ${
                           isFormFilled()

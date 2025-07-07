@@ -17,7 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const EditEvents = ({ event, onClose, fetchEvents }) => {
+const EditEvents = ({ event, onClose, fetchEvents , newEvent=false }) => {
   const [eventName, setEventName] = useState(event?.eventName || "");
   const [address, setAddress] = useState(event?.address || "");
   const [startDate, setStartDate] = useState(
@@ -135,7 +135,16 @@ const EditEvents = ({ event, onClose, fetchEvents }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
-
+    let apiURL = ``;
+    let method = ""
+    if(newEvent){
+      apiURL = `${process.env.REACT_APP_API_URL}/api/events`;
+      method = "post"
+    }
+    else{
+         apiURL = `${process.env.REACT_APP_API_URL}/api/events/edit/${event._id}`;
+     method = "patch"
+    }
     try {
       const formData = new FormData();
       formData.append("eventName", eventName);
@@ -169,8 +178,8 @@ const EditEvents = ({ event, onClose, fetchEvents }) => {
       }, {});
       formData.append("amenities", JSON.stringify(amenitiesObject));
       // console.log('regionPricings', regionPricings);
-      const response = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/api/events/edit/${event._id}`,
+      const response = await axios[method](
+        apiURL,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -178,12 +187,12 @@ const EditEvents = ({ event, onClose, fetchEvents }) => {
       );
       // console.log("formdata", formData);
       console.log("Event updated:", response.data);
-      toast.success("Event updated successfully!");
+      toast.success(`Event ${newEvent ? "created" : "updated"} successfully`);
       fetchEvents();
       onClose();
     } catch (error) {
       console.error("Error updating event:", error);
-      toast.error("Failed to update event");
+      toast.error(`Error ${newEvent ? "creating" : "updating"} event`);
     } finally {
       setIsUpdating(false);
     }
@@ -656,7 +665,7 @@ const EditEvents = ({ event, onClose, fetchEvents }) => {
                   ) : (
                     <>
                       <Save className="w-4 h-4" />
-                      <span>Update Event</span>
+                      <span>{newEvent ? "Create" : "Update"}</span>
                     </>
                   )}
                 </div>
