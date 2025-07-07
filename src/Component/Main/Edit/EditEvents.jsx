@@ -14,6 +14,7 @@ import {
   Edit,
   Save,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 
 const EditEvents = ({ event, onClose, fetchEvents }) => {
@@ -49,6 +50,8 @@ const EditEvents = ({ event, onClose, fetchEvents }) => {
     useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
+  const [razorpayKey, setRazorpayKey] = useState(event?.razorpayKey || ""); // [setRazorpayKey]
+  const [razorpaySecret, setRazorpaySecret] = useState(event?.razorpaySecret || ""); // [setRazorpaySecret]
   const addCategory = (e) => {
     e.preventDefault();
     if (currentCategory.trim()) {
@@ -143,7 +146,8 @@ const EditEvents = ({ event, onClose, fetchEvents }) => {
       if (idcardimage) formData.append("idcardimage", idcardimage);
       formData.append("categories", JSON.stringify(categories));
       formData.append("isPaidEvent", JSON.stringify(isPaidEvent));
-
+      formData.append("razorpaySecret", razorpaySecret);
+      formData.append("razorpayKey", razorpayKey);
       const regionPricings = [];
       if (indianTicketCategories.length) {
         regionPricings.push({
@@ -164,15 +168,15 @@ const EditEvents = ({ event, onClose, fetchEvents }) => {
         return acc;
       }, {});
       formData.append("amenities", JSON.stringify(amenitiesObject));
-
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/events/${event._id}`,
+      // console.log('regionPricings', regionPricings);
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_URL}/api/events/edit/${event._id}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
+      // console.log("formdata", formData);
       console.log("Event updated:", response.data);
       toast.success("Event updated successfully!");
       fetchEvents();
@@ -467,7 +471,49 @@ const EditEvents = ({ event, onClose, fetchEvents }) => {
                   </div>
 
                   {isPaidEvent && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+
+                      {/* Razorpay API Keys */}
+                      <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+                          <Sparkles className="w-4 h-4 text-green-600" />
+                          <span>Razorpay API Keys</span>
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex flex-col space-y-2">
+                            <label
+                              htmlFor="razorpay-key"
+                              className="text-sm font-semibold text-gray-700"
+                            >
+                              API Key
+                            </label>
+                            <input
+                              type="text"
+                              id="razorpay-key"
+                              placeholder="Enter API Key"
+                              value={razorpayKey}
+                              onChange={(e) => setRazorpayKey(e.target.value)}
+                              className="w-full h-12 px-4 bg-white border-2 border-cyan-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-300"
+                            />
+                          </div>
+                          <div className="flex flex-col space-y-2">
+                            <label
+                              htmlFor="razorpay-secret"
+                              className="text-sm font-semibold text-gray-700"
+                            >
+                              API Secret
+                            </label>
+                            <input
+                              type="text"
+                              id="razorpay-secret"
+                              placeholder="Enter API Secret"
+                              value={razorpaySecret}
+                              onChange={(e) => setRazorpaySecret(e.target.value)}
+                              className="w-full h-12 px-4 bg-white border-2 border-cyan-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-300"
+                            />
+                          </div>
+                        </div>
+                      </div>
                       {/* Indian Pricing */}
                       <div className="bg-white rounded-xl p-4 border border-cyan-200/60 shadow-sm">
                         <h4 className="font-semibold text-gray-800 mb-3 flex items-center space-x-2">

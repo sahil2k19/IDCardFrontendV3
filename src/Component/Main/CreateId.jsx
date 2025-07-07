@@ -31,7 +31,6 @@ function CreateId() {
   const [linkmodal, setlinkmodal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [designation, setDesignation] = useState("");
   const [idCard, setIdCard] = useState([]);
   const [designations, setDesignations] = useState([]); // State to hold fetched designations
@@ -42,11 +41,9 @@ function CreateId() {
   const [institute, setInstitute] = useState("");
   const [email, setemail] = useState("");
   const [selectedIdCardType, setSelectedIdCardType] = useState("vertical");
-  const [isWebcamEnabled, setIsWebcamEnabled] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [amenities, setamenities] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
-  const [copySuccess, setCopySuccess] = useState("");
   const [phone, setPhone] = useState("");
   const [generatedSecureLink, setGeneratedSecureLink] = useState("");
   const [generatedPublicCreateLink, setGeneratedPublicCreateLink] =
@@ -85,22 +82,6 @@ function CreateId() {
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(generatedLink)
-      .then(() => setCopySuccess("Copied!"))
-      .catch(() => setCopySuccess("Failed to copy!"));
-  };
-
-  const handleImageChange = (event) => {
-    const { id, files } = event.target;
-    if (files && files[0]) {
-      const file = files[0];
-      if (id === "profilePicture") {
-        setProfilePicture(file);
-      }
-    }
-  };
 
   const LoaderOverlay = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -151,28 +132,8 @@ function CreateId() {
     fetchData();
   }, []);
 
-  const handleFileChange = (e) => {
-    setProfilePicture(e.target.files[0]);
-    setIsWebcamEnabled(false);
-  };
 
-  const handleCapture = (imageSrc) => {
-    const byteString = atob(imageSrc.split(",")[1]);
-    const mimeString = imageSrc.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
-    setProfilePicture(blob);
-    setIsWebcamEnabled(false);
-  };
 
-  const handleRemovePicture = () => {
-    setProfilePicture(null);
-    setIsWebcamEnabled(false);
-  };
 
   const [isCreating, setIsCreating] = useState(false); // New state for loading spinner
 
@@ -454,80 +415,8 @@ function CreateId() {
     navigate(`/archive-id-card?eventid=${eventId}&eventName=${eventName}`);
   };
 
-  const handleEmbed = () => {
-    navigate(`/form-url?eventid=${eventId}&eventName=${eventName}`);
-  };
 
-  const WebcamCapture = ({ onCapture }) => {
-    const webcamRef = useRef(null);
-    const [capturing, setCapturing] = useState(false);
 
-    const capture = useCallback(() => {
-      const imageSrc = webcamRef.current.getScreenshot();
-      onCapture(imageSrc);
-      setCapturing(false);
-    }, [webcamRef, onCapture]);
-
-    return (
-      <div className="border p-2 bg-gray-600 rounded text-center">
-        {capturing ? (
-          <div>
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              width="100%"
-            />
-            <button
-              className="bg-gray-300 hover:bg-gray-500 px-2 mt-2 rounded text-white"
-              onClick={capture}
-            >
-              Capture
-            </button>
-          </div>
-        ) : (
-          <div
-            onClick={() => setCapturing(true)}
-            className="flex justify-center text-center items-center gap-2 cursor-pointer font-semibold text-white text-lg"
-          >
-            <button className="flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                fill="currentColor"
-                className="bi bi-camera"
-                viewBox="0 0 16 16"
-              >
-                <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z" />
-                <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
-              </svg>
-              Take Picture
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const [generatedLink, setGeneratedLink] = useState("");
-
-  const handleGenerateLink = async () => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/participants/generate-token`,
-        {
-          eventId,
-          eventName,
-        }
-      );
-      const token = response.data.token;
-      const link = `${window.location.origin}/form-url?eventid=${eventId}&eventName=${eventName}&token=${token}`;
-      setGeneratedLink(link);
-    } catch (error) {
-      console.error("Error generating link:", error);
-    }
-  };
 
   // Check if the form is being accessed with a token
   const [isSecureForm, setIsSecureForm] = useState(false);
@@ -1094,7 +983,9 @@ function CreateId() {
                       </div>
                     </div>
 
-                    {/* Phone Field */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                     {/* Phone Field */}
                     <div className="group">
                       <label
                         htmlFor="phone"
@@ -1147,6 +1038,7 @@ function CreateId() {
                         </p>
                       )}
                     </div>
+                 </div>
 
                     {/* Region Selection */}
                     {eventData.regionPricings.length > 0 && (
@@ -1273,6 +1165,7 @@ function CreateId() {
                   {eventData?.isPaidEvent ? (
                     <div className="flex-1">
                       <RazorpayButton
+                        RazorpayApiKey ={eventData?.razorpayKey}
                         styleClass={`group relative overflow-hidden w-full py-3 px-6 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 ${
                           isFormFilled()
                             ? "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white"
@@ -1281,7 +1174,7 @@ function CreateId() {
                         onSuccess={createIdAfterPayment}
                         buttonText={
                           selectedCategory
-                            ? `Pay & Create (${
+                            ? `Pay (${
                                 selectedRegion === "indian" ? "₹" : "$"
                               }${
                                 eventData.regionPricings
@@ -1289,7 +1182,7 @@ function CreateId() {
                                   .categories.find(
                                     (c) => c.name === selectedCategory
                                   ).price
-                              })`
+                              }) & Create `
                             : "Select ticket first"
                         }
                         amount={

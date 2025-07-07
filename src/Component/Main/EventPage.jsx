@@ -234,7 +234,7 @@ function EventPage() {
     }
   };
 
-  console.log("Events", events);
+  // console.log("Events", events);
 
   const fetchData = async () => {
     try {

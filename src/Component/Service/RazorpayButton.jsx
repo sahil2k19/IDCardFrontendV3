@@ -13,9 +13,11 @@ const RazorpayButton = ({
   buttonText = "Pay Now",
   onSuccess,
   styleClass,
+  RazorpayApiKey,
+  RazorPaySecret,
 }) => {
   const loadRazorpay = async (e) => {
-    console.log("user", user);
+    // console.log("user", user);
     e.preventDefault();
     if (onBeforePay && !onBeforePay()) {
       toast.dismiss();
@@ -24,14 +26,14 @@ const RazorpayButton = ({
     }
     try {
       const orderUrl = `${process.env.REACT_APP_API_URL}/api/payment/create-order`;
-      const { data } = await axios.post(orderUrl, { amount, currency });
-
+      const { data } = await axios.post(orderUrl, { amount, currency,RazorPayKey:RazorpayApiKey ,RazorPaySecret:RazorPaySecret });
+      // const RazorpayApiKey = "rzp_test_9biOcO86B9dZyQ"
       const options = {
-        key: "rzp_test_9biOcO86B9dZyQ", // your real test key
+        key: RazorpayApiKey, // your real test key
         amount: data.amount,
         currency: data.currency,
-        name: "Custom Payment", // Change this to anything
-        description: "Alumni Portal Payment", // Customize
+        name: "Id Card Payment", // Change this to anything
+        description: "Id Card Payment", // Customize
         order_id: data.id,
         handler: async function (response) {
           console.log("Payment success response:", response);
