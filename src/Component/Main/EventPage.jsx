@@ -547,7 +547,7 @@ function EventPage() {
             />
           </div>
         )}
-        <div className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Search and Controls Bar */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-10">
             <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
