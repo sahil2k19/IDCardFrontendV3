@@ -175,7 +175,7 @@ export default function LinkIDCard() {
   }`;
 
   return (
-    <div className="flex flex-col  items-center justify-center min-h-screen bg-gray-100 p-4 font-sans">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 font-sans scale-75">
       {/* ID Card Container */}
       <div
         ref={idCardRef}

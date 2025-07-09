@@ -1,12 +1,8 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import Webcam from "react-webcam";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
 import { toast } from "react-hot-toast";
-import { toPng } from "html-to-image";
 import JsBarcode from "jsbarcode";
 import RazorpayButton from "../../Service/RazorpayButton";
 import Swal from "sweetalert2";
@@ -166,6 +162,7 @@ const RegistrationModal = ({ toggleModal, isModal }) => {
                     headers: { "Content-Type": "multipart/form-data" },
                 }
             );
+            handleSend(response.data);
 
             const token = new URLSearchParams(window.location.search).get("token");
 
@@ -184,6 +181,7 @@ const RegistrationModal = ({ toggleModal, isModal }) => {
             } else {
                 setShowThanksPage(true);
             }
+            
             setShowIdcardLink(response.data.link);
 
             // toast.success("ID card created successfully!");
@@ -238,6 +236,7 @@ const RegistrationModal = ({ toggleModal, isModal }) => {
                     headers: { "Content-Type": "multipart/form-data" },
                 }
             );
+            handleSend(response.data);
 
             const token = new URLSearchParams(window.location.search).get("token");
 
@@ -272,6 +271,46 @@ const RegistrationModal = ({ toggleModal, isModal }) => {
             setIsCreating(false);
         }
     };
+
+
+    
+  const handleSend = async (data) => {
+    const payload = {
+      apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NWU2ZmZhYTU0ODhjMGMyMjNhMjIwNCIsIm5hbWUiOiJNeXN1cnUgWW9nYSBVdHNhdmEgIiwiYXBwTmFtZSI6IkFpU2Vuc3kiLCJjbGllbnRJZCI6IjY4NWU2ZmZhYTU0ODhjMGMyMjNhMjFmZiIsImFjdGl2ZVBsYW4iOiJGUkVFX0ZPUkVWRVIiLCJpYXQiOjE3NTEwMTk1MTR9.GJSl7ScFZE6H3UJC5BIJGGj0wnNorcCxspCelOeVIb8",
+      campaignName: "MYU-25-Test",
+      destination: phone,
+      userName: "Mysuru Yoga Utsava ",
+      templateParams: [`${firstName}`, `${data?.link}`],
+      source: "new-landing-page form",
+      media: {
+        url: "https://whatsapp-media-library.s3.ap-south-1.amazonaws.com/FILE/6353da2e153a147b991dd812/4079142_dummy.pdf",
+        filename: "sample_media"
+      },
+      buttons: [],
+      carouselCards: [],
+      location: {},
+      attributes: {},
+      paramsFallbackValue: {
+        FirstName: "user"
+      }
+    };
+
+    try {
+      const response = await fetch("https://backend.aisensy.com/campaign/t1/api/v2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      console.log("Message Sent:", result);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+ 
 
 
     useEffect(() => {

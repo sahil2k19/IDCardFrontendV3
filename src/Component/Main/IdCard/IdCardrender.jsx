@@ -426,7 +426,7 @@ function IdCardrender({
       )}
       {/* Cards */}
       <div className="flex flex-wrap justify-center gap-10">
-        {reversedData.map((card, index) => (
+        {reversedData.slice(0, 15).map((card, index) => (
           <IdCard
             key={index}
             card={card}
