@@ -405,7 +405,7 @@ const IdCard = ({
     <div
       className={`relative ${
         isPreview ? "" : "mb-20"
-      } border border-gray-300 rounded-lg w-[430px]`}
+      } border border-gray-300 rounded-lg w-[430px] `}
     >
       <div
         ref={idCardRef}

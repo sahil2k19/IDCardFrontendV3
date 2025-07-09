@@ -425,7 +425,7 @@ function IdCardrender({
         />
       )}
       {/* Cards */}
-      <div className="flex flex-wrap justify-center gap-10">
+      <div className="flex flex-wrap justify-center gap-10 ">
         {reversedData.slice(0, 15).map((card, index) => (
           <IdCard
             key={index}

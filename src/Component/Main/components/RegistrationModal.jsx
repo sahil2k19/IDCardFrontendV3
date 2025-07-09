@@ -21,7 +21,7 @@ import { Calendar, Link, Plus, Users, Archive, Shield } from "lucide-react";
 import { Globe, Copy, X, Sparkles, Check } from "lucide-react";
 
 
-const RegistrationModal = ({ toggleModal, isModal }) => {
+const RegistrationModal = ({ toggleModal, isModal}) => {
 
 
     const location = useLocation();
@@ -162,7 +162,11 @@ const RegistrationModal = ({ toggleModal, isModal }) => {
                     headers: { "Content-Type": "multipart/form-data" },
                 }
             );
-            handleSend(response.data);
+            if(eventData?.whatsappApiKey){
+                handleSend(response.data);
+            }
+            fetchData(eventId);
+
 
             const token = new URLSearchParams(window.location.search).get("token");
 
@@ -175,7 +179,6 @@ const RegistrationModal = ({ toggleModal, isModal }) => {
             }
 
             setIdCard([...idCard, response.data]);
-            fetchData(eventId);
             if (isModal) {
                 toggleModal();
             } else {
@@ -236,7 +239,9 @@ const RegistrationModal = ({ toggleModal, isModal }) => {
                     headers: { "Content-Type": "multipart/form-data" },
                 }
             );
-            handleSend(response.data);
+             if(eventData?.whatsappApiKey){
+                handleSend(response.data);
+            }
 
             const token = new URLSearchParams(window.location.search).get("token");
 
@@ -275,8 +280,9 @@ const RegistrationModal = ({ toggleModal, isModal }) => {
 
     
   const handleSend = async (data) => {
+    console.log("sending whatsapp message");
     const payload = {
-      apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NWU2ZmZhYTU0ODhjMGMyMjNhMjIwNCIsIm5hbWUiOiJNeXN1cnUgWW9nYSBVdHNhdmEgIiwiYXBwTmFtZSI6IkFpU2Vuc3kiLCJjbGllbnRJZCI6IjY4NWU2ZmZhYTU0ODhjMGMyMjNhMjFmZiIsImFjdGl2ZVBsYW4iOiJGUkVFX0ZPUkVWRVIiLCJpYXQiOjE3NTEwMTk1MTR9.GJSl7ScFZE6H3UJC5BIJGGj0wnNorcCxspCelOeVIb8",
+      apiKey: eventData?.whatsappApiKey,
       campaignName: "MYU-25-Test",
       destination: phone,
       userName: "Mysuru Yoga Utsava ",

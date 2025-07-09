@@ -861,7 +861,7 @@ function CreateId() {
         <>
         
        <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-md p-4">
-       <RegistrationModal toggleModal={toggleModal} eventId={eventId} isModal={true}/>
+       <RegistrationModal toggleModal={toggleModal} eventId={eventId} isModal={true} eventData={eventData} />
        </div>
 
         </>
