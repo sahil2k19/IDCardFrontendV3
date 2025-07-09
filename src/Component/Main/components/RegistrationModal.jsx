@@ -21,7 +21,7 @@ import { Calendar, Link, Plus, Users, Archive, Shield } from "lucide-react";
 import { Globe, Copy, X, Sparkles, Check } from "lucide-react";
 
 
-const RegistrationModal = ({ toggleModal, isModal}) => {
+const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
 
 
     const location = useLocation();
@@ -92,26 +92,26 @@ const RegistrationModal = ({ toggleModal, isModal}) => {
         setEventId(id);
         setEventName(name);
 
-        fetchData();
+        // fetchData();
     }, [location]);
 
-    const fetchData = async () => {
-        try {
-            const url = `${process.env.REACT_APP_API_URL}/api/participants/event/${eventId}`;
-            const response = await axios.get(url);
-            console.log("Participants by EventId:", response.data); // Log fetched participants
-            setDataid(response.data); // Update state with fetched data
-            setLoading(false);
-        } catch (error) {
-            console.error("Error fetching participants by eventId:", error);
-            setDataid([]); // Clear state or handle error case
-            setLoading(false);
-        }
-    };
+    // const fetchData = async () => {
+    //     try {
+    //         const url = `${process.env.REACT_APP_API_URL}/api/participants/event/${eventId}`;
+    //         const response = await axios.get(url);
+    //         console.log("Participants by EventId:", response.data); // Log fetched participants
+    //         setDataid(response.data); // Update state with fetched data
+    //         setLoading(false);
+    //     } catch (error) {
+    //         console.error("Error fetching participants by eventId:", error);
+    //         setDataid([]); // Clear state or handle error case
+    //         setLoading(false);
+    //     }
+    // };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    // useEffect(() => {
+    //     fetchData();
+    // }, []);
 
 
 
@@ -148,8 +148,9 @@ const RegistrationModal = ({ toggleModal, isModal}) => {
             const amenitiesObject = typeof amenities === "object" ? amenities : {};
             formData.append("amenities", JSON.stringify(amenitiesObject));
 
-            if (backgroundImage) {
-                formData.append("backgroundImage", backgroundImage);
+            if (eventData?.idcardimage) {
+                // formData.append("backgroundImage", backgroundImage);
+                formData.append("backgroundImage", eventData?.idcardimage);
             }
             if (profilePicture) {
                 formData.append("profilePicture", profilePicture);
@@ -165,7 +166,7 @@ const RegistrationModal = ({ toggleModal, isModal}) => {
             if(eventData?.whatsappApiKey){
                 handleSend(response.data);
             }
-            fetchData(eventId);
+            // fetchData(eventId);
 
 
             const token = new URLSearchParams(window.location.search).get("token");
@@ -181,6 +182,7 @@ const RegistrationModal = ({ toggleModal, isModal}) => {
             setIdCard([...idCard, response.data]);
             if (isModal) {
                 toggleModal();
+                fetchData();
             } else {
                 setShowThanksPage(true);
             }
@@ -225,8 +227,9 @@ const RegistrationModal = ({ toggleModal, isModal}) => {
             const amenitiesObject = typeof amenities === "object" ? amenities : {};
             formData.append("amenities", JSON.stringify(amenitiesObject));
 
-            if (backgroundImage) {
-                formData.append("backgroundImage", backgroundImage);
+            if (eventData?.idcardimage) {
+                // formData.append("backgroundImage", backgroundImage);
+                formData.append("backgroundImage", eventData?.idcardimage);
             }
             if (profilePicture) {
                 formData.append("profilePicture", profilePicture);
@@ -254,8 +257,9 @@ const RegistrationModal = ({ toggleModal, isModal}) => {
             }
 
             setIdCard([...idCard, response.data]);
-            fetchData(eventId);
+            // fetchData(eventId);
             if (isModal) {
+                fetchData();
                 toggleModal();
             }
             else {
