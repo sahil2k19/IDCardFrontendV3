@@ -10,7 +10,7 @@ import EditControls from "./EditControls";
 import VisibilityModal from "./VisibilityModal";
 import DownloadButtons from "./DownloadButtons";
 import SearchBar from "./SearchBar";
-import { Search, RefreshCw, Calendar, Users } from "lucide-react";
+import { Search, RefreshCw, Calendar, Users, Tag } from "lucide-react";
 function IdCardrender({
   Dataid,
   fetchData,
@@ -18,6 +18,7 @@ function IdCardrender({
   eventName,
   fetchDesignations,
   eventId,
+  eventData,
 }) {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -395,7 +396,10 @@ function IdCardrender({
         downloadAllEntries={downloadAllEntries}
         toggleModalOpenedit={toggleModalOpenedit}
         toggleModalOpen={toggleModalOpen}
+        eventData={eventData}
       />
+
+   
       {/* Edit All Modal */}
       {isModalOpenedit && (
         <EditControls

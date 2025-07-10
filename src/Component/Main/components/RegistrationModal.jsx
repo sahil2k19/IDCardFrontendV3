@@ -367,11 +367,6 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
 
     const navigate = useNavigate();
 
-
-
-
-
-
     // Check if the form is being accessed with a token
     const [isSecureForm, setIsSecureForm] = useState(false);
 
@@ -801,6 +796,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
                                         )}
                                     </div>
                                 )}
+                                
                             </form>
                         </div>
                     </div>

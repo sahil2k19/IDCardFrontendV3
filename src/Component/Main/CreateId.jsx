@@ -884,6 +884,7 @@ function CreateId() {
               handleDownloadWithoutBackground={handleDownloadWithoutBackground}
               fetchDesignations={fetchDesignations}
               eventId={eventId}
+              eventData={eventData}
             />
           )}
         </div>

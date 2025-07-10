@@ -54,7 +54,7 @@ const EditEvents = ({ event, onClose, fetchEvents, newEvent = false }) => {
   const [razorpayKey, setRazorpayKey] = useState(event?.razorpayKey || ""); // [setRazorpayKey]
   const [razorpaySecret, setRazorpaySecret] = useState(event?.razorpaySecret || ""); // [setRazorpaySecret]
 
-  const [coupons, setCoupons] = useState([])
+  const [coupons, setCoupons] = useState(event?.coupons || []);
   const [currentCouponName, setCurrentCouponName] = useState("")
   const [currentCouponType, setCurrentCouponType] = useState("fixed")
   const [currentCouponValue, setCurrentCouponValue] = useState("")
@@ -180,7 +180,12 @@ const EditEvents = ({ event, onClose, fetchEvents, newEvent = false }) => {
         });
       }
       formData.append("regionPricings", JSON.stringify(regionPricings));
+      const cleanedCoupons = coupons
+  .filter(c => c && c.name && c.type && c.value)  // Remove empty/invalid
+  .map(c => ({ ...c, value: Number(c.value) }));  // Ensure value is number
 
+formData.append("coupons", JSON.stringify(cleanedCoupons));
+      // console.log("coupon", coupons);
       const amenitiesObject = amenities.reduce((acc, amenity) => {
         acc[amenity] = false;
         return acc;
@@ -221,6 +226,7 @@ const EditEvents = ({ event, onClose, fetchEvents, newEvent = false }) => {
       setCurrentCouponName("")
       setCurrentCouponValue("")
     }
+    console.log(coupons)
   }
 
   const removeCoupon = (index) => {
