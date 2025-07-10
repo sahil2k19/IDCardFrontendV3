@@ -19,6 +19,7 @@
     "epubjs": "^0.3.93",
     "file-saver": "^2.0.5",
     "formik": "^2.4.5",
+    "framer-motion": "^12.23.3",
     "html-to-image": "^1.11.11",
     "html2canvas": "^1.4.1",
     "jsbarcode": "^3.11.6",

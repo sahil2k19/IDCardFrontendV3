@@ -59,7 +59,7 @@ const EditEvents = ({ event, onClose, fetchEvents, newEvent = false }) => {
   const [currentCouponType, setCurrentCouponType] = useState("fixed")
   const [currentCouponValue, setCurrentCouponValue] = useState("")
   const [whatsappApiKey, setWhatsappApiKey] = useState(event?.whatsappApiKey || "");
-
+  const [currentCouponScope, setCurrentCouponScope] = useState("indian")
   const addCategory = (e) => {
     e.preventDefault();
     if (currentCategory.trim()) {
@@ -181,10 +181,10 @@ const EditEvents = ({ event, onClose, fetchEvents, newEvent = false }) => {
       }
       formData.append("regionPricings", JSON.stringify(regionPricings));
       const cleanedCoupons = coupons
-  .filter(c => c && c.name && c.type && c.value)  // Remove empty/invalid
-  .map(c => ({ ...c, value: Number(c.value) }));  // Ensure value is number
+        .filter(c => c && c.name && c.type && c.value)  // Remove empty/invalid
+        .map(c => ({ ...c, value: Number(c.value) }));  // Ensure value is number
 
-formData.append("coupons", JSON.stringify(cleanedCoupons));
+      formData.append("coupons", JSON.stringify(cleanedCoupons));
       // console.log("coupon", coupons);
       const amenitiesObject = amenities.reduce((acc, amenity) => {
         acc[amenity] = false;
@@ -221,18 +221,18 @@ formData.append("coupons", JSON.stringify(cleanedCoupons));
           name: currentCouponName.trim().toUpperCase(),
           type: currentCouponType,
           value: currentCouponValue.trim(),
+          scope: currentCouponScope,
         },
       ])
       setCurrentCouponName("")
       setCurrentCouponValue("")
+      setCurrentCouponScope("indian") // Reset to default
     }
     console.log(coupons)
   }
 
   const removeCoupon = (index) => {
-    setCoupons(
-      coupons.filter((_, i) => i !== index)
-    )
+    setCoupons(coupons.filter((_, i) => i !== index))
   }
 
 
@@ -456,7 +456,7 @@ formData.append("coupons", JSON.stringify(cleanedCoupons));
                   </div>
                 </div>
                 {/* Whatsapp Integration */}
-              
+
                 <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-xl p-4 border border-green-200/50">
                   <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0 0 48 48">
@@ -534,7 +534,7 @@ formData.append("coupons", JSON.stringify(cleanedCoupons));
                               API Secret
                             </label>
                             <input
-                              type="text"
+                              type="password"
                               id="razorpay-secret"
                               placeholder="Enter API Secret"
                               value={razorpaySecret}
@@ -644,85 +644,160 @@ formData.append("coupons", JSON.stringify(cleanedCoupons));
                   )}
                 </div>
 
-                {isPaidEvent && <div className="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 rounded-xl p-4 border border-yellow-200/50">
-                  <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
-                    <Ticket className="w-4 h-4 text-yellow-600" />
-                    <span>Coupon Codes</span>
-                  </h3>
-                  <div className="bg-white rounded-lg p-3 border border-yellow-200/60 shadow-sm">
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-3">
-                      <div className="flex flex-col space-y-1">
-                        <label className="text-xs font-semibold text-gray-700">Coupon Name</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., LUCKY10"
-                          value={currentCouponName}
-                          onChange={(e) => setCurrentCouponName(e.target.value)}
-                          className="h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-300 text-sm uppercase"
-                        />
-                      </div>
-                      <div className="flex flex-col space-y-1">
-                        <label className="text-xs font-semibold text-gray-700">Type</label>
-                        <select
-                          value={currentCouponType}
-                          onChange={(e) => setCurrentCouponType(e.target.value)}
-                          className="h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-300 text-sm"
-                        >
-                          <option value="fixed">Fixed (₹)</option>
-                          <option value="percentage">Percentage (%)</option>
-                        </select>
-                      </div>
-                      <div className="flex flex-col space-y-1">
-                        <label className="text-xs font-semibold text-gray-700">
-                          Value {currentCouponType === "fixed" ? "(₹)" : "(%)"}
-                        </label>
-                        <input
-                          type="number"
-                          placeholder={currentCouponType === "fixed" ? "100" : "10"}
-                          value={currentCouponValue}
-                          onChange={(e) => setCurrentCouponValue(e.target.value)}
-                          className="h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-300 text-sm"
-                        />
-                      </div>
-                      <div className="flex flex-col justify-end">
-                        <button
-                          type="button"
-                          onClick={addCoupon}
-                          className="h-8 px-3 bg-gradient-to-r from-yellow-500 to-amber-600 text-white rounded-md hover:from-yellow-400 hover:to-amber-500 transition-all duration-300 text-sm font-semibold"
-                        >
-                          Add
-                        </button>
-                      </div>
-                    </div>
-                    <div className="space-y-1.5 max-h-24 overflow-y-auto">
-                      {coupons.map((coupon, i) => (
-                        <div
-                          key={i}
-                          className="flex justify-between items-center bg-yellow-50 p-2 rounded-md border border-yellow-200/60"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <span className="text-gray-700 font-bold text-sm bg-yellow-100 px-2 py-1 rounded">
-                              {coupon.name}
-                            </span>
-                            <span className="text-gray-600 text-sm">
-                              {coupon.type === "fixed" ? `₹${coupon.value} off` : `${coupon.value}% off`}
-                            </span>
-                          </div>
+                {isPaidEvent && (
+                  <div className="bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 rounded-xl p-4 border border-yellow-200/50">
+                    <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                      <Ticket className="w-4 h-4 text-yellow-600" />
+                      <span>Coupon Codes</span>
+                    </h3>
+                    <div className="bg-white rounded-lg p-3 border border-yellow-200/60 shadow-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 mb-3">
+                        <div className="flex flex-col space-y-1">
+                          <label className="text-xs font-semibold text-gray-700">Coupon Name</label>
+                          <input
+                            type="text"
+                            placeholder="e.g., LUCKY10"
+                            value={currentCouponName}
+                            onChange={(e) => setCurrentCouponName(e.target.value)}
+                            className="h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-300 text-sm uppercase"
+                          />
+                        </div>
+                        <div className="flex flex-col space-y-1">
+                          <label className="text-xs font-semibold text-gray-700">Type</label>
+                          <select
+                            value={currentCouponType}
+                            onChange={(e) => setCurrentCouponType(e.target.value)}
+                            className="h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-300 text-sm"
+                          >
+                            <option value="fixed">Fixed (₹)</option>
+                            <option value="percentage">Percentage (%)</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col space-y-1">
+                          <label className="text-xs font-semibold text-gray-700">
+                            Value {currentCouponType === "fixed" ? "(₹)" : "(%)"}
+                          </label>
+                          <input
+                            type="number"
+                            placeholder={currentCouponType === "fixed" ? "100" : "10"}
+                            value={currentCouponValue}
+                            onChange={(e) => setCurrentCouponValue(e.target.value)}
+                            className="h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-300 text-sm"
+                          />
+                        </div>
+                        <div className="flex flex-col space-y-1">
+                          <label className="text-xs font-semibold text-gray-700">Scope</label>
+                          <select
+                            value={currentCouponScope}
+                            onChange={(e) => setCurrentCouponScope(e.target.value)}
+                            className="h-8 px-2 border-2 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-300 text-sm"
+                          >
+                            <option value="indian">Indian</option>
+                            <option value="international">International</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col justify-end">
                           <button
                             type="button"
-                            onClick={() => removeCoupon(i)}
-                            className="p-0.5 text-red-600 hover:bg-red-100 rounded-sm transition-all duration-300"
+                            onClick={addCoupon}
+                            className="h-8 px-3 bg-gradient-to-r from-yellow-500 to-amber-600 text-white rounded-md hover:from-yellow-400 hover:to-amber-500 transition-all duration-300 text-sm font-semibold"
                           >
-                            <X className="w-3 h-3" />
+                            Add
                           </button>
                         </div>
-                      ))}
-                      {coupons.length === 0 && (
-                        <div className="text-center text-gray-500 text-sm py-2">No coupon codes added yet</div>
-                      )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Indian Coupons - Left Column */}
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Indian Coupons</h4>
+                          <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+                            {coupons
+                              .filter((coupon) => coupon.scope === "indian")
+                              .map((coupon, i) => (
+                                <div
+                                  key={`indian-${i}`}
+                                  className="flex justify-between items-center bg-yellow-50 p-2 rounded-md border border-yellow-200/60"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <span className="text-gray-700 font-bold text-sm bg-yellow-100 px-2 py-1 rounded">
+                                      {coupon.name}
+                                    </span>
+                                    <span className="text-gray-600 text-sm">
+                                      {coupon.scope === "international"
+                                        ? `$${coupon.value}`
+                                        : coupon.type === "fixed"
+                                          ? `₹${coupon.value} off`
+                                          : `${coupon.value}% off`}
+                                    </span>
+                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                                      {coupon.scope === "indian" ? "Indian" : "International"}
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      removeCoupon(coupons.findIndex((c) => c.name === coupon.name && c.scope === coupon.scope))
+                                    }
+                                    className="p-0.5 text-red-600 hover:bg-red-100 rounded-sm transition-all duration-300"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ))}
+                            {coupons.filter((coupon) => coupon.scope === "indian").length === 0 && (
+                              <div className="text-center text-gray-500 text-sm py-2">No Indian coupon codes added yet</div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* International Coupons - Right Column */}
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-2">International Coupons</h4>
+                          <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+                            {coupons
+                              .filter((coupon) => coupon.scope === "international")
+                              .map((coupon, i) => (
+                                <div
+                                  key={`international-${i}`}
+                                  className="flex justify-between items-center bg-yellow-50 p-2 rounded-md border border-yellow-200/60"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <span className="text-gray-700 font-bold text-sm bg-yellow-100 px-2 py-1 rounded">
+                                      {coupon.name}
+                                    </span>
+                                    <span className="text-gray-600 text-sm">
+                                    {coupon.scope === "indian"
+                                        ? `₹${coupon.value}`
+                                        : coupon.type === "fixed"
+                                          ? `$${coupon.value} off`
+                                          : `${coupon.value}% off`}
+                                    </span>
+                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                                      {coupon.scope === "indian" ? "Indian" : "International"}
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      removeCoupon(coupons.findIndex((c) => c.name === coupon.name && c.scope === coupon.scope))
+                                    }
+                                    className="p-0.5 text-red-600 hover:bg-red-100 rounded-sm transition-all duration-300"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ))}
+                            {coupons.filter((coupon) => coupon.scope === "international").length === 0 && (
+                              <div className="text-center text-gray-500 text-sm py-2">
+                                No International coupon codes added yet
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>}
+                )}
               </form>
             </div>
           </div>

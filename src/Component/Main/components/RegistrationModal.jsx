@@ -19,8 +19,7 @@ import {
 } from "lucide-react";
 import { Calendar, Link, Plus, Users, Archive, Shield } from "lucide-react";
 import { Globe, Copy, X, Sparkles, Check } from "lucide-react";
-
-
+import { motion, AnimatePresence } from "framer-motion"
 const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
 
 
@@ -53,15 +52,19 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
     // Ticket selection state
     const [selectedRegion, setSelectedRegion] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
+    const [couponCode, setCouponCode] = useState("");
+    const [couponCodeVerify, setCouponCodeVerify] = useState("");
+    const [couponData, setCouponData] = useState({ type: null, value: 0 });
+    const [currentAmount, setCurrentAmount] = useState(0);
 
-
+const [discountedAmount, setDiscountedAmount] = useState(currentAmount);
     // Derive dropdown options
     const regionOptions = eventData?.regionPricings?.map((r) => r.region) || [];
     const categoryOptions = selectedRegion
         ? eventData?.regionPricings.find((r) => r.region === selectedRegion)
             ?.categories || []
         : [];
-
+    const [isChecking, setIsChecking] = useState(false)
 
 
     const LoaderOverlay = () => (
@@ -95,26 +98,49 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
         // fetchData();
     }, [location]);
 
-    // const fetchData = async () => {
-    //     try {
-    //         const url = `${process.env.REACT_APP_API_URL}/api/participants/event/${eventId}`;
-    //         const response = await axios.get(url);
-    //         console.log("Participants by EventId:", response.data); // Log fetched participants
-    //         setDataid(response.data); // Update state with fetched data
-    //         setLoading(false);
-    //     } catch (error) {
-    //         console.error("Error fetching participants by eventId:", error);
-    //         setDataid([]); // Clear state or handle error case
-    //         setLoading(false);
-    //     }
-    // };
+    const handleCouponCodeChange = (e) => {
+        setCouponCodeVerify("")
+        setCouponCode(e.target.value.toUpperCase())
+    }
 
-    // useEffect(() => {
-    //     fetchData();
-    // }, []);
+    const checkCouponCode = async (e) => {
+        e.preventDefault();
+        try {
+            setIsChecking(true)
+            const response = await axios.get(
+                `${process.env.REACT_APP_API_URL}/api/participants/check/couponcode/${couponCode}/event/${eventId}/scope/${selectedRegion}/couponcodecheck`,
+                { couponCode }
+            );
+            setIsChecking(false)
+            setCouponCodeVerify(response.data.check);
+            setCouponData({
+      type: response.data.type,    // "percentage" or "fixed"
+      value: response.data.value,  // e.g. 10
+    });
+            
+        } catch (error) {
+            setIsChecking(false)
+            setCouponCodeVerify(false);
+            console.error("Error checking coupon code:", error);
+            return false;
+        }
+    };
 
-
-
+    // --- Recompute discountedAmount whenever base amount or coupon changes ---
+useEffect(() => {
+  if (couponCodeVerify && couponData.type) {
+    const base = currentAmount;
+    let finalAmt;
+    if (couponData.type === "percentage") {
+      finalAmt = Math.round(base * (1 - couponData.value / 100));
+    } else {
+      finalAmt = Math.max(0, base - couponData.value);
+    }
+    setDiscountedAmount(finalAmt);
+  } else {
+    setDiscountedAmount(currentAmount);
+  }
+}, [currentAmount, couponData, couponCodeVerify]);
 
     const [isCreating, setIsCreating] = useState(false); // New state for loading spinner
 
@@ -125,7 +151,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
             toast.error("Please fill all the fields");
             return;
         }
-        console.log("isvalide", isValid());
+        // console.log("isvalide", isValid());
         setIsCreating(true);
 
 
@@ -284,7 +310,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
 
 
     const handleSend = async (data) => {
-        console.log("sending whatsapp message");
+        // console.log("sending whatsapp message");
         const payload = {
             apiKey: eventData?.whatsappApiKey,
             campaignName: "MYU-25-Test",
@@ -315,7 +341,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
             });
 
             const result = await response.json();
-            console.log("Message Sent:", result);
+            // console.log("Message Sent:", result);
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -335,7 +361,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
         }
     }, [designations, eventId]);
 
-    console.log("backgroundImage", backgroundImage);
+    // console.log("backgroundImage", backgroundImage);
     const barcodeRef = useRef(null);
 
     useEffect(() => {
@@ -363,7 +389,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
         }
     };
 
-    console.log("categories", designations);
+    // console.log("categories", designations);
 
     const navigate = useNavigate();
 
@@ -491,6 +517,51 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
         );
     };
 
+    const getInputStyles = () => {
+        if (couponCodeVerify === true) {
+            return "border-green-500 bg-green-50 focus:ring-green-200"
+        }
+        if (couponCodeVerify === false) {
+            return "border-red-500 bg-red-50 focus:ring-red-200"
+        }
+        return "border-gray-300 bg-white focus:ring-blue-200"
+    }
+
+    const getButtonStyles = () => {
+        if (couponCodeVerify === true) {
+            return "bg-green-500 hover:bg-green-600"
+        }
+        if (couponCodeVerify === false) {
+            return "bg-red-500 hover:bg-red-600"
+        }
+        return "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500"
+    }
+
+    useEffect(() => {
+        if(eventData?.regionPricings.length > 0){
+            setSelectedRegion(eventData.regionPricings[0]?.region)
+            // setSelectedCategory(eventData.regionPricings[0]?.categories[0].name)
+        }
+        setCurrentAmount(eventData?.regionPricings
+                                                .find((r) => r.region === selectedRegion)
+                                                ?.categories.find(
+                                                    (c) => c.name === selectedCategory
+                                                )?.price || 0)
+
+    }, [eventData])
+
+    useEffect(() => {
+        setCurrentAmount(eventData?.regionPricings
+                                                .find((r) => r.region === selectedRegion)
+                                                ?.categories.find(
+                                                    (c) => c.name === selectedCategory
+                                                )?.price || 0)
+
+        setCouponCode("")
+        setCouponCodeVerify("")
+    }, [selectedRegion, selectedCategory])
+
+
     if (showThanksPage) return <ThanksPage />;
 
 
@@ -565,6 +636,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
                                         />
                                         <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600/5 to-purple-600/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                                     </div>
+                                    
                                     {errors.firstName && (
                                         <p className="text-red-500 text-sm mt-2 flex items-center space-x-1">
                                             <span className="w-1 h-1 bg-red-500 rounded-full"></span>
@@ -797,6 +869,140 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
                                     </div>
                                 )}
 
+                                {/* Coupon Code */}
+
+                                {selectedRegion && selectedCategory && eventData?.isPaidEvent && (
+                                    <motion.div
+                                        className="space-y-3"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Coupon Code</label>
+
+                                        <div className="relative">
+                                            <div className="flex items-center">
+                                                <motion.input
+                                                    type="text"
+                                                    value={couponCode}
+                                                    onChange={handleCouponCodeChange}
+                                                    className={`border rounded-l-xl p-3 w-full focus:ring focus:outline-none uppercase font-mono text-sm
+                  transition-all duration-200 ${getInputStyles()}
+                `}
+                                                    placeholder="ENTER COUPON CODE"
+                                                    disabled={isChecking}
+                                                    layout
+                                                />
+
+                                                <motion.button
+                                                    className={`text-white font-semibold px-4 py-3 rounded-r-xl shadow-md hover:shadow-lg 
+                  transition-all duration-200 flex items-center justify-center min-w-[60px]
+                  ${getButtonStyles()}
+                `}
+                                                    onClick={checkCouponCode}
+                                                    disabled={isChecking || !couponCode.trim()}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    layout
+                                                >
+                                                    <AnimatePresence mode="wait">
+                                                        {isChecking ? (
+                                                            <motion.div
+                                                                key="loading"
+                                                                initial={{ opacity: 0, rotate: 0 }}
+                                                                animate={{ opacity: 1, rotate: 360 }}
+                                                                exit={{ opacity: 0 }}
+                                                                transition={{
+                                                                    rotate: { duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+                                                                    opacity: { duration: 0.2 },
+                                                                }}
+                                                            >
+                                                                <Loader2 className="w-5 h-5" />
+                                                            </motion.div>
+                                                        ) : couponCodeVerify === true ? (
+                                                            <motion.div
+                                                                key="success"
+                                                                initial={{ opacity: 0, scale: 0 }}
+                                                                animate={{ opacity: 1, scale: 1 }}
+                                                                exit={{ opacity: 0, scale: 0 }}
+                                                                transition={{
+                                                                    type: "spring",
+                                                                    stiffness: 500,
+                                                                    damping: 15,
+                                                                }}
+                                                            >
+                                                                <Check className="w-5 h-5" />
+                                                            </motion.div>
+                                                        ) : couponCodeVerify === false ? (
+                                                            <motion.div
+                                                                key="error"
+                                                                initial={{ opacity: 0, scale: 0 }}
+                                                                animate={{ opacity: 1, scale: 1 }}
+                                                                exit={{ opacity: 0, scale: 0 }}
+                                                                transition={{
+                                                                    type: "spring",
+                                                                    stiffness: 500,
+                                                                    damping: 15,
+                                                                }}
+                                                            >
+                                                                <X className="w-5 h-5" />
+                                                            </motion.div>
+                                                        ) : (
+                                                            <motion.div key="check" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                                                <Check className="w-5 h-5" />
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </motion.button>
+                                            </div>
+                                        </div>
+
+                                        <AnimatePresence>
+                                            {couponCodeVerify === true && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -10 }}
+                                                    className="flex items-center text-green-600 text-sm font-medium"
+                                                >
+                                                    <motion.div
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ delay: 0.1, type: "spring", stiffness: 500 }}
+                                                        className="mr-2"
+                                                    >
+                                                        <Check className="w-4 h-4" />
+                                                    </motion.div>
+                                                    Coupon code applied successfully!
+                                                </motion.div>
+                                            )}
+
+                                            {couponCodeVerify === false && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -10 }}
+                                                    className="flex items-center text-red-600 text-sm font-medium"
+                                                >
+                                                    <motion.div
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ delay: 0.1, type: "spring", stiffness: 500 }}
+                                                        className="mr-2"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </motion.div>
+                                                    Invalid coupon code. Please try again.
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+
+                                        <p className="text-xs text-gray-500 mt-2">
+                                            Enter a valid coupon code to get a discount on your registration.
+                                        </p>
+                                    </motion.div>
+                                )}
+
+
                             </form>
                         </div>
                     </div>
@@ -818,7 +1024,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
                             </button>}
 
                             {/* Create/Pay Button */}
-                            {eventData?.isPaidEvent ? (
+                            {(eventData?.isPaidEvent && discountedAmount>0)? (
                                 <div className="flex-1">
                                     <RazorpayButton
                                         RazorPaySecret={eventData?.razorpaySecret}
@@ -831,21 +1037,10 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
                                         buttonText={
                                             selectedCategory
                                                 ? `Pay (${selectedRegion === "indian" ? "₹" : "$"
-                                                }${eventData?.regionPricings
-                                                    .find((r) => r.region === selectedRegion)
-                                                    .categories.find(
-                                                        (c) => c.name === selectedCategory
-                                                    ).price
-                                                }) & Create `
+                                                }${discountedAmount}) & Create `
                                                 : "Select ticket first"
                                         }
-                                        amount={
-                                            eventData?.regionPricings
-                                                .find((r) => r.region === selectedRegion)
-                                                ?.categories.find(
-                                                    (c) => c.name === selectedCategory
-                                                )?.price || 0
-                                        }
+                                        amount={discountedAmount}
                                         user={{
                                             firstName,
                                             email,

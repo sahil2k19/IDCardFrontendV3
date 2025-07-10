@@ -31,25 +31,26 @@ const DownloadButtons = ({
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false)
   const [coupons, setCoupons] = useState(eventData?.coupons || [])
   const [editingCoupon, setEditingCoupon] = useState(null)
-  const [newCoupon, setNewCoupon] = useState({ name: "", type: "fixed", value: 0 })
+    const [newCoupon, setNewCoupon] = useState({ name: "", type: "fixed", value: 0, scope: "indian" })
+
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      const formData = new FormData();
-
+      const formData = new FormData()
       // Replace with your actual API endpoint
       const cleanedCoupons = coupons
-        .filter(c => c && c.name && c.type && c.value)  // Remove empty/invalid
-        .map(c => ({ ...c, value: Number(c.value) }));  // Ensure value is number
-      formData.append("regionPricings", JSON.stringify(eventData?.regionPricings));
-      formData.append("coupons", JSON.stringify(cleanedCoupons));
-      const response = await axios.patch(`${process.env.REACT_APP_API_URL}/api/events/edit/${eventData._id}`,
-       formData,
+        .filter((c) => c && c.name && c.type && c.value) // Remove empty/invalid
+        .map((c) => ({ ...c, value: Number(c.value) })) // Ensure value is number
+      formData.append("regionPricings", JSON.stringify(eventData?.regionPricings))
+      formData.append("coupons", JSON.stringify(cleanedCoupons))
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_URL}/api/events/edit/${eventData._id}`,
+        formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+        },
+      )
       setIsCouponModalOpen(false)
     } catch (error) {
       console.error("Error saving coupons:", error)
@@ -239,7 +240,7 @@ const DownloadButtons = ({
       {/* Coupon Code Modal */}
       {isCouponModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -255,7 +256,6 @@ const DownloadButtons = ({
                 </button>
               </div>
             </div>
-
             {/* Modal Content */}
             <div className="p-6 max-h-[70vh] overflow-y-auto">
               {/* Add New Coupon Form */}
@@ -264,7 +264,7 @@ const DownloadButtons = ({
                   <Plus className="w-5 h-5 text-green-600" />
                   Add New Coupon
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   <input
                     type="text"
                     placeholder="Coupon Name"
@@ -287,11 +287,19 @@ const DownloadButtons = ({
                     onChange={(e) => setNewCoupon({ ...newCoupon, value: Number.parseInt(e.target.value) })}
                     className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
+                  <select
+                    value={newCoupon.scope}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, scope: e.target.value })}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="indian">Indian</option>
+                    <option value="international">International</option>
+                  </select>
                   <button
                     onClick={() => {
                       if (newCoupon.name && newCoupon.value) {
                         setCoupons([...coupons, newCoupon])
-                        setNewCoupon({ name: "", type: "fixed", value: 0 })
+                        setNewCoupon({ name: "", type: "fixed", value: 0, scope: "indian" })
                       }
                     }}
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
@@ -301,94 +309,262 @@ const DownloadButtons = ({
                 </div>
               </div>
 
-              {/* Coupons List */}
-              <div className="space-y-3">
-                {coupons.map((coupon, index) => (
-                  <div
-                    key={index}
-                    className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow duration-200"
-                  >
-                    {editingCoupon === index ? (
-                      <div className="flex items-center gap-4 flex-1">
-                        <input
-                          type="text"
-                          value={coupon.name}
-                          onChange={(e) => {
-                            const updated = [...coupons]
-                            updated[index].name = e.target.value
-                            setCoupons(updated)
-                          }}
-                          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                        <select
-                          value={coupon.type}
-                          onChange={(e) => {
-                            const updated = [...coupons]
-                            updated[index].type = e.target.value
-                            setCoupons(updated)
-                          }}
-                          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        >
-                          <option value="fixed">Fixed Amount</option>
-                          <option value="percentage">Percentage</option>
-                        </select>
-                        <input
-                          type="number"
-                          value={coupon.value}
-                          onChange={(e) => {
-                            const updated = [...coupons]
-                            updated[index].value = Number.parseInt(e.target.value)
-                            setCoupons(updated)
-                          }}
-                          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                        <button
-                          onClick={() => setEditingCoupon(null)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors duration-200"
-                        >
-                          Save
-                        </button>
+              {/* Coupons List - Two Columns */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Indian Coupons - Left Column */}
+                <div>
+                  <h4 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                    Indian Coupons
+                  </h4>
+                  <div className="space-y-3">
+                    {coupons
+                      .filter((coupon) => coupon.scope === "indian")
+                      .map((coupon, index) => {
+                        const originalIndex = coupons.findIndex(
+                          (c) => c.name === coupon.name && c.scope === coupon.scope,
+                        )
+                        return (
+                          <div
+                            key={`indian-${index}`}
+                            className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow duration-200"
+                          >
+                            {
+                            editingCoupon === originalIndex ? (
+                              <div className="flex items-center gap-4 flex-1">
+                                <input
+                                  type="text"
+                                  value={coupon.name}
+                                  onChange={(e) => {
+                                    const updated = [...coupons]
+                                    updated[originalIndex].name = e.target.value
+                                    setCoupons(updated)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                                <select
+                                  value={coupon.type}
+                                  onChange={(e) => {
+                                    const updated = [...coupons]
+                                    updated[originalIndex].type = e.target.value
+                                    setCoupons(updated)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                  <option value="fixed">Fixed Amount</option>
+                                  <option value="percentage">Percentage</option>
+                                </select>
+                                <input
+                                  type="number"
+                                  value={coupon.value}
+                                  onChange={(e) => {
+                                    const updated = [...coupons]
+                                    updated[originalIndex].value = Number.parseInt(e.target.value)
+                                    setCoupons(updated)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                                <select
+                                  value={coupon.scope}
+                                  onChange={(e) => {
+                                    const updated = [...coupons]
+                                    updated[originalIndex].scope = e.target.value
+                                    setCoupons(updated)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                  <option value="indian">Indian</option>
+                                  <option value="international">International</option>
+                                </select>
+                                <button
+                                  onClick={() => setEditingCoupon(null)}
+                                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors duration-200"
+                                >
+                                  Save
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center gap-4">
+                                  <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-mono font-semibold">
+                                    {coupon.name}
+                                  </div>
+                                  <div className="text-sm text-gray-600">
+                                    {coupon.scope === "international"
+                                      ? `$${coupon.value}`
+                                      : coupon.type === "fixed"
+                                        ? `₹${coupon.value}`
+                                        : `${coupon.value}%`}{" "}
+                                    off
+                                  </div>
+                                  <div className="text-xs text-gray-500 capitalize bg-gray-100 px-2 py-1 rounded">
+                                    {coupon.type}
+                                  </div>
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                                    Indian
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {/* <button
+                                    onClick={() => setEditingCoupon(originalIndex)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </button> */}
+                                  <button
+                                    onClick={() => {
+                                      const updated = coupons.filter((_, i) => i !== originalIndex)
+                                      setCoupons(updated)
+                                    }}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </>
+                            )
+                            }
+                          </div>
+                        )
+                      })}
+                    {coupons.filter((coupon) => coupon.scope === "indian").length === 0 && (
+                      <div className="text-center text-gray-500 text-sm py-8 border-2 border-dashed border-gray-200 rounded-lg">
+                        No Indian coupon codes added yet
                       </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-4">
-                          <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-mono font-semibold">
-                            {coupon.name}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {coupon.type === "fixed" ? `₹${coupon.value}` : `${coupon.value}%`} off
-                          </div>
-                          <div className="text-xs text-gray-500 capitalize bg-gray-100 px-2 py-1 rounded">
-                            {coupon.type}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setEditingCoupon(index)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              const updated = coupons.filter((_, i) => i !== index)
-                              setCoupons(updated)
-                            }}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </>
                     )}
                   </div>
-                ))}
+                </div>
+
+                {/* International Coupons - Right Column */}
+                <div>
+                  <h4 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                    International Coupons
+                  </h4>
+                  <div className="space-y-3">
+                    {coupons
+                      .filter((coupon) => coupon.scope === "international")
+                      .map((coupon, index) => {
+                        const originalIndex = coupons.findIndex(
+                          (c) => c.name === coupon.name && c.scope === coupon.scope,
+                        )
+                        return (
+                          <div
+                            key={`international-${index}`}
+                            className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow duration-200"
+                          >
+                            {editingCoupon === originalIndex ? (
+                              <div className="flex items-center gap-4 flex-1">
+                                <input
+                                  type="text"
+                                  value={coupon.name}
+                                  onChange={(e) => {
+                                    const updated = [...coupons]
+                                    updated[originalIndex].name = e.target.value
+                                    setCoupons(updated)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                                <select
+                                  value={coupon.type}
+                                  onChange={(e) => {
+                                    const updated = [...coupons]
+                                    updated[originalIndex].type = e.target.value
+                                    setCoupons(updated)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                  <option value="fixed">Fixed Amount</option>
+                                  <option value="percentage">Percentage</option>
+                                </select>
+                                <input
+                                  type="number"
+                                  value={coupon.value}
+                                  onChange={(e) => {
+                                    const updated = [...coupons]
+                                    updated[originalIndex].value = Number.parseInt(e.target.value)
+                                    setCoupons(updated)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                                <select
+                                  value={coupon.scope}
+                                  onChange={(e) => {
+                                    const updated = [...coupons]
+                                    updated[originalIndex].scope = e.target.value
+                                    setCoupons(updated)
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                  <option value="indian">Indian</option>
+                                  <option value="international">International</option>
+                                </select>
+                                <button
+                                  onClick={() => setEditingCoupon(null)}
+                                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors duration-200"
+                                >
+                                  Save
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center gap-4">
+                                  <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-mono font-semibold">
+                                    {coupon.name}
+                                  </div>
+                                  <div className="text-sm text-gray-600">
+                                    {coupon.scope === "indian"
+                                      ? `₹${coupon.value}`
+                                      : coupon.type === "fixed"
+                                        ? `$${coupon.value}`
+                                        : `${coupon.value}%`}{" "}
+                                    off
+                                  </div>
+                                  <div className="text-xs text-gray-500 capitalize bg-gray-100 px-2 py-1 rounded">
+                                    {coupon.type}
+                                  </div>
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                                    International
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {/* <button
+                                    onClick={() => setEditingCoupon(originalIndex)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </button> */}
+                                  <button
+                                    onClick={() => {
+                                      const updated = coupons.filter((_, i) => i !== originalIndex)
+                                      setCoupons(updated)
+                                    }}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        )
+                      })}
+                    {coupons.filter((coupon) => coupon.scope === "international").length === 0 && (
+                      <div className="text-center text-gray-500 text-sm py-8 border-2 border-dashed border-gray-200 rounded-lg">
+                        No International coupon codes added yet
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-
             {/* Modal Footer */}
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between items-center">
-              <p className="text-sm text-gray-600">Total Coupons: {coupons.length}</p>
+              <p className="text-sm text-gray-600">
+                Total Coupons: {coupons.length}
+                <span className="ml-4">Indian: {coupons.filter((c) => c.scope === "indian").length}</span>
+                <span className="ml-2">International: {coupons.filter((c) => c.scope === "international").length}</span>
+              </p>
               <button
                 onClick={handleSubmit}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors duration-200 font-medium"
