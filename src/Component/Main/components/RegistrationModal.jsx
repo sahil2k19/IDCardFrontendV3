@@ -21,7 +21,7 @@ import { Calendar, Link, Plus, Users, Archive, Shield } from "lucide-react";
 import { Globe, Copy, X, Sparkles, Check } from "lucide-react";
 
 
-const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
+const RegistrationModal = ({ toggleModal, isModal, fetchData }) => {
 
 
     const location = useLocation();
@@ -44,8 +44,8 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
     const [amenities, setamenities] = useState(null);
     const [profilePicture, setProfilePicture] = useState(null);
     const [phone, setPhone] = useState("");
-  const [showThanksPage, setShowThanksPage] = useState(false);
-  const [showIdcardLink, setShowIdcardLink] = useState("");
+    const [showThanksPage, setShowThanksPage] = useState(false);
+    const [showIdcardLink, setShowIdcardLink] = useState("");
 
     const [errors, setErrors] = useState({});
     const [eventData, setEventData] = useState(null); // State to hold fetched event data
@@ -163,7 +163,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
                     headers: { "Content-Type": "multipart/form-data" },
                 }
             );
-            if(eventData?.whatsappApiKey){
+            if (eventData?.whatsappApiKey) {
                 handleSend(response.data);
             }
             // fetchData(eventId);
@@ -186,7 +186,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
             } else {
                 setShowThanksPage(true);
             }
-            
+
             setShowIdcardLink(response.data.link);
 
             // toast.success("ID card created successfully!");
@@ -242,7 +242,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
                     headers: { "Content-Type": "multipart/form-data" },
                 }
             );
-             if(eventData?.whatsappApiKey){
+            if (eventData?.whatsappApiKey) {
                 handleSend(response.data);
             }
 
@@ -282,45 +282,45 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
     };
 
 
-    
-  const handleSend = async (data) => {
-    console.log("sending whatsapp message");
-    const payload = {
-      apiKey: eventData?.whatsappApiKey,
-      campaignName: "MYU-25-Test",
-      destination: phone,
-      userName: "Mysuru Yoga Utsava ",
-      templateParams: [`${firstName}`, `${data?.link}`],
-      source: "new-landing-page form",
-      media: {
-        url: "https://whatsapp-media-library.s3.ap-south-1.amazonaws.com/FILE/6353da2e153a147b991dd812/4079142_dummy.pdf",
-        filename: "sample_media"
-      },
-      buttons: [],
-      carouselCards: [],
-      location: {},
-      attributes: {},
-      paramsFallbackValue: {
-        FirstName: "user"
-      }
+
+    const handleSend = async (data) => {
+        console.log("sending whatsapp message");
+        const payload = {
+            apiKey: eventData?.whatsappApiKey,
+            campaignName: "MYU-25-Test",
+            destination: phone,
+            userName: "Mysuru Yoga Utsava ",
+            templateParams: [`${firstName}`, `${data?.link}`],
+            source: "new-landing-page form",
+            media: {
+                url: "https://whatsapp-media-library.s3.ap-south-1.amazonaws.com/FILE/6353da2e153a147b991dd812/4079142_dummy.pdf",
+                filename: "sample_media"
+            },
+            buttons: [],
+            carouselCards: [],
+            location: {},
+            attributes: {},
+            paramsFallbackValue: {
+                FirstName: "user"
+            }
+        };
+
+        try {
+            const response = await fetch("https://backend.aisensy.com/campaign/t1/api/v2", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            console.log("Message Sent:", result);
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
     };
 
-    try {
-      const response = await fetch("https://backend.aisensy.com/campaign/t1/api/v2", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-      console.log("Message Sent:", result);
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
- 
 
 
     useEffect(() => {
@@ -796,7 +796,7 @@ const RegistrationModal = ({ toggleModal, isModal, fetchData}) => {
                                         )}
                                     </div>
                                 )}
-                                
+
                             </form>
                         </div>
                     </div>
