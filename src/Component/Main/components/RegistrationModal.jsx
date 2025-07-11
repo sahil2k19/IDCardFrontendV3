@@ -825,7 +825,7 @@ useEffect(() => {
                                 )}
 
                                 {/* Category Selection */}
-                                {selectedRegion && (
+                                {(selectedRegion && eventData?.isPaidEvent) && (
                                     <div className="group animate-in slide-in-from-top-2 duration-300">
                                         <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
                                             <Tag className="w-4 h-4 text-pink-600" />
