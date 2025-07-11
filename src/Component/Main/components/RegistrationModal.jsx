@@ -171,6 +171,9 @@ useEffect(() => {
             formData.append("ticketRegion", selectedRegion);
             formData.append("ticketCategory", selectedCategory);
 
+            if(couponCode){
+                formData.append("useCouponCode", couponCode);
+            }
             const amenitiesObject = typeof amenities === "object" ? amenities : {};
             formData.append("amenities", JSON.stringify(amenitiesObject));
 
@@ -249,7 +252,9 @@ useEffect(() => {
             formData.append("eventName", eventName);
             formData.append("email", email);
             // formData.append("tag", "Invited");
-
+            if(couponCode){
+                formData.append("useCouponCode", couponCode);
+            }
             const amenitiesObject = typeof amenities === "object" ? amenities : {};
             formData.append("amenities", JSON.stringify(amenitiesObject));
 

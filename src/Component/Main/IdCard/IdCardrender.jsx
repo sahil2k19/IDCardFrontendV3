@@ -397,6 +397,7 @@ function IdCardrender({
         toggleModalOpenedit={toggleModalOpenedit}
         toggleModalOpen={toggleModalOpen}
         eventData={eventData}
+        participants={Dataid}
       />
 
    
